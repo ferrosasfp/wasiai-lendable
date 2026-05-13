@@ -1,4 +1,5 @@
-import { MOCK_INVOICES, MOCK_LENDERS, mxnToUSDC } from "../src/lib/mock-data";
+import { MOCK_INVOICES, MOCK_LENDERS } from "../src/lib/mock-data";
+import { mxnToUSDC } from "../src/core/settlement";
 
 console.log("=== Lendable · Mock data seed ===\n");
 

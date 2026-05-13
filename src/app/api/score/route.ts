@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { scoreWithOracle } from "@/lib/oracle-genai";
+import { scoreInvoice } from "@/application/score-invoice";
 import type { Invoice } from "@/types/invoice";
 
 export async function POST(req: Request) {
@@ -7,6 +7,6 @@ export async function POST(req: Request) {
   if (!body?.invoice) {
     return NextResponse.json({ error: "invoice required" }, { status: 400 });
   }
-  const result = await scoreWithOracle(body.invoice);
+  const result = await scoreInvoice(body.invoice);
   return NextResponse.json({ result });
 }

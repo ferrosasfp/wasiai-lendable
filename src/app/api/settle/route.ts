@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { settleOnFacilitator } from "@/lib/facilitator";
+import { settleFactoring } from "@/application/settle-factoring";
 import type { LenderMatch } from "@/types/invoice";
 
 interface SettleBody {
@@ -18,7 +18,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "match, smeWallet, lenderWallet required" }, { status: 400 });
   }
 
-  const receipt = await settleOnFacilitator(body.match, body.smeWallet, body.lenderWallet, {
+  const receipt = await settleFactoring(body.match, body.smeWallet, body.lenderWallet, {
     signature: body.signature,
     nonce: body.nonce,
     validAfter: body.validAfter,

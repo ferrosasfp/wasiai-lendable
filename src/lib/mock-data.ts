@@ -87,8 +87,3 @@ export const MOCK_LENDERS: Lender[] = [
   },
 ];
 
-export const USDC_MXN_RATE = 19.85;
-
-export function mxnToUSDC(mxn: number): number {
-  return Math.round((mxn / USDC_MXN_RATE) * 100) / 100;
-}

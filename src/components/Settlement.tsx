@@ -1,6 +1,6 @@
 "use client";
 
-import { snowtraceUrl } from "@/lib/facilitator";
+import { snowtraceUrl } from "@/core/settlement";
 import type { SettlementReceipt } from "@/types/invoice";
 
 interface Props {
@@ -21,7 +21,7 @@ export function Settlement({ receipt, onSettle, canSettle, isSettling }: Props) 
             <div>
               <span className="text-muted">tx hash · </span>
               <a
-                href={snowtraceUrl(receipt.txHash)}
+                href={snowtraceUrl(receipt.txHash, receipt.chainId)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline hover:text-accent"

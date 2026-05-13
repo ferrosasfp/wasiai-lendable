@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { runValidator } from "@/lib/agents";
+import { validateInvoice } from "@/application/validate-invoice";
 import type { Invoice } from "@/types/invoice";
 
 export async function POST(req: Request) {
@@ -7,6 +7,6 @@ export async function POST(req: Request) {
   if (!body?.invoice) {
     return NextResponse.json({ error: "invoice required" }, { status: 400 });
   }
-  const result = await runValidator(body.invoice);
+  const result = await validateInvoice(body.invoice);
   return NextResponse.json({ result });
 }
