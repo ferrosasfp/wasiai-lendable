@@ -118,3 +118,9 @@ USDC nativo + ecosistema sponsors + sub-segundo finality + subnet-ready para ban
 
 **¿Qué chunk del round de 5K USDC necesitan para llegar a 100 facturas reales?**
 $5K USDC nos da 6 meses de runway adicional. Para 100 facturas reales lo que necesitamos es el partnership con Bankaool (que es lo que el premio del viaje habilita).
+
+**¿Los agentes razonan? ¿Usan un loop tipo ReAct?**
+No. Hoy es un pipeline lineal: validator → scorer → matcher → settle. Cada agente es un endpoint stateless que recibe input y devuelve output. La orquestación está hard-coded en el cliente, no la decide un LLM. Eso es intencional para el demo — un pipeline determinístico se demuestra en 90 segundos y no se rompe en vivo. Lo que sí tenemos es agent-native architecture: los 3 agentes son discoverables vía A2A `/discover`, componibles vía `/compose`, y pueden ser de terceros sin tocar el código de Lendable. Esa es la tesis. Un loop ReAct con orquestador LLM es la V2 — útil cuando el scoring tenga que ramificar (ej: si banda D, llamar fraud-detector antes de match). Para MVP sería sobrearquitectura.
+
+**¿Cuál es la diferencia entre "agent-native" y "autónomo"?**
+Agent-native = los componentes son agentes (discoverables, componibles, intercambiables). Autónomo = el sistema decide qué hacer next sin que un humano hard-codee el flow. Lendable es agent-native pero no autónomo. Hacerlo autónomo (ReAct) es trivial técnicamente — lo difícil es no romper el determinismo del demo. Esa decisión la tomamos post-hackathon.

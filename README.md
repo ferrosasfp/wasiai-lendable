@@ -72,6 +72,47 @@ Si hay match, el inversor firma una autorización gasless (EIP-3009) y nuestro f
 - **Settlement**: wasiai-facilitator (self-hosted, en prod desde 2026-05)
 - **Hosting**: Vercel (UI) + Railway (existing wasiai-facilitator)
 
+## Arquitectura de capas (hexagonal-light)
+
+```
+src/
+├── core/          reglas puras: scoring bands, lender catalog, fee math, mxn↔usdc
+├── infra/         I/O outbound: a2a-client, oracle-client, facilitator-client, mock-adapter
+├── application/   use cases: validate-invoice, score-invoice, match-lender, settle-factoring
+├── app/           Next.js (UI + API routes)
+├── components/    React UI
+└── types/         DTOs compartidos
+```
+
+La regla de dependencia es concéntrica: `app → application → infra → core`. `core` no importa de ningún otro layer. Cada use case en `application/` hace un único dispatch en `isDemoMode()` y delega a `infra/` (real) o `infra/mock-adapter` (determinista). Eso permite que el demo corra sin red y que pasar a producción real sea cambiar una env var.
+
+## Diseño de agentes — qué es y qué no es
+
+Para evitar confusión común en pitches/demos agénticos:
+
+| Concepto | ¿Aplica a Lendable? | Cómo se ve hoy |
+|----------|--------------------|----------------|
+| **Agent-native** (agentes discoverable + componible) | Sí | 3 agentes vía WasiAI A2A `/discover` + `/compose` |
+| **Sovereign agents** (cada uno corre en su servicio) | Sí | Validator, scorer, matcher son endpoints separados |
+| **Onchain settlement** (USDC + EIP-3009 + facilitator self-hosted) | Sí | Avalanche Fuji/mainnet vía wasiai-facilitator |
+| **Pipeline lineal** (validator → scorer → matcher → settle, orden fijo) | Sí | Hard-coded en `src/app/demo/page.tsx` |
+| **Autonomous agent** (LLM decide next action) | No | La secuencia la decide el cliente, no un LLM |
+| **ReAct loop** (Reason → Act → Observe → Reason → …) | No | Cada agente es un RPC stateless, no hay loop |
+| **Inter-agent reasoning** (agent A decide consultar agent B) | No | La composición la define `/compose` steps[], no los agentes mismos |
+
+**Por qué no usamos ReAct hoy.** Tres razones, en orden de peso:
+
+1. **Determinismo del demo.** Un pipeline fijo corre en 90 segundos exactos; un loop ReAct con LLM puede tardar 30-120s impredecibles y dar resultados diferentes en cada corrida. Eso asusta al jurado en vivo.
+2. **Narrativa enfocada.** El pitch es "settlement onchain agéntico componible", no "razonamiento agéntico". Agregar ReAct dispersa la atención sin sumar al hilo de Avalanche/sponsors.
+3. **Cost de iteración.** Un loop ReAct serio toma 6-10h de trabajo más QA. Esas horas las invertimos en la integración con Oracle GenAI + Bankaool, que son sponsors directos.
+
+**Cuándo sí tiene sentido.** Post-hackathon, cuando Lendable v2 necesite:
+- Ramificación condicional (banda D → llamar `fraud-detector` antes de `matcher`)
+- Retry inteligente (si Oracle GenAI devuelve incertidumbre, consultar segunda fuente)
+- Negociación entre agentes (lender propone tasa → matcher contra-propone)
+
+En ese momento se agrega un `factoring-orchestrator` agéntico encima del pipeline actual sin tocar los 3 agentes existentes. La arquitectura hexagonal de hoy lo deja preparado.
+
 ## Run local
 
 ```bash
