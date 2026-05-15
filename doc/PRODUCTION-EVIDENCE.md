@@ -54,6 +54,40 @@
 
 ---
 
+### Smart Contracts deployed (Avalanche Fuji)
+
+| Contract | Address | Deploy tx | Snowtrace verified | Gas used | Compiler | Pattern |
+|---|---|---|---|---|---|---|
+| `LendableInvoiceCommitments` | TBD post-W2.5d | TBD | TBD (forge --verify auto) | ~700K | solc 0.8.24 | Foundry + OZ Ownable2Step |
+
+**Source code public** at: `wasiai-lendable/contracts/src/LendableInvoiceCommitments.sol`
+**Tests passing**: `forge test` → TBD (target 100% coverage)
+**Gas report**: `forge test --gas-report` → `commitInvoice` < 80K (CD-11)
+**Reference pattern**: alineado con `wasiai-v2/contracts/src/WasiEscrow.sol` (production-grade)
+
+### Foundry test coverage report (post-W2.5c)
+
+```
+| File                                       | % Lines | % Statements | % Branches | % Funcs |
+| src/LendableInvoiceCommitments.sol         | TBD     | TBD          | TBD        | TBD     |
+```
+
+Target: 100% en todas las dimensiones (contract pequeño, completamente coverable).
+
+### Pattern lineage
+
+```
+wasiai-v2/contracts/                              wasiai-lendable/contracts/
+├── foundry.toml (solc 0.8.24 + OZ + RPCs)   →   ├── foundry.toml (same template)
+├── src/WasiEscrow.sol (Ownable2Step + RG)   →   ├── src/LendableInvoiceCommitments.sol
+├── test/WasiEscrow.t.sol (forge-std)         →   ├── test/...t.sol (same patterns)
+└── script/Deploy.s.sol (vm.startBroadcast)   →   └── script/Deploy.s.sol (same workflow)
+```
+
+Esto es **production signal** para el video: en lugar de "hackathon hack-and-ship", el smart contract de Lendable usa **el mismo stack productivo que wasiai-v2** (que lleva 5+ meses en mainnet). Verificable abriendo ambos repos.
+
+---
+
 ## 4. Test counts (verifiable via npm test in each repo)
 
 ### wasiai-a2a (verified 2026-05-14)

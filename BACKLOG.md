@@ -70,27 +70,53 @@
 - Tests unit minimal (3-5 happy + error paths)
 - Validación: `curl POST /api/agents/lendable-cfdi-validator/invoke` retorna 200 con shape correcto
 
-### W2.5 — Agent endpoint #2 + Solidity contract: lendable-fraud-detector ($0.005) (90min)
+### W2.5 — Agent endpoint #2 + Solidity contract via Foundry: lendable-fraud-detector ($0.005) (2h)
 
-> **NEW en v2**. Ver design completo en `doc/CONTRACT-DESIGN.md`.
+> **NEW en v2**. Patrón alineado con `wasiai-v2/contracts/` (Foundry + OpenZeppelin + Ownable2Step).
+> Ver design completo en `doc/CONTRACT-DESIGN.md`.
 
-- **W2.5a** (30min) — Deploy contract `LendableInvoiceCommitments.sol` a Avalanche Fuji:
-  - Crear `contracts/LendableInvoiceCommitments.sol` (código del CONTRACT-DESIGN.md §2)
-  - Script `scripts/deploy-commitments.ts` con viem
-  - Run script: deploy + 1 confirmation + capture address
-  - Save address en `.env.local` como `LENDABLE_COMMITMENTS_ADDRESS=0x...`
-  - Verify on Snowtrace (5 min)
-  - Update `doc/PRODUCTION-EVIDENCE.md` §3 con deploy tx hash + Snowtrace URL
-- **W2.5b** (60min) — Agent endpoint:
+- **W2.5a** (20min) — Foundry project setup:
+  - `cd wasiai-lendable && mkdir contracts && cd contracts`
+  - `forge init --no-commit --no-git`
+  - `forge install OpenZeppelin/openzeppelin-contracts --no-commit`
+  - Copy `foundry.toml` template del CONTRACT-DESIGN.md §5 (con RPCs Avalanche + Snowtrace etherscan config)
+  - `forge build` → verify chain está OK
+- **W2.5b** (30min) — Write `src/LendableInvoiceCommitments.sol`:
+  - Solidity 0.8.24, importar `Ownable2Step` de OpenZeppelin
+  - `enum CommitmentStatus { None, Active, Released }` + struct + mapping
+  - Custom errors (no `require` strings — patrón v2)
+  - Funciones: `commitInvoice`, `releaseInvoice`, `isCommitted` (view), `getCommitment` (view), `setAuthorizedCommitter` (onlyOwner)
+  - Modifier `onlyAuthorized` (committer wallet o owner)
+  - Events: `InvoiceCommitted`, `InvoiceReleased`, `CommitterAuthorized`
+  - NO ReentrancyGuard (storage-only, documentar en comment)
+- **W2.5c** (30min) — Write `test/LendableInvoiceCommitments.t.sol`:
+  - Constructor tests (auto-authorize, revert zero address)
+  - commitInvoice happy + revert AlreadyCommitted + revert NotAuthorized + revert ZeroHash + owner can commit
+  - releaseInvoice happy + revert NotCommitted + revert InvalidStatus + only committer or owner
+  - setAuthorizedCommitter only owner
+  - Gas snapshot CD-11 < 80K
+  - `forge test -vv` → ALL PASS
+  - `forge coverage --report summary` → 100% lines/branches/funcs
+- **W2.5d** (20min) — Write + run `script/Deploy.s.sol`:
+  - Script con `vm.startBroadcast(vm.envUint("DEPLOYER_PRIVATE_KEY"))`
+  - Crear `LendableInvoiceCommitments(initialCommitter)` con `FRAUD_DETECTOR_AGENT_WALLET` como arg
+  - `forge script script/Deploy.s.sol:DeployCommitments --rpc-url fuji --broadcast --verify --etherscan-api-key $SNOWTRACE_API_KEY -vvv`
+  - Esperar deploy + verify automated en Snowtrace
+  - Capturar deploy tx hash + contract address
+  - Save `LENDABLE_COMMITMENTS_ADDRESS=0x...` en `wasiai-lendable/.env.local`
+  - Update `doc/PRODUCTION-EVIDENCE.md` §3 con deploy tx + Snowtrace verify URL
+- **W2.5e** (20min) — Agent endpoint:
   - `src/app/api/agents/lendable-fraud-detector/invoke/route.ts`
-  - Input: `{ uuidCfdi, rfcEmisor, amountMXN }`
-  - Compute `commitmentHash = keccak256(uuidCfdi || rfcEmisor || amountMXN)` con viem
-  - Call `isCommitted(hash)` → if exists, reject 200 with `{ isUnique: false, ... }`
-  - Else call `commitInvoice(hash, 0x0)` + await 1 confirmation
-  - Return `{ isUnique: true, commitmentHash, commitTxHash, snowtraceUrl, timestamp }`
-  - Tests unit minimal (mock RPC call con happy + reject paths)
-- Validación: `curl POST` con UUID nuevo → 200 isUnique:true; mismo UUID dos veces → segundo intento isUnique:false sin double-commit
-- Cubre AC nueva (v2): AC-12 fraud-detection blocks doble-cesión
+  - Pseudocode en CONTRACT-DESIGN.md §9: viem `readContract(isCommitted)` pre-check → si active, return isUnique:false; else `writeContract(commitInvoice)` + `waitForTransactionReceipt(confirmations:1)`
+  - `src/lib/abis/lendable-invoice-commitments.ts` (NEW): export ABI from `contracts/out/LendableInvoiceCommitments.sol/LendableInvoiceCommitments.json`
+  - Tests unit minimal (mock viem clients con happy + reject paths)
+  - Validación: `curl POST` con UUID nuevo → 200 isUnique:true con commitTxHash; mismo UUID dos veces → segundo intento isUnique:false sin double-commit
+- **W2.5f** (15min) — Smoke + evidence:
+  - Verify contract en Snowtrace UI manual (sanity check)
+  - 3 demo runs E2E → 3 distinct commit tx hashes capturados
+  - Update `doc/PRODUCTION-EVIDENCE.md` con todos los hashes
+- Cubre AC: AC-12 fraud-detection blocks doble-cesión
+- CD heredados: CD-11 gas <80K, CD-13 coverage 100%, CD-14 forge verify automated
 
 ### W3 — Agent endpoint #3: lendable-credit-scorer ($0.05) (90min)
 - `src/app/api/agents/lendable-credit-scorer/invoke/route.ts`
