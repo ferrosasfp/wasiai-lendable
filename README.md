@@ -2,7 +2,7 @@
 
 > Marketplace agent-native de factoraje de facturas. Validación, scoring y matching los hacen 3 agentes IA componibles vía WasiAI A2A. Settlement en USDC sobre Avalanche.
 
-**Hackathon Build LATAM Fintech** · Avalanche · Mayo 2026 · Solo · Bankaool / Arkangeles / Oracle
+**Hackathon Build LATAM Fintech** · Avalanche · Mayo 15-17 2026 · Solo · Sponsors: Bankaool / Arkangeles
 
 ---
 
@@ -14,9 +14,9 @@ PyMEs mexicanas con facturas a 30/60/90 días no tienen capital de trabajo. Fact
 
 Una factura entra. Tres agentes la procesan en paralelo y entregan veredicto en <60s:
 
-1. **invoice-validator** — verifica CFDI contra el SAT (mock-Oracle), extrae monto y emisor, detecta duplicados.
-2. **credit-scorer** — usa Oracle GenAI para puntuar al emisor en base a historial fiscal + buró + comportamiento de pago.
-3. **lender-matcher** — busca el inversor con mejor tasa para ese perfil de riesgo en el pool de lenders activos.
+1. **lendable-cfdi-validator** — verifica shape del CFDI, anchor buyer en registry tier-1, detecta duplicados.
+2. **lendable-credit-scorer** — score determinístico en base a anchor buyer tier + monto + plazo + sector. Rationale narrativa generado por LLM (Claude Haiku) con fallback local determinista — score auditable, narrativa opcional.
+3. **lendable-lender-matcher** — busca el inversor con mejor tasa para ese perfil de riesgo en el pool de lenders activos.
 
 Si hay match, el inversor firma una autorización gasless (EIP-3009) y nuestro facilitator settlement en USDC sobre Avalanche mainnet. La PyME recibe el cash en su wallet en segundos.
 
@@ -27,13 +27,15 @@ Si hay match, el inversor firma una autorización gasless (EIP-3009) y nuestro f
 - Fee predecible → la PyME ve el net amount antes de firmar
 - Subnet-ready si una contraparte (banco) necesita su propio rail
 
-## Por qué los 3 sponsors caen aquí
+## Por qué los sponsors caen aquí
 
 | Sponsor | Encaje |
 |---------|--------|
-| **Bankaool** | PyMEs son su core de clientes. Lendable les abre canal agéntico nuevo sin mover su core bancario. |
-| **Arkangeles** | Plataforma de matching para PyMEs. Lendable es su capa de settlement onchain. |
-| **Oracle** | Credit scoring corre sobre Oracle GenAI. Cada llamada del scorer paga al endpoint de Oracle. |
+| **Avalanche** | Chain primaria de settlement. USDC nativo + sub-segundo finality + subnet-ready para banca corporativa. Lendable es agentic fintech building on Avalanche infra. |
+| **Bankaool** | PyMEs son su core de clientes. Lendable les abre canal agéntico nuevo sin mover su core bancario. El banco puede listar su pool de capital aquí y los agentes hacen el matching. |
+| **Arkangeles** | Plataforma de matching para PyMEs con inversores. Lendable es la capa de settlement onchain que les faltaba. El matching humano se vuelve agéntico, settlement en segundos vs días. |
+
+> **Note sobre AI providers**: el credit-scorer usa una arquitectura de "deterministic scoring + LLM narrative" — el score se computa con reglas auditables (importante para fintech regulada), y la explicación textual se genera con LLM. La implementación actual usa Anthropic Claude vía API; es drop-in compatible con Oracle GenAI, OpenAI, o cualquier provider para deploy enterprise.
 
 ## Arquitectura
 
@@ -46,7 +48,7 @@ Si hay match, el inversor firma una autorización gasless (EIP-3009) y nuestro f
               ┌───────────┼───────────┐
               ▼           ▼           ▼
         [validator]  [scorer]    [matcher]
-            (SAT)   (Oracle AI)  (lenders)
+         (CFDI)    (rules+LLM)  (lenders)
               │           │           │
               └───────────┼───────────┘
                           ▼
@@ -67,9 +69,9 @@ Si hay match, el inversor firma una autorización gasless (EIP-3009) y nuestro f
 
 - **Frontend**: Next.js 14 App Router · TypeScript strict · Tailwind
 - **Agents**: 3 endpoints REST (validate / score / match) — descubiertos vía WasiAI A2A `/discover`, orquestados vía `/compose`
-- **AI**: Oracle GenAI para credit scoring
+- **AI**: Anthropic Claude API para narrativa del scoring (provider-agnostic — drop-in para Oracle GenAI, OpenAI en deploy enterprise)
 - **Onchain**: viem + EIP-3009 (transferWithAuthorization) en Avalanche (Fuji para demo, mainnet code-ready)
-- **Settlement**: wasiai-facilitator (self-hosted, en prod desde 2026-05)
+- **Settlement**: wasiai-facilitator (self-hosted, en prod desde 2026-05, soporta nativamente Kite + Avalanche Fuji + Avalanche Mainnet)
 - **Hosting**: Vercel (UI) + Railway (existing wasiai-facilitator)
 
 ## Arquitectura de capas (hexagonal-light)
@@ -150,3 +152,15 @@ Esto no es un MVP de fin de semana. Es una capa nueva sobre rails productivos co
 ---
 
 **Fernando Rosas** · fernando@wasiai.io · [wasiai.io](https://wasiai.io)
+
+---
+
+## Honestidad: starting point pre-hackathon (declaración pública)
+
+> Lendable se implementa durante el **Avalanche LATAM Fintech Build hackathon (15-17 mayo 2026)** siguiendo un patrón arquitectónico ya probado en [`wasiai-agentshop`](https://github.com/ferrosasfp/wasiai-agentshop) (proyecto open source previo del mismo equipo, sometido al Kite Hackathon 2026). El patrón incluye: pipeline de 3 agentes vía WasiAI A2A, settlement EIP-3009 server-side, arquitectura hexagonal-light, demo UI con 4 phases.
+>
+> **Estado pre-hack (antes del 15 mayo 18:00 hora MX)**: scaffold Next.js + arquitectura hexagonal-light + planning docs (este README, `BACKLOG.md`, `doc/TRANSLATION-MATRIX.md`, `doc/PITCH.md`, `doc/DEMO-FLOW.md`, `doc/HACK-PLAN.md`). Cero código de business logic de Lendable.
+>
+> **Implementación durante el hack**: 3 agentes específicos (cfdi-validator, credit-scorer, lender-matcher), EIP-3009 signing server-side con TREASURY wallet, demo UI con narrativa Lendable, registry en wasiai-v2 marketplace, integración con Anthropic Claude API para rationale narrativo.
+>
+> El **git history** del branch `feat/wkh-lendable-agents` es evidencia pública verificable de qué se construyó durante las 39h del hackathon.

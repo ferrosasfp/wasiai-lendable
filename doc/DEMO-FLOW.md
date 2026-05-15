@@ -30,19 +30,19 @@ Tiempo total objetivo: **90 segundos**.
 
 ### 0:25 — Validator
 
-> "Primer agente: invoice-validator. Verifica el CFDI contra el SAT en menos de 2 segundos. La factura es real, no es duplicada."
+> "Primer agente: lendable-cfdi-validator. Verifica el shape del CFDI y confirma que Walmart está en nuestro registry de anchor buyers tier-1. Menos de 2 segundos."
 
 [Punto verde · "DONE"]
 
 ### 0:35 — Scorer
 
-> "Segundo agente: credit-scorer. Corre sobre Oracle GenAI. Devuelve score 74 en banda B. El rationale dice que Walmart es anchor buyer tier 1 y el historial fiscal está limpio."
+> "Segundo agente: lendable-credit-scorer. Score 74 en banda B. El score se computa con reglas auditables — anchor buyer tier-1, plazo 60 días, sector food retail. El rationale lo genera un LLM en lenguaje natural: 'Anchor buyer Walmart México tier-1, plazo medio de 60 días, sector food retail estable. Banda B refleja buen perfil crediticio con consideraciones de plazo de pago.'"
 
 [Mostrar la card de score · enfatizar el número grande "74" y el rationale]
 
 ### 0:50 — Matcher
 
-> "Tercer agente: lender-matcher. Encuentra al mejor inversor para este perfil: Arkangeles Fund I, 92% de advance rate, 14.5% APR anual."
+> "Tercer agente: lendable-lender-matcher. Encuentra al mejor inversor para este perfil de riesgo: Arkangeles Fund I, 92% de advance rate, 14.5% APR anual."
 
 [Mostrar la card de match · enfatizar el "$ NN.NN USDC" net]
 

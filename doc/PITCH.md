@@ -28,9 +28,9 @@ El spread de toda esa cadena se queda casi entero con la financiera. La PyME rec
 
 Lendable hace lo mismo en menos de un minuto, con tres agentes IA componibles:
 
-1. **invoice-validator** verifica el CFDI contra el SAT
-2. **credit-scorer** corre sobre Oracle GenAI y puntúa al emisor
-3. **lender-matcher** busca el inversor con mejor tasa en el pool activo
+1. **lendable-cfdi-validator** verifica shape del CFDI y el anchor buyer
+2. **lendable-credit-scorer** computa el score con reglas auditables y genera la narrativa con LLM
+3. **lendable-lender-matcher** busca el inversor con mejor tasa en el pool activo
 
 Si hay match, el inversor firma una autorización gasless. Nuestro facilitator paga el gas y settle en USDC sobre Avalanche.
 
@@ -48,9 +48,9 @@ Voy a tomar esta factura de la Tortillería La Esperanza, que le factura $48,500
 
 Ven los tres agentes corriendo en paralelo. En menos de 5 segundos:
 
-- CFDI validado contra el SAT
-- Score Oracle GenAI: banda B, score 74. El rationale dice que el anchor buyer Walmart es tier 1 y el historial está limpio.
-- Match con Arkangeles Fund I, 92% advance rate, 14.5% APR.
+- CFDI validado contra el registry tier-1 (Walmart confirmado)
+- Credit score 74, banda B. El LLM explica en lenguaje natural: anchor buyer Walmart tier-1, plazo 60 días, sector food retail bajo riesgo
+- Match con Arkangeles Fund I, 92% advance rate, 14.5% APR
 
 [Click "Firmar y settle"]
 
@@ -62,13 +62,15 @@ La PyME recibió 2,238 USDC en su wallet. Total time: menos de un minuto.
 
 ---
 
-## Por qué los 3 sponsors (45s)
+## Por qué los sponsors caen aquí (45s)
+
+**Avalanche**. Es nuestra chain primaria de settlement. USDC nativo sin bridges, sub-segundo finality que habilita UX "click → cash", y subnets-ready si Bankaool o cualquier banco quiere su propio rail privado. Lendable es agentic fintech building directly on Avalanche.
 
 **Bankaool**. PyMEs son su core de clientes. Lendable les abre un canal agéntico nuevo sin mover su core bancario. El banco puede listar su pool de capital aquí y los agentes hacen el matching.
 
-**Arkangeles**. Plataforma de matching de inversores con PyMEs. Lendable es la capa de settlement onchain que les faltaba. El matching humano se vuelve agéntico.
+**Arkangeles**. Plataforma de matching de inversores con PyMEs. Lendable es la capa de settlement onchain que les faltaba. El matching humano se vuelve agéntico, settlement en segundos vs días.
 
-**Oracle**. Credit scoring corre sobre Oracle GenAI. Cada llamada del scorer paga al endpoint de Oracle vía el protocolo agéntico de pagos. Oracle se convierte en proveedor de AI para una capa fintech entera.
+**Sobre el AI provider**. El credit-scorer usa una arquitectura "deterministic scoring + LLM narrative" — el score se computa con reglas auditables (importante para fintech regulada), y la explicación textual se genera con LLM. Hoy usamos Anthropic Claude vía API, pero el código es provider-agnostic: drop-in compatible con Oracle GenAI, OpenAI, o cualquier provider para deploy enterprise. La pieza diferenciadora no es qué LLM se usa, es la composición agéntica + el settlement onchain.
 
 ---
 
@@ -121,6 +123,9 @@ $5K USDC nos da 6 meses de runway adicional. Para 100 facturas reales lo que nec
 
 **¿Los agentes razonan? ¿Usan un loop tipo ReAct?**
 No. Hoy es un pipeline lineal: validator → scorer → matcher → settle. Cada agente es un endpoint stateless que recibe input y devuelve output. La orquestación está hard-coded en el cliente, no la decide un LLM. Eso es intencional para el demo — un pipeline determinístico se demuestra en 90 segundos y no se rompe en vivo. Lo que sí tenemos es agent-native architecture: los 3 agentes son discoverables vía A2A `/discover`, componibles vía `/compose`, y pueden ser de terceros sin tocar el código de Lendable. Esa es la tesis. Un loop ReAct con orquestador LLM es la V2 — útil cuando el scoring tenga que ramificar (ej: si banda D, llamar fraud-detector antes de match). Para MVP sería sobrearquitectura.
+
+**¿Por qué Anthropic Claude y no Oracle GenAI / OpenAI?**
+Es una decisión operacional, no arquitectónica. Para fintech regulada, lo importante es que el **score** sea auditable y determinista — eso vive en reglas codificadas en `src/core/scoring.ts`. El LLM solo genera la **narrativa explicatoria**, que es valor agregado pero no decisivo. Elegimos Claude Haiku para el demo por costo (~$0.0001/call), latencia (<1s p50), y familiaridad. El `src/infra/llm-client.ts` es un thin wrapper de 30 líneas — cambiar a Oracle GenAI o OpenAI es 5 minutos de trabajo. Para deploy enterprise con Bankaool, podemos usar Oracle GenAI en línea con su stack cloud.
 
 **¿Cuál es la diferencia entre "agent-native" y "autónomo"?**
 Agent-native = los componentes son agentes (discoverables, componibles, intercambiables). Autónomo = el sistema decide qué hacer next sin que un humano hard-codee el flow. Lendable es agent-native pero no autónomo. Hacerlo autónomo (ReAct) es trivial técnicamente — lo difícil es no romper el determinismo del demo. Esa decisión la tomamos post-hackathon.

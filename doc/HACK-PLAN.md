@@ -4,48 +4,60 @@
 **Inicio**: viernes 15 de mayo · 18:00 hora MX
 **Cierre**: domingo 17 de mayo · 09:00 hora MX
 **Premio**: 5K USDC + viaje presencial para exponer
-**Sponsors**: Bankaool · Arkangeles · Oracle
+**Sponsors**: Avalanche · Bankaool · Arkangeles
+
+> **Nota sobre Oracle**: originalmente considerado como integration target (Oracle GenAI para credit scoring). Decisión tomada pre-hack (2026-05-15): dropear por riesgo de signup time-boxed + region allowlist incierto para LATAM. Reemplazado por arquitectura "deterministic scoring + LLM narrative" usando Anthropic Claude API (provider-agnostic).
 
 ---
 
-## Pre-hack (mié 13 + jue 14)
+## Pre-hack (antes del 15 mayo 18:00)
 
 Lo hago antes de que arranque el cronómetro, no cuenta en las 39h.
 
 - [x] Repo scaffold con Next.js + agents skeleton + mock data
-- [ ] Push inicial a github.com/ferrosasfp/wasiai-lendable
-- [ ] Vercel deploy preview activo
-- [ ] Oracle Cloud account verificada (al menos la consola free tier abierta)
-- [ ] Wallet de demo PyME fondeada con AVAX testnet (Fuji)
-- [ ] Lender wallet fondeada con USDC mock Fuji (faucet `https://faucet.circle.com`)
-- [ ] Dry run completo del flujo demo en local (factura → settle Fuji → recibo)
-- [ ] Slides pitch en español listas con datos reales del demo
+- [x] Push inicial a github.com/ferrosasfp/wasiai-lendable
+- [x] Vercel deploy preview activo (https://wasiai-lendable.vercel.app)
+- [x] Wallet de demo SME (OWNER) fondeada con AVAX testnet (Fuji) — 0.49 AVAX
+- [x] Lender wallet (TREASURY) fondeada con USDC mock Fuji — 20 USDC + 2.22 AVAX
+- [x] A2A_KEY Lendable creada en wasiai-a2a Supabase
+- [x] wasiai-a2a multi-chain prod activo (kite-ozone-testnet + avalanche-fuji)
+- [x] BACKLOG.md + TRANSLATION-MATRIX.md + README + PITCH + DEMO-FLOW + HACK-PLAN documentados (sin código de negocio)
+- [ ] SQL Day-1: fondear A2A_KEY budget en chain 43113 con $10 USDC equivalent (ejecutar 18:00 sharp)
+- [ ] Privkeys OWNER + TREASURY salvadas en `.env.local` (gitignored — preparar 15 min antes)
+- [ ] Dry run del flujo demo en `https://wasiai-lendable.vercel.app/demo` en demo mode (verificar UI scaffolded funciona)
+- [ ] Anthropic API key disponible en env (opcional — fallback determinista funciona sin él)
 
 ## Día 1 — Viernes 15 (18:00 → 23:59) · 6h
 
-**Objetivo**: kickoff + integración real con wasiai-a2a (matar el demo mode en validate/match).
+**Objetivo**: kickoff + lanzar `/nexus-auto WKH-LENDABLE-AGENTS` + completar W0-W5 (3 agentes + EIP-3009 + settle real).
 
-- [ ] 18:00 conectar al evento + lectura final del brief
-- [ ] 18:30 registrar 3 agentes (`invoice-validator`, `credit-scorer`, `lender-matcher`) en wasiai-a2a `/registry`
-- [ ] 19:30 swap del client `agents.ts` de mock → real `/compose` call con `A2A_KEY`
-- [ ] 21:00 conectar `credit-scorer` con Oracle GenAI real (si la API está abierta) o mantener el stub con disclaimer
-- [ ] 22:00 deploy Vercel preview con env vars productivas
-- [ ] 23:00 smoke test end-to-end con factura real
-- [ ] 23:30 commit + sleep
+- [ ] 18:00 conectar al evento + lectura final del brief + git checkout -b feat/wkh-lendable-agents
+- [ ] 18:15 SQL Day-1 ejecutar (`register_a2a_key_deposit('795415ba...', 43113, 10.0)`)
+- [ ] 18:20 cargar `.env.local` con OWNER_PRIVATE_KEY, TREASURY_PRIVATE_KEY, OWNER_ADDRESS, ANTHROPIC_API_KEY?
+- [ ] 18:30 lanzar `/nexus-auto WKH-LENDABLE-AGENTS` con BACKLOG.md como input
+- [ ] 19:00 W0 + W1 (bootstrap + mock data) done
+- [ ] 20:00 W2 lendable-cfdi-validator agent endpoint done
+- [ ] 21:30 W3 lendable-credit-scorer agent done (heurística + Claude rationale)
+- [ ] 22:15 W4 lendable-lender-matcher agent done
+- [ ] 23:15 W5 EIP-3009 signer + /settle wired
+- [ ] 23:45 smoke local: 3 compose calls + 1 settle contra Fuji
+- [ ] 23:59 commit + sleep
 
 ## Día 2 — Sábado 16 (08:00 → 23:59) · 16h
 
-**Objetivo**: settlement real onchain Fuji + pulido UI + arrancar pitch.
+**Objetivo**: W6-W7 (UI translation + register agents) + W8 (pitch + video).
 
-- [ ] 08:00 café + revisión del overnight feedback
-- [ ] 09:00 implementar firma EIP-3009 en el cliente con viem (`signTypedData`)
-- [ ] 11:00 settle real en Fuji vía wasiai-facilitator `/settle`
-- [ ] 13:00 capturar primer tx hash Fuji para evidence
+- [ ] 08:00 café + revisar logs del overnight
+- [ ] 09:00 W6 UI translation: BrandIcon + TraceConsole + InvoicePicker + 4-phase demo page
+- [ ] 11:00 W7 SQL INSERT registrar 3 agentes en v2 marketplace (slug, priceUsdc, payment.chain=avalanche-fuji, payment.asset=USDC, endpoint URL pointing a Lendable Vercel)
+- [ ] 12:00 deploy Vercel con env vars prod (NEXT_PUBLIC_DEMO_MODE=false, A2A_KEY, TREASURY_PRIVATE_KEY, etc)
+- [ ] 13:00 smoke E2E contra prod: /discover from Lendable → /compose × 3 (verificar debit $0.061) → /settle real tx Fuji
+- [ ] 13:30 capturar tx hash + Snowtrace link → `doc/EVIDENCE.md`
 - [ ] 14:00 lunch
-- [ ] 15:00 pulir UI demo (animaciones, colores, copy)
+- [ ] 15:00 pulir UI demo (animaciones, colores, copy) — solo si E2E PASS
 - [ ] 17:00 grabar video demo 90s (backup por si falla la red en vivo)
-- [ ] 19:00 redactar pitch script español (5 min)
-- [ ] 21:00 ensayo timing 3x
+- [ ] 19:00 ensayo pitch 5min × 1 + ajustes
+- [ ] 21:00 ensayo timing × 3
 - [ ] 23:00 commit + sleep
 
 ## Día 3 — Domingo 17 (00:00 → 09:00) · 9h
@@ -75,9 +87,12 @@ Lo hago antes de que arranque el cronómetro, no cuenta en las 39h.
 
 | Riesgo | Probabilidad | Mitigación |
 |--------|--------------|-----------|
-| Oracle GenAI no abre acceso a tiempo | media | mock-Oracle con disclaimer "Oracle GenAI integration ready, awaiting credentials" |
-| Fuji RPC se cae | baja | switchear a Anvil local + mock USDC |
-| wasiai-a2a tarda en validar agentes nuevos | baja | son míos, los registro hoy |
+| Anthropic API key / rate limit / no disponible | media | Hybrid fallback ya cubre (template determinista local sin AI). Demo no cambia. |
+| Fuji RPC se cae | baja | `NEXT_PUBLIC_DEMO_MODE=true` paracaídas funciona offline |
+| wasiai-facilitator falla durante demo | baja | demo mode fallback con tx hash determinista |
+| wasiai-a2a tarda en validar agentes nuevos | baja | son míos, los registro directo en Supabase |
+| TREASURY wallet sin USDC en Fuji | baja | 20 USDC ya fondeado · faucet circle.com como backup |
+| Lendable A2A_KEY sin budget Avalanche | baja | SQL Day-1 a las 18:00 + cap $50/day |
 | Cansancio domingo 04:00 | alta | dormir 23:00 a 02:00 sábado/domingo |
 | El pitch en vivo se cuelga | media | video backup de 90s grabado el sábado |
 
