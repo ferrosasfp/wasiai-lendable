@@ -159,6 +159,97 @@ Comparado con build-from-scratch (estimación pre-translation matrix: 20-25h), e
 
 ---
 
+## PWA pattern — adaptado de `luma-ai`
+
+> Nuevo en v2 + PWA: Lendable es **mobile-first PWA installable**.
+> Pattern reusado de `luma-ai` (otro proyecto open source del mismo equipo).
+
+### Stack PWA (idéntico a luma-ai)
+
+| Tool/Lib | Versión | Uso |
+|---|---|---|
+| `@ducanh2912/next-pwa` | `^10.2.9` | Plugin Next.js PWA: service worker generation + manifest support |
+| `workbox-*` (transitivo) | latest | Service worker runtime + caching strategies |
+| `next.config.mjs withPWA()` | wrap config | Configura plugin con `cacheOnFrontEndNav`, `aggressiveFrontEndNavCaching`, `reloadOnOnline` |
+| `disable: NODE_ENV === 'development'` | flag | Sin SW en dev (evita cache stale en development) |
+
+### File mapping `luma-ai` → `wasiai-lendable`
+
+| luma-ai file | wasiai-lendable target | Tipo de cambio |
+|---|---|---|
+| `next.config.mjs withPWA wrapper` | `next.config.js withPWA wrapper` | Copy estructura + adapt runtimeCaching rules a `/api/*` Lendable + wasiai-a2a |
+| `public/manifest.json` | `public/manifest.json` | Customize: name "Lendable", theme_color verde, lang "es", categories ["finance", "productivity"] |
+| `public/icons/icon-192.png` | `public/icons/icon-192.png` | Generate from Lendable logo PNG source |
+| `public/icons/icon-512.png` | `public/icons/icon-512.png` | Same generate |
+| `public/icons/icon-maskable-512.png` | `public/icons/icon-maskable-512.png` | Same generate, padding 10% para safe zone Android |
+| `public/icons/apple-touch-icon-{120,152,180}.png` | `public/icons/apple-touch-icon-{120,152,180}.png` | iOS home screen icons |
+| `public/splashes/splash-iphone-*.png` | `public/splashes/splash-iphone-*.png` | iOS startup splash screens (3 variants per device) |
+| `scripts/generate-pwa-assets.mjs` | `scripts/generate-pwa-assets.mjs` | Generator script — takes logo PNG source, outputs all icon/splash variants |
+| `src/app/~offline/page.tsx` | `src/app/~offline/page.tsx` | Offline fallback page — adapt copy: "Sin conexión. Demo determinístico sigue funcionando." + reload button |
+| `src/components/pwa/register-sw.tsx` | `src/components/pwa/register-sw.tsx` | Client component que registra service worker on mount |
+| `src/components/pwa/install-prompt.tsx` | `src/components/pwa/install-prompt.tsx` | Handles `beforeinstallprompt` event, muestra "Instalar Lendable" UI dismissible |
+| `src/app/layout.tsx metadata` | `src/app/layout.tsx metadata` | Add `manifest: '/manifest.json'` + `icons` + `appleWebApp: { capable: true, title: 'Lendable', statusBarStyle: 'default' }` |
+| `src/app/layout.tsx viewport` | `src/app/layout.tsx viewport` | Add `themeColor: '#0F8B4A'` (verde Lendable) |
+
+### Runtime caching strategy (copy de luma-ai)
+
+```js
+// next.config.js withPWA runtimeCaching
+{
+  // CRITICAL: Lendable agents debit USDC budget on every call.
+  // Caching == financial fraud. NetworkOnly enforced.
+  urlPattern: /^https:\/\/wasiai-a2a-production\.up\.railway\.app\//,
+  handler: 'NetworkOnly',
+  options: { cacheName: 'wasiai-a2a-networkonly' }
+},
+{
+  urlPattern: /^https:\/\/wasiai-facilitator-production\.up\.railway\.app\//,
+  handler: 'NetworkOnly',
+  options: { cacheName: 'wasiai-facilitator-networkonly' }
+},
+{
+  // Same-origin /api/* (proxies a wasiai-a2a) — never cache
+  urlPattern: /\/(api)\//,
+  handler: 'NetworkOnly',
+  options: { cacheName: 'lendable-api-networkonly' }
+},
+// UI shell + static assets — cache with stale-while-revalidate (default plugin behavior)
+```
+
+### Mobile UX rules (Material 3 + Apple HIG)
+
+| Rule | Spec | Why |
+|---|---|---|
+| Touch targets | ≥44px (Apple) / ≥48px (Material) | Fitts' law — finger usability |
+| Vertical scroll only | No horizontal panels | Phone ergonomics |
+| Bottom-sheet patterns | `vaul` o custom component | Native phone UX expectation |
+| Safe area | `padding-bottom: env(safe-area-inset-bottom)` | iPhone notch / Android nav bar |
+| Animations | <200ms duration | Material guidelines, perceived speed |
+| Viewport meta | `width=device-width, initial-scale=1, viewport-fit=cover` | Full-bleed iOS |
+| Theme color | `theme_color` in manifest + `<meta name="theme-color">` | Android status bar tint, iOS Safari address bar |
+
+### Video recording strategy
+
+**Primary**: Chrome DevTools mobile emulation (iPhone 14 Pro 393x852 viewport, 3x DPR). Reasons:
+- Predictable rendering (no real-device quirks)
+- Easy screen recording at desktop quality
+- Cursor → tap simulation con click events visible
+- Multiple takes sin charger / battery worries
+
+**Secondary (B-roll, Scene 1)**: phone real con Lupita's hand sacando del mandil. 3-5 segundos para autenticidad. iPhone + Android side-by-side opcional.
+
+### What we do NOT add (scope guard)
+
+| Feature | Status | Razón |
+|---|---|---|
+| Camera capture (subir CFDI con foto) | ❌ NO | Pre-loaded CFDIs son suficientes. Camera permission flow agrega complejidad. |
+| Push notifications | ❌ NO | Backend infra adicional. No agrega al video. |
+| Web Share API | ❌ NO | Out of scope. |
+| Background sync | ❌ NO | No tenemos work offline real. |
+| Geolocation | ❌ NO | Irrelevante para factoring. |
+
+---
+
 ## Honestidad: declaración pública pre-hack
 
 Antes de las 18:00, push a `wasiai-lendable/README.md` declarando explícitamente:

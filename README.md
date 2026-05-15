@@ -67,7 +67,7 @@ Si hay match, el inversor firma una autorización gasless (EIP-3009) y nuestro f
 
 ## Stack
 
-- **Frontend**: Next.js 14 App Router · TypeScript strict · Tailwind
+- **Frontend**: Next.js 14 App Router · TypeScript strict · Tailwind · **PWA mobile-first** (installable en iOS/Android via `@ducanh2912/next-pwa`, same pattern as [luma-ai](https://github.com/ferrosasfp/luma-ai))
 - **Agents**: 3 endpoints REST (validate / score / match) — descubiertos vía WasiAI A2A `/discover`, orquestados vía `/compose`
 - **AI**: Anthropic Claude API para narrativa del scoring (provider-agnostic — drop-in para Oracle GenAI, OpenAI en deploy enterprise)
 - **Onchain**: viem + EIP-3009 (transferWithAuthorization) en Avalanche (Fuji para demo, mainnet code-ready)

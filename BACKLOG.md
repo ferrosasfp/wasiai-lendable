@@ -56,6 +56,35 @@
 - Smoke prerequisites: `/health` de a2a + facilitator + `/discover` desde Lendable A2A_KEY
 - Validación: `npm test` baseline scaffold actual PASS
 
+### W0.5 — PWA scaffold mobile-first (45min, v2 NEW)
+
+> **NEW en v2 + PWA**. Pattern from `luma-ai` (productive PWA en wasiai ecosystem).
+> Lendable como app instalable en iOS/Android — diferenciador clave del video.
+
+- **W0.5a** (10min) — Plugin + config:
+  - `npm install @ducanh2912/next-pwa`
+  - Wrap `next.config.mjs` con `withPWA()` (copy del config de luma-ai con mismas reglas runtimeCaching: `NetworkOnly` para `/api/*` y wasiai-a2a; `extendDefaultRuntimeCaching: false`)
+  - `disable: process.env.NODE_ENV === 'development'` para dev sin SW
+- **W0.5b** (10min) — Assets PWA en `public/`:
+  - `public/manifest.json` con name "Lendable", short_name "Lendable", theme_color (verde Lendable), display "standalone", orientation "portrait", icons array
+  - `public/icons/icon-192.png`, `icon-512.png`, `icon-maskable-512.png`, `apple-touch-icon-{120,152,180}.png` (script `scripts/generate-pwa-assets.mjs` copy de luma + logo Lendable)
+  - `public/splashes/splash-iphone-*.png` para iOS startup images
+- **W0.5c** (10min) — Offline page + service worker:
+  - `src/app/~offline/page.tsx` (offline fallback — mostrar "Sin conexión. El demo determinístico sigue funcionando." + button reload)
+  - `src/components/pwa/register-sw.tsx` (registra service worker en client)
+  - `src/components/pwa/install-prompt.tsx` (handles `beforeinstallprompt` event, muestra UI "Instalar Lendable" como app, dismissible)
+- **W0.5d** (10min) — Layout metadata:
+  - `src/app/layout.tsx`: `metadata.manifest = '/manifest.json'` + `metadata.icons` con apple/icon refs + `metadata.appleWebApp = { capable: true, statusBarStyle: 'default', title: 'Lendable' }`
+  - `viewport` export con `themeColor` (verde Lendable)
+  - Render `<RegisterSW />` + `<InstallPrompt />` en root layout
+- **W0.5e** (5min) — Smoke test:
+  - `npm run build && npm start` local → DevTools Application tab → Manifest válido, SW registered, ícono PWA visible
+  - Chrome DevTools Lighthouse → PWA score >90
+- Validación: deploy a Vercel preview → abrir en phone real → "Add to home screen" funciona, ícono visible en home, abre standalone (sin browser chrome)
+- Cubre AC nueva (v2 PWA): AC-16 PWA installable on iOS/Android + offline fallback
+
+### W1 — Mock data + types domain (30min)
+
 ### W1 — Mock data + types domain (30min)
 - `src/lib/mock-data.ts` con 3 CFDIs + 4 buyers (Walmart MX, Bimbo, Cemex, OXXO) + 4 lenders (Bankaool, Arkangeles Fund I, BBVA, Konfío)
 - `src/types/invoice.ts` extender con campos faltantes (anchor_buyer, payment_terms, sector_risk, uuid_sat)
@@ -182,19 +211,30 @@
 - Validación: 1 demo run → audit JSON download funciona, signatures verifican offline
 - Cubre AC nueva (v2): AC-13 audit trail + verification
 
-### W6 — Demo UI translation con auction visual (90min, v2 expanded)
+### W6 — Demo UI translation mobile-first con auction visual (120min, v2 + PWA)
+
+> **v2 + PWA upgrade**: UI mobile-first (no desktop adaptation con padding). Bottom-sheets en lugar de paneles laterales. Touch targets ≥44px (Apple HIG) y ≥48px (Material). Vertical phase progression. Recording video con Chrome DevTools mobile emulation iPhone 14 Pro.
 - `src/components/BrandIcon.tsx` (NEW) — SVG branded Lendable
-- `src/components/TraceConsole.tsx` (NEW, copy pattern de agentshop)
-- `src/components/LenderAuctionPanel.tsx` (NEW v2) — visual con 4 lenders bidding, animated entrance, ranked, recommended star
-- `src/components/PipelineProgress.tsx` ya existe — adapt to **4 agents**
-- `src/components/Settlement.tsx` ya existe — adapt
-- `src/app/page.tsx` — landing con narrativa "Tortillería La Esperanza factura a Walmart"
-- `src/app/demo/page.tsx` — 4 phases (v2 — fraud-detector visible):
-  - Phase 0: marketplace `/discover` (mostrar **4** lendable-* agents en `payment.chain=avalanche-fuji`)
-  - Phase 1: usuario selecciona CFDI (1 de 3 pre-loaded)
-  - Phase 2: **4 calls /compose** en sequence con paralelización visible (validator → [fraud + scorer parallel] → matcher con auction visible) — trace visible + audit panel building
-  - Phase 3: Sign & Settle — EIP-3009 + facilitator → Snowtrace link + audit JSON download button
-- Validación: dry-run UI completo en demo mode (sin red) → 4 phases visibles + 4 agent traces + auction visual + audit panel populated
+- `src/components/TraceConsole.tsx` (NEW, copy pattern de agentshop) — **mobile**: collapsible bottom sheet, expand on tap
+- `src/components/LenderAuctionPanel.tsx` (NEW v2) — visual con 4 lenders bidding, animated entrance, ranked, recommended star — **mobile**: vertical stack de cards con swipe-to-select, NO horizontal table
+- `src/components/AuditPanel.tsx` (NEW v2) — receipts building en tiempo real — **mobile**: bottom sheet con tap-to-expand, badge con count de receipts
+- `src/components/PipelineProgress.tsx` ya existe — adapt to **4 agents**, **mobile**: vertical stepper con icons grandes en lugar de horizontal bar
+- `src/components/Settlement.tsx` ya existe — adapt — **mobile**: full-screen sheet con tx hash copyable + Snowtrace link button bottom-anchored
+- `src/components/InvoicePicker.tsx` (NEW) — **mobile**: 3 cards full-width stacked vertical, tap-to-select (NO horizontal scroll)
+- `src/app/page.tsx` — landing **mobile-first** con narrativa "Tortillería La Esperanza factura a Walmart" + hero CTA "Probar demo" botón grande
+- `src/app/demo/page.tsx` — 4 phases mobile-first (v2 — fraud-detector visible):
+  - Phase 0: marketplace `/discover` (mostrar **4** lendable-* agents en `payment.chain=avalanche-fuji`) — mobile: lista vertical cards
+  - Phase 1: usuario selecciona CFDI (1 de 3 pre-loaded) — mobile: cards full-width tap-to-select
+  - Phase 2: **4 calls /compose** en sequence con paralelización visible (validator → [fraud + scorer parallel] → matcher con auction visible) — mobile: vertical timeline progresivo, trace bottom-sheet expandable, audit panel bottom-sheet con badge counter
+  - Phase 3: Sign & Settle — EIP-3009 + facilitator → mobile: full-screen success state con tx hash copyable + Snowtrace link + audit JSON download button bottom-anchored
+- Mobile UX rules:
+  - Touch targets ≥48px tap area (Material) / ≥44px (Apple HIG)
+  - Vertical scrolling exclusive (no horizontal panels)
+  - Bottom-sheet patterns para detail views (no modals overlay full-screen except settlement)
+  - `safe-area-inset-bottom` respected (iPhone notch / Android nav bar)
+  - Animaciones <200ms (Material guidelines)
+- Validación: dry-run UI completo en demo mode (sin red) → 4 phases visibles + 4 agent traces + auction visual + audit panel populated EN PHONE VIEWPORT (iPhone 14 Pro 393x852 Chrome DevTools)
+- Cubre AC: AC-15 auction visual + AC-13 audit panel + AC-17 mobile-first responsive
 
 ### W7 — Register 4 agents en v2 marketplace + smoke real tx (60min, v2)
 - SQL INSERT (or v2 admin UI): registrar **4 agentes** en `agents` table con:
@@ -251,6 +291,9 @@ Cubre AC nueva (v2): AC-14 video submission complete + lives en YouTube unlisted
 - **AC-13 (audit trail)**: WHEN demo run completa THEN UI ofrece "Descargar audit trail JSON"; el JSON descargado tiene 4 step receipts firmados con EIP-712, hash SHA-256 final, y se puede verificar offline con `scripts/verify-audit-trail.js` retornando ALL CHECKS PASSED.
 - **AC-14 (video submission)**: WHEN domingo 06:00 THEN video 3-min en YouTube unlisted + portal hackathon submission completo con repo URL + live demo URL + video URL.
 - **AC-15 (auction visual)**: WHEN matcher returns auction array of N>=3 lenders THEN UI muestra todos los lenders rankeados, con star en `recommendedLender`, con APR/advance/speed visible per cada uno.
+- **AC-16 (PWA installable)**: WHEN usuario abre Lendable en phone (iOS Safari / Android Chrome) THEN PWA manifest detectado, install prompt aparece (Android automático, iOS via Share menu → Add to Home Screen), app instalada abre en standalone mode sin browser chrome.
+- **AC-17 (mobile-first responsive)**: WHEN `/demo` renderea en viewport 393x852 (iPhone 14 Pro) THEN UI es legible sin zoom horizontal, touch targets ≥44px, todos los elementos críticos accesibles con un dedo (auction cards, sign button, audit download).
+- **AC-18 (offline fallback)**: WHEN user pierde conexión durante demo run THEN service worker sirve `~offline/page.tsx` con mensaje "Sin conexión. El demo determinístico sigue funcionando." + botón reload.
 
 ---
 
@@ -269,6 +312,9 @@ Cubre AC nueva (v2): AC-14 video submission complete + lives en YouTube unlisted
 - **CD-11 (v2)**: Contract `LendableInvoiceCommitments` gas budget per commit < 60K — si supera, optimizar antes de deploy. Gas price cap maxFeePerGas 50 nAVAX.
 - **CD-12 (v2)**: EIP-712 receipts must use domain `{ name: "Lendable", version: "1", chainId: 43113 }`. NO usar `chainId: 0` o tipos non-strict.
 - **CD-13 (v2)**: `verify-audit-trail.js` debe poder correrse SIN dependencies de Lendable (standalone Node, solo ethers/viem) — para demostrar offline auditor verification
+- **CD-16 (v2 PWA)**: Lighthouse PWA score >90 (verify pre-submission). Manifest válido, SW registered, icons completos, offline fallback funcional.
+- **CD-17 (v2 PWA)**: Service worker NUNCA cachea calls a `/api/*` ni a wasiai-a2a (NetworkOnly rules). Solo cachea UI shell + static assets. Esto previene serving stale agent data.
+- **CD-18 (v2 mobile)**: NO desktop-only layouts. Todo el UI debe funcionar en viewport ≥360px width (Android budget) sin horizontal scroll.
 
 ---
 

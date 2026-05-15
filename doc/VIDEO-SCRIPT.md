@@ -4,7 +4,8 @@
 > **Audience**: jurado del hackathon + product/risk officers de Bankaool, Arkangeles, y potencialmente CNBV.
 > **Goal**: que después del video, un institucional LATAM diga "este equipo entiende el problema real, hay que llamarlos".
 > **Idioma**: voiceover en **español neutro** (ElevenLabs Multilingual v2). Subtitles en español + inglés.
-> **Production**: ElevenLabs TTS + CapCut Pro + Artlist music + screen recording de wasiai-lendable.vercel.app + Snowtrace tabs.
+> **Production**: ElevenLabs TTS + CapCut Pro + Artlist music + **Chrome DevTools mobile emulation (iPhone 14 Pro 393x852)** para screen recording + phone B-roll para Scene 1 + Snowtrace tabs.
+> **Mobile-first**: Lendable es PWA installable. 78% de PyMEs MX usan smartphone como dispositivo principal (INEGI ENDUTIH 2024). El demo se ve en phone, NO en laptop.
 
 ---
 
@@ -48,12 +49,13 @@ Música: low-tension ambient, builds slowly.
 
 ---
 
-## SCENE 1 · PROBLEM HUMANIZED (0:15 → 0:35) — 20 sec
+## SCENE 1 · PROBLEM HUMANIZED + PHONE INTRO (0:15 → 0:35) — 20 sec
 
 **Visual**:
 - Quick stock footage: shot de PyME mexicana (mercado, tortillería, fábrica chica) — Artgrid free tier o similar
 - Overlay: "Lupita · Tortillería La Esperanza · Iztapalapa, CDMX"
 - Cut to: factura física CFDI en mesa, calendario marcando "60 días"
+- **Close-up (3 sec final)**: Lupita saca su smartphone del mandil — **el dispositivo del 78% de PyMEs en MX** según INEGI 2024. B-roll real phone (iPhone o Android) en hand.
 
 **Voiceover** (20 sec, ~70 words):
 
@@ -61,28 +63,35 @@ Música: low-tension ambient, builds slowly.
 
 ---
 
-## SCENE 2 · SOLUTION REVEAL (0:35 → 0:50) — 15 sec
+## SCENE 2 · SOLUTION REVEAL + ADD TO HOME SCREEN (0:35 → 0:55) — 20 sec
 
-**Visual**:
+**Visual (0:35 → 0:43, 8 sec)**:
 - Logo Lendable fade-in centrado
-- Tagline: "Factoraje agéntico · 30 segundos · settle en USDC sobre Avalanche"
+- Tagline: "Factoraje agéntico · 30 segundos · settle en USDC sobre Avalanche · Instalable como app"
 - Cut to architecture diagram (animated): 4 agents in a pipeline, arrow flow visual
 
-**Voiceover** (15 sec, ~50 words):
+**Visual (0:43 → 0:55, 12 sec) — INSTALL MOMENT**:
+- **Close-up phone screen**: Lupita abre Safari/Chrome → escribe "lendable.wasiai.io"
+- Browser muestra banner "Instalar Lendable" (Android automático) o Lupita hace tap en Share → "Add to Home Screen" (iOS)
+- Cut: app icon Lendable aparece en home screen del phone entre otros iconos (WhatsApp, etc)
+- Lupita hace tap → app abre **standalone, sin browser chrome** — looks like native app
+- Splash screen Lendable verde aparece 1 sec → carga landing
 
-> "Lendable hace lo mismo en menos de un minuto. Cuatro agentes de inteligencia artificial componibles. Validación del CFDI. Detección de fraude on-chain. Scoring crediticio con reglas auditables. Subasta entre múltiples inversores. Settlement gasless en USDC sobre Avalanche. Sin papeleo. Sin oficinas. Sin intermediarios."
+**Voiceover** (20 sec, ~70 words):
+
+> "Lendable hace lo mismo en menos de un minuto. Cuatro agentes de inteligencia artificial componibles. Validación del CFDI. Detección de fraude on-chain. Scoring crediticio con reglas auditables. Subasta entre múltiples inversores. Settlement gasless en USDC sobre Avalanche. Y Lendable funciona como app — Lupita la instala en su teléfono en dos tap-s. Sin papeleo. Sin oficinas. Sin intermediarios."
 
 ---
 
-## SCENE 3 · DEMO FLOW (0:50 → 2:20) — 90 sec
+## SCENE 3 · DEMO FLOW EN PHONE (0:55 → 2:25) — 90 sec
 
-**Visual**: Screen recording de wasiai-lendable.vercel.app/demo, edited with on-screen annotations.
+**Visual**: Screen recording **Chrome DevTools mobile emulation iPhone 14 Pro 393x852 viewport** de wasiai-lendable.vercel.app/demo, edited with on-screen annotations. UI se ve mobile-first: bottom sheets, vertical timeline, touch targets grandes, no horizontal scroll.
 
-### Sub-scene 3.1: Marketplace + invoice pick (0:50 → 1:00) — 10s
+### Sub-scene 3.1: Marketplace + invoice pick (0:55 → 1:05) — 10s
 
-- Cursor abre Lendable, click "Iniciar demo"
-- Panel marketplace muestra los 4 agents: `lendable-cfdi-validator`, `lendable-fraud-detector`, `lendable-credit-scorer`, `lendable-lender-matcher` cada uno con su precio en USDC
-- Click en CFDI "Tortillería La Esperanza · Walmart · $48,500 MXN · 60d"
+- Phone screen: usuario hace tap en "Iniciar demo" (button bottom-anchored, full-width)
+- Marketplace panel **vertical list** de los 4 agents: `lendable-cfdi-validator`, `lendable-fraud-detector`, `lendable-credit-scorer`, `lendable-lender-matcher` cada uno con su precio en USDC visible
+- **Tap** en CFDI card "Tortillería La Esperanza · Walmart · $48,500 MXN · 60d" (full-width tap area)
 
 **Voiceover**:
 > "Lupita sube su CFDI. Cuatro agentes IA discoverables en el marketplace WasiAI. Cada uno tiene su precio en USDC. Total del análisis: seis centavos."
@@ -134,7 +143,7 @@ Música: low-tension ambient, builds slowly.
 
 ---
 
-## SCENE 4 · TAM MOMENT (2:20 → 2:40) — 20 sec
+## SCENE 4 · TAM MOMENT (2:25 → 2:45) — 20 sec
 
 **Visual**: Black screen, white text appears progressively (typewriter):
 
@@ -158,7 +167,7 @@ Música: builds.
 
 ---
 
-## SCENE 5 · PRODUCTION PROOF (2:40 → 2:55) — 15 sec
+## SCENE 5 · PRODUCTION PROOF (2:45 → 3:00) — 15 sec
 
 **Visual**: Split screen montage (3-4 cuts):
 - wasiai.io loading
@@ -174,7 +183,9 @@ Música: peak.
 
 ---
 
-## SCENE 6 · CLOSE / VISION (2:55 → 3:00) — 5 sec
+## SCENE 6 · CLOSE / VISION (3:00 → 3:05) — 5 sec
+
+> **Note**: video ahora es 3:05 (5 sec más por el "Add to home screen" moment de Scene 2). Si overflow del 3:00 hard cap del portal, cortar 5 sec del TAM moment (Scene 4) o del production proof (Scene 5).
 
 **Visual**: Logo Lendable + WasiAI side by side. Tagline final:
 
