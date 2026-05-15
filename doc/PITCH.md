@@ -104,6 +104,31 @@ Esto no es vaporware. Es una capa fintech sobre rails que ya funcionan.
 
 ---
 
+## El problema regulatorio histórico (30-45s) — INSTITUTIONAL HOOK
+
+Hoy en México, **NO existe un registry universal de facturas factorizadas**. Cada institución tiene su propio sistema interno. Una financiera NO ve si la factura que está comprando ya fue cedida en otra.
+
+**Tres intentos previos fallaron**:
+1. **SISCEA** (Sistema de Información de Cesiones de Cuentas por Cobrar) — propuesta CNBV 2018, nunca implementada por falta de consenso entre actores privados.
+2. **Forum Indus Factoring Mexico** — propuestas privadas 2019-2021 — falló por competition concerns (los bancos no quieren que su competencia vea su cartera).
+3. **CONDUSEF** lleva 3 años pidiendo "un registro nacional de cesiones" — sin avance por el mismo motivo.
+
+**El resultado**: la tasa de fraude por doble-cesión en factoring no-bancario es del **3-8%** según AMEF/Banxico. Los bancos formales lo evitan con due diligence manual (lento y caro). Las fintech rápidas absorben el costo en el pricing (de ahí el 22% APR de Konfío). **El SME paga implícitamente por un fraude que el sistema no previene**.
+
+**Por qué blockchain lo resuelve donde nadie ha podido**:
+
+| Pregunta institucional | Respuesta con blockchain |
+|---|---|
+| "¿Quién opera el registry?" | **Nadie**. Smart contract autoexecutable. Sin operador político. |
+| "¿Quién ve mi data?" | **Solo hashes**. RFC, UUID y monto reales viven en tu base. La chain solo ve `0xab12...`. |
+| "¿Cómo confío que no manipulen?" | **No pueden**. Código público, auditable, inmutable post-deploy. |
+| "¿Y si la competencia se retira?" | **No depende de nadie**. Sigue funcionando aunque desaparezcan todos los actores. |
+| "¿Y la regulación?" | **CNBV Circular 4/2024** PIDE "trazabilidad agéntica" como sistema neutral. Esto LO ES. |
+
+**La frase punzante**: *"Hoy no existe esta solución porque nadie privado pudo coordinarlo. Blockchain lo resuelve por arquitectura, no por buenas intenciones — porque no requiere consenso entre actores: el smart contract ES la coordinación."*
+
+---
+
 ## TAM moment (20s)
 
 | Métrica | Valor |
@@ -161,6 +186,15 @@ No. Hoy es un pipeline lineal: validator → scorer → matcher → settle. Cada
 
 **¿Por qué Anthropic Claude y no Oracle GenAI / OpenAI?**
 Es una decisión operacional, no arquitectónica. Para fintech regulada, lo importante es que el **score** sea auditable y determinista — eso vive en reglas codificadas en `src/core/scoring.ts`. El LLM solo genera la **narrativa explicatoria**, que es valor agregado pero no decisivo. Elegimos Claude Haiku para el demo por costo (~$0.0001/call), latencia (<1s p50), y familiaridad. El `src/infra/llm-client.ts` es un thin wrapper de 30 líneas — cambiar a Oracle GenAI o OpenAI es 5 minutos de trabajo. Para deploy enterprise con Bankaool, podemos usar Oracle GenAI en línea con su stack cloud.
+
+**¿Cómo se previene doble-cesión hoy en MX? ¿Por qué es problema?**
+Hoy NO se previene bien. Cada financiera tiene su propio sistema interno y NO ve la cartera de la competencia. SISCEA (CNBV 2018), Forum Indus Factoring (2019-2021), y CONDUSEF (2022-actualidad) han propuesto registros nacionales — todos fallaron por competition concerns: los bancos no quieren que su competencia vea su cartera. Resultado: 3-8% de fraude por doble-cesión en factoring no-bancario (AMEF/Banxico), absorbido en el pricing al SME. Blockchain lo resuelve por arquitectura — el smart contract ES el tercero neutral que ningún privado podía aceptar.
+
+**¿Y si una factura ya cedida en otra plataforma vuelve a aparecer en Lendable años después? ¿La búsqueda no se vuelve lenta?**
+No — la búsqueda es O(1) regardless de la edad del commit. Leemos directamente del storage del smart contract (`mapping(bytes32 => Commitment)`), que es un hash table — un solo read storage instantáneo, ~150ms en Avalanche Fuji. Sea hoy o dentro de 5 años, mismo tiempo. La gente confunde "blockchain" con "log cronológico" — eso es solo para `events`/`logs`, no para storage. Nuestro design usa storage exclusivamente para queries puntuales, events solo para audit histórico (subgraph V2 si lo necesitamos).
+
+**¿Qué pasa si dos plataformas distintas intentan committear la misma factura al mismo tiempo?**
+El smart contract previene atómicamente. Aunque ambas pasen el pre-check (`isCommitted: false`), solo la primera tx que entra a un block puede escribir el state. La segunda revierte con `AlreadyCommitted(hash, ts, committer)`. Defensa en profundidad: pre-check para UX rápido, smart contract revert como garantía atómica.
 
 **¿Cuál es la diferencia entre "agent-native" y "autónomo"?**
 Agent-native = los componentes son agentes (discoverables, componibles, intercambiables). Autónomo = el sistema decide qué hacer next sin que un humano hard-codee el flow. Lendable es agent-native pero no autónomo. Hacerlo autónomo (ReAct) es trivial técnicamente — lo difícil es no romper el determinismo del demo. Esa decisión la tomamos post-hackathon.

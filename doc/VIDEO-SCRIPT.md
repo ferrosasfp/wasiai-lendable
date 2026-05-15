@@ -143,7 +143,24 @@ Música: low-tension ambient, builds slowly.
 
 ---
 
-## SCENE 4 · TAM MOMENT (2:25 → 2:45) — 20 sec
+## SCENE 3.6 · REGULATORY HOOK INSTITUTIONAL (2:20 → 2:30) — 10 sec extra (insertar antes de TAM)
+
+> **NEW**: este momento es **pitch gold institucional**. Inserción entre demo flow y TAM moment.
+
+**Visual**: Black screen brief, después un timeline animado con 3 puntos en MX:
+```
+2018 SISCEA propuesto    ━━━━ ❌ (CNBV no implementó)
+2019 Forum Indus         ━━━━ ❌ (bancos competition concerns)
+2022 CONDUSEF push       ━━━━ ❌ (sin avance)
+2026 Lendable            ━━━━ ✅ (smart contract Avalanche)
+```
+
+**Voiceover** (10 sec, ~35 words):
+> "México lleva ocho años intentando crear un registro nacional de cesiones de facturas. SISCEA, Forum Indus, CONDUSEF — todos fallaron por competition concerns. El smart contract es el tercero neutral que ningún privado podía aceptar."
+
+---
+
+## SCENE 4 · TAM MOMENT (2:30 → 2:50) — 20 sec
 
 **Visual**: Black screen, white text appears progressively (typewriter):
 
@@ -167,7 +184,7 @@ Música: builds.
 
 ---
 
-## SCENE 5 · PRODUCTION PROOF (2:45 → 3:00) — 15 sec
+## SCENE 5 · PRODUCTION PROOF (2:50 → 3:05) — 15 sec
 
 **Visual**: Split screen montage (3-4 cuts):
 - wasiai.io loading
@@ -183,9 +200,12 @@ Música: peak.
 
 ---
 
-## SCENE 6 · CLOSE / VISION (3:00 → 3:05) — 5 sec
+## SCENE 6 · CLOSE / VISION (3:05 → 3:15) — 10 sec
 
-> **Note**: video ahora es 3:05 (5 sec más por el "Add to home screen" moment de Scene 2). Si overflow del 3:00 hard cap del portal, cortar 5 sec del TAM moment (Scene 4) o del production proof (Scene 5).
+> **Note**: video ahora es 3:15 (15 sec más vs original 3:00 — Add to Home Screen +5s + Regulatory Hook +10s). Si portal hard-cap 3:00, cuts disponibles:
+> - Cut 1 (preferido): cortar 10s del TAM moment Scene 4 → quedan solo los 3 stats clave ($24B / 30 seg / $0.066) sin "If 1% migrates"
+> - Cut 2: cortar 5s del install moment Scene 2 (mantener app icon visible pero no toda la flow)
+> - Cut 3 (último recurso): cortar Scene 3.6 regulatory hook — PERO pierde el institutional moment más fuerte. NO RECOMENDADO.
 
 **Visual**: Logo Lendable + WasiAI side by side. Tagline final:
 
