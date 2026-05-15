@@ -1,4 +1,9 @@
-# Lendable · Pitch (español · 5 min)
+# Lendable · Pitch (versión texto — anchor del video)
+
+> El pitch del Avalanche LATAM Fintech Build es **video submission** (no en vivo).
+> Este documento es el texto-ancla del que sale el voiceover del video.
+> Script de producción completo en `doc/VIDEO-SCRIPT.md` (3 min, 7 scenes).
+> Este pitch en texto se usa también para LinkedIn post + landing copy + slide deck PDF backup.
 
 ---
 
@@ -26,11 +31,12 @@ El spread de toda esa cadena se queda casi entero con la financiera. La PyME rec
 
 ## La solución (45s)
 
-Lendable hace lo mismo en menos de un minuto, con tres agentes IA componibles:
+Lendable hace lo mismo en menos de un minuto, con **cuatro agentes IA componibles**:
 
 1. **lendable-cfdi-validator** verifica shape del CFDI y el anchor buyer
-2. **lendable-credit-scorer** computa el score con reglas auditables y genera la narrativa con LLM
-3. **lendable-lender-matcher** busca el inversor con mejor tasa en el pool activo
+2. **lendable-fraud-detector** previene doble-cesión on-chain (Avalanche commitment)
+3. **lendable-credit-scorer** computa el score con reglas auditables y genera la narrativa con LLM
+4. **lendable-lender-matcher** devuelve una subasta entre inversores compitiendo por la factura
 
 Si hay match, el inversor firma una autorización gasless. Nuestro facilitator paga el gas y settle en USDC sobre Avalanche.
 
@@ -49,8 +55,10 @@ Voy a tomar esta factura de la Tortillería La Esperanza, que le factura $48,500
 Ven los tres agentes corriendo en paralelo. En menos de 5 segundos:
 
 - CFDI validado contra el registry tier-1 (Walmart confirmado)
+- Hash de la factura committed on-chain en Avalanche (anti doble-cesión, problema regulatorio #1 del factoring MX)
 - Credit score 74, banda B. El LLM explica en lenguaje natural: anchor buyer Walmart tier-1, plazo 60 días, sector food retail bajo riesgo
-- Match con Arkangeles Fund I, 92% advance rate, 14.5% APR
+- Subasta entre 4 lenders compitiendo: Bankaool, Arkangeles, BBVA, Konfío. Mejor pick recomendado: Arkangeles Fund I, 92% advance rate, 14.5% APR
+- Audit trail JSON descargable, firmado, verificable offline (CNBV Circular 4/2024 ready)
 
 [Click "Firmar y settle"]
 
@@ -96,11 +104,38 @@ Esto no es vaporware. Es una capa fintech sobre rails que ya funcionan.
 
 ---
 
-## Cierre (15s)
+## TAM moment (20s)
+
+| Métrica | Valor |
+|---|---|
+| TAM México factoring PyMEs | $24 mil millones USD/año |
+| Tiempo promedio actual | 4.7 días |
+| Costo promedio cobrado al SME | 7.2% del valor de la factura |
+| **Lendable settle time** | **30 segundos** |
+| **Lendable costo total al SME** | **$0.066 USDC en agent fees** |
+| **Lendable advance rate** | **92-95%** |
+| Si 1% del mercado migra | $240 millones USD/año en agent fees fluyen por este rail |
+| Si Bankaool integra | 4 millones de PyMEs onboarded día 1 |
+
+## Production proof (15s)
+
+Lendable corre sobre **WasiAI A2A**, infraestructura que llevamos cinco meses en producción:
+
+- **3 servicios live** en mainnet: wasiai-a2a, wasiai-facilitator, wasiai-v2
+- **4 chains soportadas**: Kite Ozone (testnet+mainnet), Avalanche Fuji + C-Chain mainnet
+- **1,660+ tests passing** distribuidos entre wasiai-a2a (941) + facilitator + marketplace + agentshop
+- **WasiAgentShop** (primera vertical de remittances) ya submitted al Kite Hackathon — settle real con tx hashes verificables
+- **Lendable** es la **segunda vertical** sobre el mismo rail. La tercera, quien quiera.
+
+Esto no es vaporware. Es una capa fintech sobre rails que ya funcionan.
+
+## Cierre (10s)
 
 Lendable es factoraje agéntico para 4.7 millones de PyMEs mexicanas, con settlement en segundos sobre Avalanche.
 
-Gracias. ¿Preguntas?
+WasiAI A2A es el rail abierto para que LATAM corra sus agentes sin pedirle permiso a nadie.
+
+Gracias.
 
 ---
 

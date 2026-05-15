@@ -43,33 +43,55 @@ Lo hago antes de que arranque el cronómetro, no cuenta en las 39h.
 - [ ] 23:45 smoke local: 3 compose calls + 1 settle contra Fuji
 - [ ] 23:59 commit + sleep
 
-## Día 2 — Sábado 16 (08:00 → 23:59) · 16h
+## Día 1 ajustes v2 (W2.5 + audit trail dentro de 6h del viernes)
 
-**Objetivo**: W6-W7 (UI translation + register agents) + W8 (pitch + video).
+> El v2 agrega ~1.5h de trabajo el viernes para W2.5 (fraud-detector + contract deploy). Re-pivotear:
+
+- [ ] 18:00 SQL Day-1 + .env.local + git checkout -b feat/wkh-lendable-agents
+- [ ] 18:15 lanzar `/nexus-auto WKH-LENDABLE-AGENTS` con BACKLOG (v2)
+- [ ] 19:00 W0 + W1 done (bootstrap + mock data + types)
+- [ ] 19:45 W2 lendable-cfdi-validator done (45min)
+- [ ] 21:15 W2.5 lendable-fraud-detector + contract deploy + Snowtrace verify (1.5h)
+- [ ] 22:45 W3 lendable-credit-scorer + Claude integration (90min)
+- [ ] 23:30 W4 lender-auction (60min) — push si tiempo aprieta
+- [ ] 23:59 commit + sleep
+
+## Día 2 — Sábado 16 (08:00 → 23:00) · 15h (v2 expanded)
+
+**Objetivo**: W5-W7 (settle + UI + audit panel + register) + W8 (video pitch profesional).
 
 - [ ] 08:00 café + revisar logs del overnight
-- [ ] 09:00 W6 UI translation: BrandIcon + TraceConsole + InvoicePicker + 4-phase demo page
-- [ ] 11:00 W7 SQL INSERT registrar 3 agentes en v2 marketplace (slug, priceUsdc, payment.chain=avalanche-fuji, payment.asset=USDC, endpoint URL pointing a Lendable Vercel)
-- [ ] 12:00 deploy Vercel con env vars prod (NEXT_PUBLIC_DEMO_MODE=false, A2A_KEY, TREASURY_PRIVATE_KEY, etc)
-- [ ] 13:00 smoke E2E contra prod: /discover from Lendable → /compose × 3 (verificar debit $0.061) → /settle real tx Fuji
-- [ ] 13:30 capturar tx hash + Snowtrace link → `doc/EVIDENCE.md`
+- [ ] 09:00 W5 EIP-3009 signer + /settle wired (60min)
+- [ ] 10:00 W5.5 audit trail panel + JSON download endpoint + signed receipts (45min)
+- [ ] 10:45 W6 UI translation con auction visual + 4 agents (90min)
+- [ ] 12:15 W7 SQL INSERT 4 agentes en v2 marketplace, deploy Vercel con env vars prod (60min)
+- [ ] 13:15 smoke E2E contra prod: /discover from Lendable → /compose × 4 (verificar debit $0.066 + commit tx) → /settle real tx Fuji → audit trail descargable
+- [ ] 13:45 capturar 3 tx hashes diferentes (3 runs) + audit JSON files → `doc/PRODUCTION-EVIDENCE.md`
 - [ ] 14:00 lunch
-- [ ] 15:00 pulir UI demo (animaciones, colores, copy) — solo si E2E PASS
-- [ ] 17:00 grabar video demo 90s (backup por si falla la red en vivo)
-- [ ] 19:00 ensayo pitch 5min × 1 + ajustes
-- [ ] 21:00 ensayo timing × 3
+- [ ] **Video production sprint** (14:00-22:00, 8h):
+  - [ ] 14:00 ElevenLabs voiceover audicionar + generar 7 scenes en español neutro (60min)
+  - [ ] 15:00 screen recording de demo (3-5 takes) + Snowtrace + GitHub + production endpoints (60min)
+  - [ ] 16:00 license music Artlist + buscar 4-5 stock footage Artgrid (60min)
+  - [ ] 17:00 primer edit CapCut: assemble + voiceover sync + on-screen text (120min)
+  - [ ] 19:00 captions auto ES + manual EN translate (30min)
+  - [ ] 19:30 color grading + sound mix + export 1080p H.264 (30min)
+  - [ ] 20:00 YouTube upload unlisted + verify quality desktop+mobile (60min)
+  - [ ] 21:00 cushion buffer / fresh eyes review / fixes (60min)
+- [ ] 22:00 video shipped, comenzar submission portal preparation
 - [ ] 23:00 commit + sleep
 
-## Día 3 — Domingo 17 (00:00 → 09:00) · 9h
+## Día 3 — Domingo 17 (00:00 → 09:00) · 9h (v2)
 
-**Objetivo**: bugfix + submit + pitch.
+**Objetivo**: bugfix + submit video.
 
 - [ ] 02:00 wake + revisar deploy + checks finales
 - [ ] 03:00 contingencia si algo se rompe (rollback a demo mode si necesario)
-- [ ] 05:00 último ensayo del pitch
-- [ ] 06:00 submission al portal del hackathon
-- [ ] 07:00 prep final del pitch + screen share check
-- [ ] 09:00 pitch en vivo
+- [ ] 04:00 final review video (re-watch with fresh eyes), micro-fix audio/subs si necesario
+- [ ] 05:00 LinkedIn post draft + tweet draft + landing wasiai.io/lendable optional
+- [ ] 06:00 submission al portal del hackathon: project name + description + repo URLs + live demo URL + YouTube video URL + sponsor categories + tags
+- [ ] 07:00 verify submission completa, todos los links funcionan
+- [ ] 08:00 last polish + post-submit acknowledgement
+- [ ] 09:00 hack closes, watch competition videos, take notes for V2 roadmap
 
 ---
 

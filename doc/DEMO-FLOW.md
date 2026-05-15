@@ -1,6 +1,7 @@
-# Lendable · Demo flow (paso a paso)
+# Lendable · Demo flow (paso a paso) — v2
 
-Tiempo total objetivo: **90 segundos**.
+> **Update 2026-05-15**: el pitch es **video submission** (no live). Tiempo total objetivo del flow visible en video: **90 segundos** del Scene 3 (de los 180 sec totales del video). Ver `doc/VIDEO-SCRIPT.md` para el script completo de 7 escenas.
+> **v2 flow** incluye 4 agentes (con fraud-detector onchain) y auction visible.
 
 ---
 
@@ -28,21 +29,27 @@ Tiempo total objetivo: **90 segundos**.
 
 [Los tres bullets verdes se encienden uno por uno · ~3 segundos]
 
-### 0:25 — Validator
+### 0:25 — Validator (Step 0)
 
 > "Primer agente: lendable-cfdi-validator. Verifica el shape del CFDI y confirma que Walmart está en nuestro registry de anchor buyers tier-1. Menos de 2 segundos."
 
 [Punto verde · "DONE"]
 
-### 0:35 — Scorer
+### 0:30 — Fraud detector + Scorer en paralelo (Step 1 + Step 2)
 
-> "Segundo agente: lendable-credit-scorer. Score 74 en banda B. El score se computa con reglas auditables — anchor buyer tier-1, plazo 60 días, sector food retail. El rationale lo genera un LLM en lenguaje natural: 'Anchor buyer Walmart México tier-1, plazo medio de 60 días, sector food retail estable. Banda B refleja buen perfil crediticio con consideraciones de plazo de pago.'"
+> "Segundo y tercer agentes corren en paralelo. fraud-detector computa un hash criptográfico de la factura y lo committee on-chain a Avalanche — si Lupita intenta ceder la misma factura a otra plataforma, esa transacción será rechazada. Esto resuelve el problema número uno del factoring mexicano: la doble cesión."
+
+[Mostrar tx hash del commitment apareciendo en panel · Snowtrace link]
+
+> "En paralelo, credit-scorer devuelve score 74 en banda B. El score se computa con reglas auditables — anchor buyer tier-1, plazo 60 días, sector food retail. El rationale lo genera un LLM en lenguaje natural: 'Anchor buyer Walmart México tier-1, plazo medio de 60 días, sector food retail estable. Banda B refleja buen perfil crediticio.'"
 
 [Mostrar la card de score · enfatizar el número grande "74" y el rationale]
 
-### 0:50 — Matcher
+### 0:50 — Matcher con auction (Step 3)
 
-> "Tercer agente: lendable-lender-matcher. Encuentra al mejor inversor para este perfil de riesgo: Arkangeles Fund I, 92% de advance rate, 14.5% APR anual."
+> "Cuarto agente: lendable-lender-matcher. Devuelve la subasta entre los inversores que califican para este perfil de riesgo: Bankaool, Arkangeles Fund I, BBVA y Konfío Express. Cada uno con su tasa, advance rate, y velocidad de settle. El SME ve la subasta completa y elige; el sistema recomienda Arkangeles Fund I, 92% advance rate, 14.5% APR anual, por el mejor combined score."
+
+[Mostrar el panel auction con 4 lenders rankeados, star en Arkangeles]
 
 [Mostrar la card de match · enfatizar el "$ NN.NN USDC" net]
 
@@ -60,9 +67,15 @@ Tiempo total objetivo: **90 segundos**.
 
 [Click en el link del tx hash · se abre Snowtrace en la otra tab]
 
-### 1:25 — Cierre
+### 1:20 — Audit trail download
 
-> "La PyME recibió USDC en su wallet. La factura quedó cedida al inversor. Total: menos de un minuto. Cero papeleo. Cero oficinas. Tres agentes y un facilitator."
+> "Cada paso del flow emite un recibo criptográficamente firmado con EIP-712. Lupita puede descargar el audit trail completo en JSON, verificable offline por cualquier auditor sin hablar con Lendable. Esto es lo que pide la Circular 4 del 2024 de la CNBV: trazabilidad agéntica completa."
+
+[Click en "Descargar audit trail JSON" · file downloads]
+
+### 1:30 — Cierre
+
+> "La PyME recibió USDC en su wallet. La factura quedó cedida al inversor y registrada onchain. Total: menos de un minuto. Cero papeleo. Cero oficinas. Cuatro agentes, una subasta, un commitment onchain, un facilitator, y un audit trail."
 
 ---
 

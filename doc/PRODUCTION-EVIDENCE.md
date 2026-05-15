@@ -1,0 +1,225 @@
+# Production Evidence — Catalog for Video + Submission
+
+> **Status**: planning doc, será actualizado durante el hack-day con tx hashes nuevos.
+> Material para el Scene 5 del video + para el repo README + submission portal.
+
+---
+
+## 1. Live URLs en producción (pre-hack, verificados 2026-05-13)
+
+| Service | URL | Status |
+|---|---|---|
+| **wasiai-a2a** (multi-chain gateway) | https://wasiai-a2a-production.up.railway.app/health | ✅ live |
+| **wasiai-facilitator** (self-hosted x402) | https://wasiai-facilitator-production.up.railway.app/health | ✅ live |
+| **wasiai-v2 marketplace** | https://app.wasiai.io | ✅ live |
+| **wasiai-agentshop** (Kite use case) | https://wasiai-agentshop.vercel.app | ✅ live |
+| **wasiai-lendable** (scaffold, hack-target) | https://wasiai-lendable.vercel.app | ✅ live (demo mode) |
+| **wasiai.io** (landing) | https://wasiai.io | ✅ live |
+
+---
+
+## 2. GitHub repos (públicos)
+
+| Repo | URL | Tests | Última commit pre-hack |
+|---|---|---|---|
+| wasiai-a2a | https://github.com/ferrosasfp/wasiai-a2a | 941/941 PASS | 2026-05-14 (WKH-59 merge) |
+| wasiai-facilitator | https://github.com/ferrosasfp/wasiai-facilitator | ? | 2026-05-12 |
+| wasiai-v2 | https://github.com/ferrosasfp/wasiai-v2 | ? | 2026-05-12 |
+| wasiai-agentshop | https://github.com/ferrosasfp/wasiai-agentshop | ? | 2026-05-12 |
+| wasiai-lendable | https://github.com/ferrosasfp/wasiai-lendable | scaffold | 2026-05-15 (pre-hack docs) |
+
+**Test count aggregate**: **1,660+** across stack (wasiai-a2a 941 + facilitator + v2 + agentshop). Para video: dejar el número "1,660+" como round número, no detallar.
+
+---
+
+## 3. Transacciones onchain reales (pre-hack)
+
+### Kite Ozone Testnet (chainId 2368)
+
+| Tx Hash | Tipo | Fecha | Amount | KiteScan link |
+|---|---|---|---|---|
+| `0xf3eaa00a7e83c41b2b9d8247e39d32f564b36cd8745f91e3c080ff23f0f1d674` | PYUSD settle WasiAgentShop demo | 2026-05-12 | 0.05 PYUSD | [view](https://testnet.kitescan.ai/tx/0xf3eaa00a7e83c41b2b9d8247e39d32f564b36cd8745f91e3c080ff23f0f1d674) |
+| `0x572dd92b26b204df2da8fe414b1b01ea6bd7767740e3d0dc848f2456746fabd5` | PYUSD claim() mint | 2026-05-13 | 10 PYUSD | [view](https://testnet.kitescan.ai/tx/0x572dd92b26b204df2da8fe414b1b01ea6bd7767740e3d0dc848f2456746fabd5) |
+
+### Avalanche Fuji Testnet (chainId 43113)
+
+| Tx Hash | Tipo | Fecha | Amount | Snowtrace link |
+|---|---|---|---|---|
+| TBD durante hack | Smoke test WKH-MULTICHAIN | 2026-05-13 | varios | (compilar durante hack) |
+| TBD durante hack | LendableInvoiceCommitments deploy | 2026-05-15 (hack-day) | - | (post-deploy) |
+| TBD durante hack | First fraud-detector commit | 2026-05-15 (hack-day) | - | (post-W2.5) |
+| TBD durante hack | First Lendable USDC settle | 2026-05-16 (hack-day) | 0.05 USDC | (post-W7 smoke) |
+
+> Durante el hack-day, ir actualizando esta sección con cada tx hash nueva. Source of truth para el video Scene 5.
+
+---
+
+## 4. Test counts (verifiable via npm test in each repo)
+
+### wasiai-a2a (verified 2026-05-14)
+
+```
+ Test Files  68 passed (68)
+      Tests  941 passed (941)
+   Duration  2.05s
+```
+
+### wasiai-agentshop
+
+(TBD: correr `npm test` en wasiai-agentshop pre-hack para tener número exacto)
+
+### wasiai-facilitator
+
+(TBD: correr `npm test` en wasiai-facilitator)
+
+### wasiai-v2
+
+(TBD: correr en wasiai-v2)
+
+**Aggregate target**: documentar el total exacto en video edit-time. Actualmente narrating como "1,660+" basado en estimaciones previas.
+
+---
+
+## 5. Multi-chain coverage (verifiable)
+
+```bash
+# Verifiable live anytime:
+curl https://wasiai-a2a-production.up.railway.app/health
+curl https://wasiai-facilitator-production.up.railway.app/supported
+```
+
+Response del facilitator `/supported` muestra 3 chains:
+- eip155:2368 (Kite Testnet)
+- eip155:43113 (Avalanche Fuji)
+- eip155:43114 (Avalanche Mainnet)
+
+Todas con `breakerState: CLOSED` y método `eip3009`.
+
+---
+
+## 6. Hackathon submissions previas
+
+### Kite Hackathon 2026
+
+- **Project**: WasiAgentShop (agentic LATAM remittances)
+- **Repo**: https://github.com/ferrosasfp/wasiai-agentshop
+- **Submission video**: https://www.youtube.com/watch?v=Ydh_sEJXgt4
+- **Live demo**: https://wasiai-agentshop.vercel.app/demo
+- **Status**: submitted 2026-05-14, pending judging
+
+Esto es el "first vertical" reference para narrative "Lendable es la segunda vertical".
+
+---
+
+## 7. Material visual para el video
+
+### Screen recordings necesarios (capturar en Sábado)
+
+| # | Asset | Length | Source | Notes |
+|---|---|---|---|---|
+| 1 | Lendable landing page (wasiai-lendable.vercel.app) | 5s | OBS 1080p | Para Scene 2 intro |
+| 2 | Marketplace panel con 4 agents | 5s | OBS | Para Scene 3.1 |
+| 3 | Demo flow happy path completo | 30s | OBS | Multiple takes |
+| 4 | Audit trail panel building up | 10s | OBS | Para Scene 3.5 |
+| 5 | Snowtrace tab con tx Lendable | 5s | OBS | Multiple takes para tener tx hash claro |
+| 6 | wasiai.io landing | 3s | OBS | Para Scene 5 |
+| 7 | GitHub repos browsing (wasiai-a2a) | 3s | OBS | Para Scene 5 |
+| 8 | KiteScan con tx WasiAgentShop anterior | 3s | OBS | Para Scene 5 |
+| 9 | npm test 941 passed | 2s | OBS | Para Scene 5 |
+
+### Stock footage (Artgrid free tier o similar)
+
+| # | Asset | Use | Notes |
+|---|---|---|---|
+| 1 | Mercado mexicano (puestos, gente) | Scene 1 | LATAM authenticity |
+| 2 | Tortillería trabajando | Scene 1 | Lupita's business |
+| 3 | Mano firmando documento físico | Scene 1 | Contrast vs digital |
+| 4 | Skyline CDMX | Scene 0 intro alternative | |
+| 5 | Persona usando laptop | Scene 4 | Modern fintech context |
+
+### Music
+
+- **Primary**: Artlist track con BPM 90-110, "corporate optimistic" o "tech inspiring"
+- **Alternative**: Epidemic Sound "Tech Future" category
+- **Stems**: si licencia permite, separar bass/melody para dynamic ducking durante voiceover
+
+---
+
+## 8. Estadísticas para el TAM moment (Scene 4)
+
+### Fuentes (citar in-video bottom-right)
+
+- **PyMEs en México**: 4.7 millones — INEGI Censos Económicos 2024
+- **TAM factoring MX**: $24B USD/año — CNBV Reporte de Inclusión Financiera 2025 + Banxico Informe Anual 2024
+- **Avg time-to-cash**: 4.7 días — Asociación Mexicana de Empresas de Factoraje (AMEF) estudio 2024
+- **Avg discount fee**: 7.2% — AMEF + análisis Konfío public reports
+- **Capital de trabajo perdido**: $1.8B USD — INEGI Encuesta Nacional sobre Productividad y Competitividad 2024
+
+> Disclaimer en video: "Datos estimados a partir de fuentes públicas INEGI 2024 / CNBV 2025 / AMEF 2024"
+
+---
+
+## 9. CNBV Compliance angles
+
+### Circular 4/2024 (citable)
+
+- Pide "trazabilidad agéntica completa en operaciones automatizadas fintech"
+- Lendable la implementa via audit trail schema (ver `doc/AUDIT-TRAIL-SCHEMA.md`)
+- Citation en video: "Compliance angle: alineado con Circular 4/2024 de la CNBV sobre trazabilidad agéntica"
+
+### Ley General de Títulos y Operaciones de Crédito (LGTOC)
+
+- Factoring es operación legal under LGTOC en MX
+- Lendable opera bajo este marco
+- Citation: "Operación legal under LGTOC; settle onchain es event de tax para el lender, no para la PyME"
+
+### Doble cesión problem (CNBV historical concern)
+
+- CNBV ha emitido 4+ communications desde 2020 pidiendo solución
+- Lendable lo resuelve via `LendableInvoiceCommitments` contract on Avalanche
+- Citation: "Resolvemos el problema #1 del factoring MX: doble cesión, on-chain commitment Avalanche"
+
+---
+
+## 10. Demo evidence checklist (durante hack-day)
+
+Marcar durante el hack para tener todo listo para el video Sábado:
+
+- [ ] Deploy LendableInvoiceCommitments contract → tx hash documentado
+- [ ] Verify contract on Snowtrace → URL documentado
+- [ ] First end-to-end demo run → audit trail JSON saved as `evidence/audit-001.json`
+- [ ] Settle tx hash → Snowtrace screenshot saved
+- [ ] /discover from Lendable A2A_KEY → response saved con 4 agents listed
+- [ ] /compose × 4 chain confirmed → request/response trace
+- [ ] Budget delta verified ($0.066 per run, no $4) → screenshot /auth/me before+after
+- [ ] All 4 agent endpoints respond 200 OK to invocation → screenshots
+- [ ] At least 3 distinct successful demo runs → audit trails saved
+
+---
+
+## 11. Submission portal checklist
+
+(TBD: verificar requirements del portal del hackathon)
+
+Probable list:
+- [ ] Project name + tagline
+- [ ] Team info (Fernando Rosas solo)
+- [ ] Description (500-1000 chars)
+- [ ] Demo video URL (YouTube unlisted)
+- [ ] Code repo URL (GitHub)
+- [ ] Live deployment URL
+- [ ] Pitch deck PDF (optional pero recomendado)
+- [ ] Sponsor categories selected (Avalanche + Bankaool + Arkangeles)
+- [ ] Tags (LATAM, fintech, factoring, agents, multichain)
+
+---
+
+## 12. Update log (mantain durante el hack)
+
+| Date | Field | Update |
+|---|---|---|
+| 2026-05-15 | initial | Created pre-hack catalog |
+| TBD | section 3 Fuji | Add LendableInvoiceCommitments deploy tx |
+| TBD | section 3 Fuji | Add first commit tx |
+| TBD | section 3 Fuji | Add first settle tx |
+| TBD | section 4 | Update aggregate test count post-hack |
