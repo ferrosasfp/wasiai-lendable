@@ -172,6 +172,56 @@ Durante el smoke E2E del W7, capturar para documentar:
 
 ---
 
+## 4.5 PWA Lighthouse Score
+
+> AR raised MNR-1 (post-fix-pack): the PWA-installability claim in the
+> story file needed published evidence. This section documents how to
+> reproduce the Lighthouse PWA score against the live deploy.
+
+### Option A — Lighthouse CLI (preferred, scriptable)
+
+```bash
+# 1. Install (one-time):
+npm install -g lighthouse@latest
+
+# 2. Run against the live production URL:
+lighthouse https://wasiai-cobraya.vercel.app \
+  --only-categories=pwa \
+  --quiet \
+  --chrome-flags="--headless --no-sandbox" \
+  --output=json \
+  --output-path=./doc/evidence/lighthouse-pwa.json
+
+# 3. Extract the score:
+jq .categories.pwa.score doc/evidence/lighthouse-pwa.json
+```
+
+Expected score: **≥0.90** (story §13 PWA AC). Capture the JSON file as
+permanent evidence in `doc/evidence/`.
+
+### Option B — Chrome DevTools manual run (no CLI install)
+
+1. Open Chrome → navigate to `https://wasiai-cobraya.vercel.app/demo`.
+2. DevTools → Lighthouse tab → check only "Progressive Web App".
+3. Click "Generate report". Screenshot the resulting score panel.
+4. Save screenshot to `doc/evidence/lighthouse-pwa-screenshot.png`.
+5. Save the full HTML report (export from DevTools) to
+   `doc/evidence/lighthouse-pwa-report.html`.
+
+### Current status (fix-pack 2026-05-16)
+
+The `lighthouse` CLI is **not installed** in the F3/F4 environment. F4 QA
+(`/nexus-p7-f4`) is the right owner to run one of the two options above
+and paste the score + evidence path here. Until then this section flags
+the dependency rather than fabricating a number.
+
+The PWA manifest itself (already shipped in W6) is verifiable today:
+- `curl -s https://wasiai-cobraya.vercel.app/manifest.webmanifest`
+- `tests/unit/pwa/manifest.test.ts` → PASS (validates the static manifest
+  against the PWA installability requirements).
+
+---
+
 ## 5. Multi-chain coverage (verifiable)
 
 ```bash
