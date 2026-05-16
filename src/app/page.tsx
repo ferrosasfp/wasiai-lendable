@@ -1,72 +1,104 @@
+// src/app/page.tsx — W6 REPLACE
+// Mobile-first hero. Narrativa Lupita / Walmart. Sin Oracle GenAI.
 import Link from "next/link";
+import { BrandIcon } from "@/components/BrandIcon";
 
 export default function Home() {
   return (
-    <main className="min-h-screen px-6 py-16 md:px-16 md:py-24 max-w-5xl mx-auto">
-      <div className="mb-16">
-        <div className="text-xs mono uppercase tracking-widest text-muted mb-4">
-          Cobraya · SmartFactoring agéntico · Avalanche
-        </div>
-        <h1 className="serif text-5xl md:text-7xl leading-none">
-          Tu factura entra. <br />
-          Tu cash sale. <br />
-          En segundos.
+    <main className="min-h-screen px-4 pt-6 pb-16 max-w-3xl mx-auto">
+      <header className="flex items-center gap-3 mb-8">
+        <BrandIcon />
+        <span className="mono text-[11px] uppercase tracking-widest text-muted">
+          Cobraya · SmartFactoring agéntico
+        </span>
+      </header>
+
+      <section className="mb-10">
+        <h1 className="serif text-4xl md:text-6xl leading-tight">
+          Tu factura,
+          <br />
+          líquida en 30 segundos.
         </h1>
-      </div>
+        <p className="text-base text-muted mt-4 leading-relaxed">
+          Lupita le factura a Walmart México por $48,500 MXN a 60 días. Cobraya orquesta
+          4 agentes autónomos — validador, anti-fraude onchain, scoring, subasta de
+          lenders — y deposita USDC en su wallet en segundos. Sin gas, sin trámites.
+        </p>
+      </section>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-        <div>
-          <div className="text-xs mono uppercase tracking-widest text-muted mb-3">01 · Validación</div>
-          <p className="text-sm leading-relaxed">
-            Subes tu CFDI. Un agente verifica con el SAT y detecta duplicados en menos de 5 segundos.
-          </p>
-        </div>
-        <div>
-          <div className="text-xs mono uppercase tracking-widest text-muted mb-3">02 · Scoring</div>
-          <p className="text-sm leading-relaxed">
-            Oracle GenAI puntúa al emisor en base a historial fiscal, anchor buyer y comportamiento de pago.
-          </p>
-        </div>
-        <div>
-          <div className="text-xs mono uppercase tracking-widest text-muted mb-3">03 · Settlement</div>
-          <p className="text-sm leading-relaxed">
-            El inversor firma una autorización gasless. USDC llega a tu wallet en Avalanche en segundos.
-          </p>
-        </div>
-      </div>
-
-      <div className="flex flex-col md:flex-row gap-4 mb-16">
+      <section className="mb-10">
         <Link
           href="/demo"
-          className="inline-block bg-ink text-paper px-8 py-4 mono text-sm uppercase tracking-widest hover:bg-accent transition-colors"
+          className="block w-full text-center bg-ink text-paper px-6 py-4 mono text-xs uppercase tracking-widest min-h-[48px]"
         >
           Probar el demo
         </Link>
         <Link
           href="https://github.com/ferrosasfp/wasiai-lendable"
-          className="inline-block border border-ink text-ink px-8 py-4 mono text-sm uppercase tracking-widest hover:bg-ink hover:text-paper transition-colors"
+          className="block w-full text-center mt-3 border border-ink text-ink px-6 py-4 mono text-xs uppercase tracking-widest min-h-[48px]"
         >
           Ver código
         </Link>
-      </div>
+      </section>
 
-      <div className="border-t border-line pt-12">
-        <div className="text-xs mono uppercase tracking-widest text-muted mb-6">Built on WasiAI · ya en producción</div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
-          <div>
-            <div className="font-medium mb-1">wasiai-a2a</div>
-            <div className="text-muted text-xs">A2A protocol gateway · 644 tests</div>
+      <section className="space-y-5 mb-10">
+        <div>
+          <div className="mono text-[11px] uppercase tracking-widest text-muted mb-1">
+            01 · Validación CFDI
           </div>
-          <div>
-            <div className="font-medium mb-1">wasiai-v2</div>
-            <div className="text-muted text-xs">Marketplace de agentes · 446 tests</div>
-          </div>
-          <div>
-            <div className="font-medium mb-1">wasiai-facilitator</div>
-            <div className="text-muted text-xs">Self-hosted x402 · 570 tests</div>
-          </div>
+          <p className="text-sm leading-relaxed">
+            <span className="mono">cobraya-cfdi-validator</span> verifica shape +
+            anchor buyer + duplicates en milisegundos.
+          </p>
         </div>
-      </div>
+        <div>
+          <div className="mono text-[11px] uppercase tracking-widest text-muted mb-1">
+            02 · Anti-fraude onchain
+          </div>
+          <p className="text-sm leading-relaxed">
+            <span className="mono">cobraya-fraud-detector</span> commitea el hash de la
+            factura en Avalanche Fuji. Imposible doble-cesión.
+          </p>
+        </div>
+        <div>
+          <div className="mono text-[11px] uppercase tracking-widest text-muted mb-1">
+            03 · Scoring de crédito
+          </div>
+          <p className="text-sm leading-relaxed">
+            <span className="mono">cobraya-credit-scorer</span> puntúa por sector +
+            anchor + términos de pago. Rationale con Claude Haiku.
+          </p>
+        </div>
+        <div>
+          <div className="mono text-[11px] uppercase tracking-widest text-muted mb-1">
+            04 · Subasta de lenders
+          </div>
+          <p className="text-sm leading-relaxed">
+            <span className="mono">cobraya-lender-matcher</span> corre auction entre 4
+            lenders y devuelve el ranking por APR + advance + speed.
+          </p>
+        </div>
+      </section>
+
+      <footer className="border-t border-ink/10 pt-6">
+        <div className="mono text-[11px] uppercase tracking-widest text-muted mb-3">
+          Built on WasiAI · ya en producción
+        </div>
+        <ul className="grid grid-cols-1 gap-3 text-sm">
+          <li>
+            <div className="font-medium">wasiai-a2a</div>
+            <div className="text-muted text-xs">A2A protocol gateway</div>
+          </li>
+          <li>
+            <div className="font-medium">wasiai-v2</div>
+            <div className="text-muted text-xs">Marketplace de agentes</div>
+          </li>
+          <li>
+            <div className="font-medium">wasiai-facilitator</div>
+            <div className="text-muted text-xs">Self-hosted x402</div>
+          </li>
+        </ul>
+      </footer>
     </main>
   );
 }
