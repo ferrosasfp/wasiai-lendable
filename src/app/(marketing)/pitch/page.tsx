@@ -65,7 +65,7 @@ export default function PitchPage() {
             </span>
             <span>Cobraya</span>
             <span className="sep">·</span>
-            <span className="sub">Avalanche LATAM 2026</span>
+            <span className="sub">Hackathon: LatAm Institucional</span>
           </a>
           <nav className="nav-links">
             <a href="#problema">Problema</a>
@@ -96,7 +96,7 @@ export default function PitchPage() {
           <div>
             <div className="hero-meta" data-rev>
               <span className="dot" />
-              Avalanche LATAM Fintech Build 2026
+              Hackathon: LatAm Institucional
               <span className="x">·</span>
               <span style={{ color: "var(--fg-2)" }}>
                 Factoraje agéntico · MX
@@ -259,7 +259,7 @@ export default function PitchPage() {
             <div className="pipe-head">
               <div className="pipe-title">
                 <span className="dot" />
-                Cobraya Pipeline · LATAM Fintech
+                Cobraya Pipeline · LatAm Institucional
               </div>
               <div className="pipe-chips">
                 <span className="hot">CFDI 4.0</span>
@@ -731,7 +731,7 @@ export default function PitchPage() {
             <span style={{ fontStyle: "italic" }}>agentes.</span>&quot;
           </blockquote>
           <div className="by" data-rev data-d="1">
-            — Cobraya · Avalanche LATAM Fintech Build 2026
+            — Cobraya · Hackathon: LatAm Institucional
           </div>
         </div>
       </section>
@@ -788,7 +788,7 @@ export default function PitchPage() {
                 }}
               >
                 <span style={{ color: "var(--wine-soft)" }}>◆</span>{" "}
-                Avalanche LATAM Fintech Build 2026
+                Hackathon: LatAm Institucional
               </div>
             </div>
             <div>
@@ -847,7 +847,7 @@ export default function PitchPage() {
               <h5>Hackathon</h5>
               <ul>
                 <li>
-                  <a>Avalanche LATAM 2026</a>
+                  <a>LatAm Institucional 2026</a>
                 </li>
                 <li>
                   <a
