@@ -6,7 +6,6 @@ import { signTransferAuthorization } from "@/infra/eip3009-signer";
 import { settleOnFacilitator } from "@/infra/facilitator-client";
 import { ONCHAIN_AMOUNT_CAP_USDC, OWNER_ADDRESS, FACILITATOR_URL } from "@/infra/env";
 import { mockSettle } from "@/application/mock-adapter";
-import { pushSettlement } from "@/infra/agent-signer";
 import type { AuditSettlement } from "@/types/audit-trail";
 
 const MatchSchema = z.object({
@@ -37,21 +36,21 @@ export async function POST(req: NextRequest) {
     );
   }
   const { match } = parsed.data;
-  const amountUSDC = match.netAmountUSDC;
+  const requestedAmountUSDC = match.netAmountUSDC;
   const requestId = req.headers.get("x-cobraya-request-id");
 
-  // CD-5 + AC-7: server-side cap enforcement.
-  if (amountUSDC > ONCHAIN_AMOUNT_CAP_USDC) {
-    return NextResponse.json(
-      {
-        error: "cap_exceeded",
-        testnetCapUSDC: ONCHAIN_AMOUNT_CAP_USDC,
-        requestedUSDC: amountUSDC,
-        message: `testnet cap — mainnet would settle full $${amountUSDC}`,
-      },
-      { status: 422 },
-    );
-  }
+  // CD-5 + AC-7 (revised): testnet cap is a CLAMP, not a REJECT.
+  // Original AR/CR shipped this as 422 reject — that broke the demo because
+  // real lender-matcher outputs $500-$5000 USDC equivalents for invoices in the
+  // 15K-200K MXN range. The cap exists to bound on-chain testnet exposure, NOT
+  // to deny the operation. Server clamps to cap, settles the clamped amount,
+  // and returns metadata so the UI can show "testnet cap — mainnet would
+  // settle full $X" without blocking the flow.
+  const wasClamped = requestedAmountUSDC > ONCHAIN_AMOUNT_CAP_USDC;
+  const amountUSDC = wasClamped ? ONCHAIN_AMOUNT_CAP_USDC : requestedAmountUSDC;
+
+  const usdcAddress = (process.env.USDC_ADDRESS ??
+    "0x5425890298aed601595a70AB815c96711a31Bc65") as `0x${string}`;
 
   if (isDemoMode()) {
     const to = (OWNER_ADDRESS ?? "0x0000000000000000000000000000000000000000") as `0x${string}`;
@@ -72,8 +71,7 @@ export async function POST(req: NextRequest) {
           name: "USD Coin",
           version: "2",
           chainId: 43113,
-          verifyingContract: (process.env.USDC_ADDRESS ??
-            "0x5425890298aed601595a70AB815c96711a31Bc65") as `0x${string}`,
+          verifyingContract: usdcAddress,
         },
         primaryType: "TransferWithAuthorization",
         message: {
@@ -92,15 +90,18 @@ export async function POST(req: NextRequest) {
       deliveredAmountUSDC: amountUSDC,
       facilitatorUrl: FACILITATOR_URL,
     };
-    if (requestId) pushSettlement(requestId, settlement);
 
     return NextResponse.json({
       receipt: {
         txHash: fake.txHash,
         snowtraceUrl: settlement.snowtraceUrl,
         deliveredAmountUSDC: amountUSDC,
+        requestedAmountUSDC,
+        wasClamped,
+        testnetCapUSDC: ONCHAIN_AMOUNT_CAP_USDC,
         blockNumber: fake.blockNumber,
       },
+      settlement,
       traces: [],
     });
   }
@@ -109,48 +110,48 @@ export async function POST(req: NextRequest) {
     const to = OWNER_ADDRESS as `0x${string}`;
     const valueOnchain = parseUnits(amountUSDC.toString(), 6);
     const auth = await signTransferAuthorization({ to, valueOnchain });
-    const settlement = await settleOnFacilitator({
+    const settled = await settleOnFacilitator({
       authorization: auth,
       lenderId: match.lenderId,
     });
 
-    if (requestId) {
-      const audit: AuditSettlement = {
-        authorization: {
-          domain: {
-            name: "USD Coin",
-            version: "2",
-            chainId: 43113,
-            verifyingContract: (process.env.USDC_ADDRESS ??
-              "0x5425890298aed601595a70AB815c96711a31Bc65") as `0x${string}`,
-          },
-          primaryType: "TransferWithAuthorization",
-          message: {
-            from: auth.from,
-            to: auth.to,
-            value: auth.value.toString(),
-            validAfter: auth.validAfter.toString(),
-            validBefore: auth.validBefore.toString(),
-            nonce: auth.nonce,
-          },
+    const settlement: AuditSettlement = {
+      authorization: {
+        domain: {
+          name: "USD Coin",
+          version: "2",
+          chainId: 43113,
+          verifyingContract: usdcAddress,
         },
-        signature: auth.signature,
-        txHash: settlement.txHash,
-        blockNumber: settlement.blockNumber,
-        snowtraceUrl: settlement.snowtraceUrl,
-        deliveredAmountUSDC: settlement.deliveredAmountUSDC,
-        facilitatorUrl: FACILITATOR_URL,
-      };
-      pushSettlement(requestId, audit);
-    }
+        primaryType: "TransferWithAuthorization",
+        message: {
+          from: auth.from,
+          to: auth.to,
+          value: auth.value.toString(),
+          validAfter: auth.validAfter.toString(),
+          validBefore: auth.validBefore.toString(),
+          nonce: auth.nonce,
+        },
+      },
+      signature: auth.signature,
+      txHash: settled.txHash,
+      blockNumber: settled.blockNumber,
+      snowtraceUrl: settled.snowtraceUrl,
+      deliveredAmountUSDC: settled.deliveredAmountUSDC,
+      facilitatorUrl: FACILITATOR_URL,
+    };
 
     return NextResponse.json({
       receipt: {
-        txHash: settlement.txHash,
-        snowtraceUrl: settlement.snowtraceUrl,
-        deliveredAmountUSDC: settlement.deliveredAmountUSDC,
-        blockNumber: settlement.blockNumber,
+        txHash: settled.txHash,
+        snowtraceUrl: settled.snowtraceUrl,
+        deliveredAmountUSDC: settled.deliveredAmountUSDC,
+        requestedAmountUSDC,
+        wasClamped,
+        testnetCapUSDC: ONCHAIN_AMOUNT_CAP_USDC,
+        blockNumber: settled.blockNumber,
       },
+      settlement,
       traces: [],
     });
   } catch (err) {

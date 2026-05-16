@@ -1,7 +1,18 @@
-// src/infra/agent-signer.ts — W5.5
-// EIP-712 receipt signer + process-scoped audit buffer.
+// src/infra/agent-signer.ts
+// EIP-712 receipt signer for per-step audit attestation.
 // CD-12: domain strict { name:"Cobraya", version:"1", chainId:43113 }.
 // CD-13: types/structure mirrored in scripts/verify-audit-trail.js for offline verify.
+//
+// History: an earlier revision also exposed `getOrInitTrail/pushStep/pushSettlement/
+// getTrail` backed by a `globalThis` Map. That worked locally and during single-lambda
+// warm runs on Vercel, but each `/api/agents/.../invoke` route lives in its OWN
+// serverless function instance — when the parallel scorer landed on a different
+// warm Lambda than the validator, `pushStep` silently early-returned (no trail
+// in this instance's memory) and the step disappeared from the downloaded JSON.
+// User-observed: trail with `steps: [0, 1, 3]` and `totalCostUSDC` short by $0.05
+// (the scorer's price). The buffer is removed. The audit trail is composed on the
+// client from agent responses — each route returns its EIP-712 receipt and the
+// frontend assembles + SHA256-roots the canonical trail in `lib/audit-trail-composer.ts`.
 import { createWalletClient, http, keccak256, stringToBytes } from "viem";
 import { avalancheFuji } from "viem/chains";
 import { privateKeyToAccount } from "viem/accounts";
@@ -11,13 +22,7 @@ import {
   getScorerHotKey,
   getMatcherHotKey,
 } from "@/infra/env";
-import type {
-  AuditReceipt,
-  AuditReceiptDomain,
-  AuditSettlement,
-  AuditStep,
-  AuditTrail,
-} from "@/types/audit-trail";
+import type { AuditReceipt, AuditReceiptDomain } from "@/types/audit-trail";
 
 const DOMAIN: AuditReceiptDomain = { name: "Cobraya", version: "1", chainId: 43113 } as const;
 
@@ -44,11 +49,6 @@ function getHotKeyFor(agentSlug: string): `0x${string}` {
   return key as `0x${string}`;
 }
 
-// MNR-3 (post-AR fix-pack): `input` / `output` typed as `unknown` instead of
-// `Record<string, unknown>`. Callers that pass shaped result objects (e.g.
-// `AuctionResult`, `FraudOutput`) no longer need `as unknown as Record<...>`
-// casts at every call site. Internally we JSON.stringify so any JSON-safe
-// value works.
 export async function signReceipt(args: {
   agentSlug: string;
   stepIndex: number;
@@ -98,64 +98,4 @@ export async function signReceipt(args: {
 export function getAgentAddress(agentSlug: string): `0x${string}` {
   const account = privateKeyToAccount(getHotKeyFor(agentSlug));
   return account.address;
-}
-
-// --- Audit buffer (DT-M) — process-scoped, demo-only --------------------
-
-declare global {
-  // eslint-disable-next-line no-var
-  var __cobrayaAuditBuffer: Map<string, AuditTrail> | undefined;
-}
-
-function buffer(): Map<string, AuditTrail> {
-  if (!globalThis.__cobrayaAuditBuffer) globalThis.__cobrayaAuditBuffer = new Map();
-  return globalThis.__cobrayaAuditBuffer;
-}
-
-export function getOrInitTrail(
-  requestId: string,
-  invoiceMeta: AuditTrail["invoice"],
-): AuditTrail {
-  const buf = buffer();
-  let trail = buf.get(requestId);
-  if (!trail) {
-    trail = {
-      schemaVersion: "1.0.0",
-      requestId,
-      startedAt: new Date().toISOString(),
-      completedAt: "",
-      totalLatencyMs: 0,
-      invoice: invoiceMeta,
-      steps: [],
-      settlement: null,
-      totalCostUSDC: 0,
-      trailHashSHA256: ("0x" + "0".repeat(64)) as `0x${string}`,
-    };
-    buf.set(requestId, trail);
-  }
-  return trail;
-}
-
-export function pushStep(requestId: string, step: AuditStep): void {
-  const trail = buffer().get(requestId);
-  if (!trail) return;
-  trail.steps.push(step);
-  trail.totalCostUSDC = Math.round((trail.totalCostUSDC + step.priceUsdc) * 1_000_000) / 1_000_000;
-}
-
-export function pushSettlement(requestId: string, settlement: AuditSettlement): void {
-  const trail = buffer().get(requestId);
-  if (!trail) return;
-  trail.settlement = settlement;
-  trail.completedAt = new Date().toISOString();
-  trail.totalLatencyMs = Date.now() - new Date(trail.startedAt).getTime();
-}
-
-export function getTrail(requestId: string): AuditTrail | undefined {
-  return buffer().get(requestId);
-}
-
-// Test-only — clear buffer between tests.
-export function __resetAuditBuffer(): void {
-  globalThis.__cobrayaAuditBuffer = new Map();
 }

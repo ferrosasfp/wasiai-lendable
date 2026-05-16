@@ -4,7 +4,7 @@ import { render } from "@testing-library/react";
 import { AuditPanel } from "@/components/AuditPanel";
 
 describe("AuditPanel (T-UI-AUDIT-1)", () => {
-  it("renders '1 step' + download anchor with href=/api/audit-trail/{requestId}", () => {
+  it("renders '1 step' + download anchor pointing to the provided blob URL", () => {
     const { container } = render(
       <AuditPanel
         steps={[
@@ -15,13 +15,15 @@ describe("AuditPanel (T-UI-AUDIT-1)", () => {
             latencyMs: 120,
           },
         ]}
-        requestId="abc"
+        auditDownloadHref="blob:fake-url"
+        auditDownloadFilename="cobraya-audit-abc.json"
       />,
     );
-    expect(container.textContent).toContain("1 step");
+    expect(container.textContent).toContain("1 paso");
     const anchor = container.querySelector("a[download]");
     expect(anchor).not.toBeNull();
-    expect(anchor?.getAttribute("href")).toBe("/api/audit-trail/abc");
+    expect(anchor?.getAttribute("href")).toBe("blob:fake-url");
+    expect(anchor?.getAttribute("download")).toBe("cobraya-audit-abc.json");
   });
 
   it("uses plural 'steps' when more than one step is present", () => {
@@ -31,9 +33,19 @@ describe("AuditPanel (T-UI-AUDIT-1)", () => {
           { stepIndex: 0, agentSlug: "a", success: true, latencyMs: 10 },
           { stepIndex: 1, agentSlug: "b", success: false, latencyMs: 20 },
         ]}
-        requestId="xyz"
+        auditDownloadHref="blob:other"
       />,
     );
-    expect(container.textContent).toContain("2 steps");
+    expect(container.textContent).toContain("2 pasos");
+  });
+
+  it("hides download anchor when auditDownloadHref is null", () => {
+    const { container } = render(
+      <AuditPanel
+        steps={[{ stepIndex: 0, agentSlug: "a", success: true, latencyMs: 10 }]}
+        auditDownloadHref={null}
+      />,
+    );
+    expect(container.querySelector("a[download]")).toBeNull();
   });
 });

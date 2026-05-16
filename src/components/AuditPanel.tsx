@@ -1,6 +1,8 @@
-// src/components/AuditPanel.tsx — W5.5 base + W6 final integration.
-// Collapsible bottom-sheet on mobile. Download CTA anchored to /api/audit-trail/{requestId}.
-// AC-13: audit UI · CD-18: touch targets ≥44px.
+// src/components/AuditPanel.tsx
+// Collapsible bottom-sheet on mobile. Download CTA points to a blob URL that
+// the demo page composes (and owns the lifecycle of) once the pipeline has
+// settled — the trail itself is built entirely on the client from the agents'
+// EIP-712 receipts (see lib/audit-trail-composer.ts).
 "use client";
 
 import { useState } from "react";
@@ -14,36 +16,36 @@ export interface AuditStepDisplay {
 
 interface Props {
   steps: AuditStepDisplay[];
-  requestId: string | null;
+  auditDownloadHref?: string | null;
+  auditDownloadFilename?: string;
 }
 
-export function AuditPanel({ steps, requestId }: Props) {
+export function AuditPanel({ steps, auditDownloadHref, auditDownloadFilename }: Props) {
   const [open, setOpen] = useState(false);
   return (
     <details
       open={open}
       onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}
-      className="fixed bottom-0 left-0 right-0 bg-paper border-t border-ink z-30"
-      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      className="relative mt-6 border-t border-luma-200 pt-4 bg-luma-50"
     >
-      <summary className="px-4 py-3 mono text-xs uppercase tracking-widest cursor-pointer min-h-[44px] flex items-center">
-        Audit trail · {steps.length} step{steps.length === 1 ? "" : "s"}
+      <summary className="px-4 py-3 mono text-xs uppercase tracking-widest cursor-pointer min-h-[44px] flex items-center text-luma-700">
+        Comprobante de la operación · {steps.length} paso{steps.length === 1 ? "" : "s"}
       </summary>
       <ul className="px-4 py-3 max-h-[60vh] overflow-y-auto">
         {steps.map((s) => (
-          <li key={s.stepIndex} className="py-2 border-b border-ink/10 text-sm">
+          <li key={s.stepIndex} className="py-2 border-b border-luma-200 text-sm text-luma-700">
             <span className="mono">{s.agentSlug}</span> · {s.success ? "OK" : "FAIL"} ·{" "}
             {s.latencyMs}ms
           </li>
         ))}
       </ul>
-      {requestId && (
+      {auditDownloadHref && (
         <a
-          href={`/api/audit-trail/${requestId}`}
-          download
-          className="block px-4 py-3 bg-ink text-paper text-center mono text-xs uppercase tracking-widest min-h-[44px]"
+          href={auditDownloadHref}
+          download={auditDownloadFilename ?? "cobraya-audit.json"}
+          className="cta-primary"
         >
-          Descargar audit trail JSON
+          Descargar comprobante
         </a>
       )}
     </details>
