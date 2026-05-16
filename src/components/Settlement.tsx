@@ -113,9 +113,12 @@ export function Settlement({ match, settlement, requestId, onSign, isSigning }: 
         </div>
       </section>
 
-      {/* Bottom-anchored primary CTA with safe-area-inset-bottom (CD-18 mobile-first). */}
+      {/* Bottom-anchored primary CTA with safe-area-inset-bottom (CD-18 mobile-first).
+          z-40 must sit ABOVE the AuditPanel (z-10) — otherwise the audit summary covers
+          the settle button on mobile. Earlier W6 shipped z-20 vs AuditPanel z-30 (inverted)
+          — fixed in fix/settle-cap-and-button-zindex. */}
       <div
-        className="fixed left-0 right-0 bottom-0 px-4 pt-3 bg-paper border-t border-ink/10 z-20"
+        className="fixed left-0 right-0 bottom-16 px-4 pt-3 bg-paper border-t border-ink/10 z-40"
         style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
       >
         <button
