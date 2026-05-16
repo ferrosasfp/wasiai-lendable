@@ -13,10 +13,12 @@ interface SettleResponse {
   receipt?: {
     txHash?: string;
     deliveredAmountUSDC?: number;
+    requestedAmountUSDC?: number;
+    wasClamped?: boolean;
+    testnetCapUSDC?: number;
+    blockNumber?: number;
   };
   error?: string;
-  testnetCapUSDC?: number;
-  requestedUSDC?: number;
   message?: string;
 }
 
@@ -47,19 +49,22 @@ describe("/api/settle (W5)", () => {
     expect(json.receipt?.deliveredAmountUSDC).toBe(0.04);
   });
 
-  it("T-SETTLE-2 amount > cap → 422 cap_exceeded (CD-5, AC-7)", async () => {
+  it("T-SETTLE-2 amount > cap → clamp + settle (CD-5, AC-7 revised: clamp NOT reject)", async () => {
     vi.stubEnv("ONCHAIN_AMOUNT_CAP_USDC", "0.05");
+    vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "true");
     const { POST } = await import("@/app/api/settle/route");
     const res = await POST(
       makeReq({
-        match: { lenderId: "lender-konfio", lenderName: "Konfío Express", netAmountUSDC: 0.06 },
+        match: { lenderId: "lender-konfio", lenderName: "Konfío Express", netAmountUSDC: 2236.5 },
       }),
     );
-    expect(res.status).toBe(422);
+    expect(res.status).toBe(200);
     const json = (await res.json()) as SettleResponse;
-    expect(json.error).toBe("cap_exceeded");
-    expect(json.testnetCapUSDC).toBe(0.05);
-    expect(json.requestedUSDC).toBe(0.06);
+    expect(json.receipt?.txHash).toMatch(/^0x[0-9a-f]+$/);
+    expect(json.receipt?.deliveredAmountUSDC).toBe(0.05);
+    expect(json.receipt?.requestedAmountUSDC).toBe(2236.5);
+    expect(json.receipt?.wasClamped).toBe(true);
+    expect(json.receipt?.testnetCapUSDC).toBe(0.05);
   });
 
   it("T-SETTLE-3 facilitator throws → 502 settle_failed", async () => {

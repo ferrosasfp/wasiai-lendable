@@ -23,7 +23,7 @@ export function AuditPanel({ steps, requestId }: Props) {
     <details
       open={open}
       onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}
-      className="fixed bottom-0 left-0 right-0 bg-paper border-t border-ink z-30"
+      className="fixed bottom-0 left-0 right-0 bg-paper border-t border-ink z-10"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <summary className="px-4 py-3 mono text-xs uppercase tracking-widest cursor-pointer min-h-[44px] flex items-center">
