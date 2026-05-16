@@ -1,7 +1,7 @@
 // src/application/validate-invoice.ts — W2 wired to local cobraya-cfdi-validator agent.
 // Public signature preserved (Invoice → ValidatorResult) for backwards compat with /api/validate route.
 import { isDemoMode } from "@/infra/env";
-import { mockValidate } from "@/infra/mock-adapter";
+import { mockValidate } from "@/application/mock-adapter";
 import type { Invoice, ValidatorResult } from "@/types/invoice";
 
 interface ValidatorAgentResponse {

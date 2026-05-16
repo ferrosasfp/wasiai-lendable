@@ -1,6 +1,6 @@
 // src/application/score-invoice.ts — W3 wired to local credit-scorer agent.
 import { isDemoMode } from "@/infra/env";
-import { mockScore } from "@/infra/mock-adapter";
+import { mockScore } from "@/application/mock-adapter";
 import type { Invoice, ScoreResult } from "@/types/invoice";
 
 interface CreditScorerResponse {

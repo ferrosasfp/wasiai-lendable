@@ -5,7 +5,7 @@ import { createPublicClient, createWalletClient, http, keccak256, encodePacked, 
 import { avalancheFuji } from "viem/chains";
 import { privateKeyToAccount } from "viem/accounts";
 import { COMMITMENTS_ABI } from "@/lib/abis/cobraya-invoice-commitments";
-import { mockFraudCheck } from "@/infra/mock-adapter";
+import { mockFraudCheck } from "@/application/mock-adapter";
 import { signReceipt, getAgentAddress, pushStep } from "@/infra/agent-signer";
 import { isValidUuidV4 } from "@/lib/uuid-validator";
 import { buildAuditCookieHeader } from "@/lib/audit-auth";

@@ -1,6 +1,8 @@
-// src/infra/mock-adapter.ts
-// CD-19: infra may not import core; this file lives in infra and DOES use core helpers via re-export…
-// Actually for the legacy mock helpers we kept thin re-uses of core (pure functions, no circular dep).
+// src/application/mock-adapter.ts — CR fix BLQ-MED CR-1.
+// Moved out of `src/infra/` (was violating CD-19: `infra` may not import
+// `core`). Application is the correct home: it orchestrates core (pure rules)
+// and may also depend on infra primitives (env, chain id).
+// Layer order is now clean: app → application → { infra, core }.
 // New W1 helpers (mockFraudCheck, mockAuction) are deterministic — no Math.random().
 import { keccak256, encodePacked } from "viem";
 import { termDays } from "@/core/invoice";
@@ -15,7 +17,7 @@ import type {
   SettlementReceipt,
   ValidatorResult,
 } from "@/types/invoice";
-import { CHAIN_ID } from "./env";
+import { CHAIN_ID } from "@/infra/env";
 
 export function mockValidate(invoice: Invoice): ValidatorResult {
   return {

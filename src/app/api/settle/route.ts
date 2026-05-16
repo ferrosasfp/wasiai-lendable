@@ -5,7 +5,7 @@ import { parseUnits } from "viem";
 import { signTransferAuthorization } from "@/infra/eip3009-signer";
 import { settleOnFacilitator } from "@/infra/facilitator-client";
 import { ONCHAIN_AMOUNT_CAP_USDC, OWNER_ADDRESS, FACILITATOR_URL } from "@/infra/env";
-import { mockSettle } from "@/infra/mock-adapter";
+import { mockSettle } from "@/application/mock-adapter";
 import { pushSettlement } from "@/infra/agent-signer";
 import type { AuditSettlement } from "@/types/audit-trail";
 

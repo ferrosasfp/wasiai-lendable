@@ -3,7 +3,7 @@
 // inline. This export is preserved as a thin demo helper so any external
 // caller (or test) still using the function-style API gets the mock path.
 import { isDemoMode } from "@/infra/env";
-import { mockSettle } from "@/infra/mock-adapter";
+import { mockSettle } from "@/application/mock-adapter";
 import type { LenderMatch, SettlementReceipt } from "@/types/invoice";
 
 /** @deprecated use POST /api/settle directly (W5 introduced inline EIP-3009). */

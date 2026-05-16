@@ -1,7 +1,7 @@
 // src/application/match-lender.ts — W4 wired to local lender-matcher agent.
 // Public signature preserved (Invoice, ScoreResult → LenderMatch).
 import { isDemoMode } from "@/infra/env";
-import { mockMatch } from "@/infra/mock-adapter";
+import { mockMatch } from "@/application/mock-adapter";
 import { mxnToUSDC } from "@/core/settlement";
 import type { AuctionResult, Invoice, LenderMatch, ScoreResult } from "@/types/invoice";
 
