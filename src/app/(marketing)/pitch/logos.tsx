@@ -89,34 +89,19 @@ export function LogoAvalanche({ size = 22, className }: LogoProps) {
 }
 
 /**
- * USDC — blue circle (#2775CA) with serif "$" centered.
- * Brand reference: circle.com/usdc visual identity.
+ * USDC — official Circle USDC logo, served from /public/logos/usdc.png.
+ * Original asset is a high-res PNG (Circle brand kit).
  */
 export function LogoUSDC({ size = 22, className }: LogoProps) {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      role="img"
-      aria-label="USDC"
+    <img
+      src="/logos/usdc.png"
+      alt="USDC"
       width={size}
       height={size}
       className={className}
-    >
-      <title>USDC</title>
-      <circle cx="12" cy="12" r="11" fill="#2775CA" />
-      <text
-        x="12"
-        y="16.5"
-        textAnchor="middle"
-        fontFamily="Georgia, 'Times New Roman', serif"
-        fontSize="14"
-        fontWeight="700"
-        fill="#FFFFFF"
-      >
-        $
-      </text>
-    </svg>
+      style={{ display: "block" }}
+    />
   );
 }
 
@@ -191,28 +176,19 @@ export function LogoOpenZeppelin({ size = 22, className }: LogoProps) {
 }
 
 /**
- * Anthropic — official-style 3 vertical bars monogram, in the brand
- * orange (#D97757). Using currentColor would clash less but tests in
- * dark/light show the orange reads well on both backgrounds.
+ * Anthropic — official Claude icon, served from /public/logos/anthropic.webp.
+ * Original asset is the Anthropic brand mark in WebP.
  */
 export function LogoAnthropic({ size = 22, className }: LogoProps) {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      role="img"
-      aria-label="Anthropic Claude"
+    <img
+      src="/logos/anthropic.webp"
+      alt="Anthropic Claude"
       width={size}
       height={size}
       className={className}
-    >
-      <title>Anthropic Claude</title>
-      {/* Three vertical bars on the Claude monogram, slightly bowed inward.
-          Tuned for the 38×38 .ico wrapper at size=22. */}
-      <rect x="4.5" y="4" width="3" height="16" rx="1" fill="#D97757" />
-      <rect x="10.5" y="4" width="3" height="16" rx="1" fill="#D97757" />
-      <rect x="16.5" y="4" width="3" height="16" rx="1" fill="#D97757" />
-    </svg>
+      style={{ display: "block" }}
+    />
   );
 }
 
@@ -255,40 +231,19 @@ export function LogoNextjs({ size = 22, className }: LogoProps) {
 }
 
 /**
- * Supabase — two-triangle mark using the brand green #3ECF8E.
- * Approximates the official logo geometry (lightning/triangle stack).
+ * Supabase — official logo, served from /public/logos/supabase.webp.
+ * Original asset is the Supabase brand mark in WebP.
  */
 export function LogoSupabase({ size = 22, className }: LogoProps) {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      role="img"
-      aria-label="Supabase"
+    <img
+      src="/logos/supabase.webp"
+      alt="Supabase"
       width={size}
       height={size}
       className={className}
-    >
-      <title>Supabase</title>
-      {/* Lower triangle — flipped, points up-right */}
-      <path
-        d="M13.5 22 V14 H21 Z"
-        fill="#3ECF8E"
-      />
-      {/* Upper triangle — points down-left, slight overlap accent */}
-      <path
-        d="M10.5 2 V10 H3 Z"
-        fill="#3ECF8E"
-        opacity="0.85"
-      />
-      {/* Crossing connector strap */}
-      <path
-        d="M10.5 10 L13.5 14"
-        stroke="#3ECF8E"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-    </svg>
+      style={{ display: "block" }}
+    />
   );
 }
 
