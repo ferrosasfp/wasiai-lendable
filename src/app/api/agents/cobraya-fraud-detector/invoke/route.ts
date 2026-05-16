@@ -1,5 +1,4 @@
-// src/app/api/agents/cobraya-fraud-detector/invoke/route.ts — W2.5e
-// CD-1: no any. CD-9: no key leak in logs/responses. CD-21: no env dumps.
+// src/app/api/agents/cobraya-fraud-detector/invoke/route.ts — W2.5 + W5.5 wiring
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createPublicClient, createWalletClient, http, keccak256, encodePacked } from "viem";
@@ -7,6 +6,7 @@ import { avalancheFuji } from "viem/chains";
 import { privateKeyToAccount } from "viem/accounts";
 import { COMMITMENTS_ABI } from "@/lib/abis/cobraya-invoice-commitments";
 import { mockFraudCheck } from "@/infra/mock-adapter";
+import { signReceipt, getAgentAddress, pushStep } from "@/infra/agent-signer";
 
 const InputSchema = z.object({
   uuidCfdi: z.string().min(1),
@@ -14,13 +14,73 @@ const InputSchema = z.object({
   amountMXN: z.number().positive(),
 });
 
+const SLUG = "cobraya-fraud-detector";
+const PRICE_USDC = 0.005;
+const ZERO_BYTES32 = "0x0000000000000000000000000000000000000000000000000000000000000000" as const;
+
 function isDemoMode(): boolean {
   return process.env.NEXT_PUBLIC_DEMO_MODE === "true";
 }
 
-const ZERO_BYTES32 = "0x0000000000000000000000000000000000000000000000000000000000000000" as const;
+interface FraudOutput {
+  isUnique: boolean;
+  commitmentHash: `0x${string}`;
+  commitTxHash?: `0x${string}`;
+  snowtraceUrl?: string;
+  blockNumber?: number;
+  timestamp?: number;
+  originalCommitTimestamp?: number;
+  originalCommitter?: `0x${string}`;
+  rejectReason?: string;
+}
+
+async function maybePushAuditStep(
+  requestId: string | null,
+  input: Record<string, unknown>,
+  output: FraudOutput,
+  t0: number,
+  success: boolean,
+): Promise<Awaited<ReturnType<typeof signReceipt>> | null> {
+  let receipt: Awaited<ReturnType<typeof signReceipt>> | null = null;
+  const outputForReceipt = output as unknown as Record<string, unknown>;
+  try {
+    receipt = await signReceipt({
+      agentSlug: SLUG,
+      stepIndex: 1,
+      input,
+      output: outputForReceipt,
+      startedAt: t0,
+      priceUsdc: PRICE_USDC,
+    });
+    if (requestId) {
+      pushStep(requestId, {
+        stepIndex: 1,
+        agentSlug: SLUG,
+        agentName: "Cobraya Fraud Detector",
+        priceUsdc: PRICE_USDC,
+        agentSigner: getAgentAddress(SLUG),
+        input,
+        output: outputForReceipt,
+        success,
+        latencyMs: Date.now() - t0,
+        receipt,
+        onchain: output.commitTxHash
+          ? {
+              txHash: output.commitTxHash,
+              blockNumber: output.blockNumber ?? 0,
+              snowtraceUrl: output.snowtraceUrl ?? "",
+            }
+          : null,
+      });
+    }
+  } catch {
+    receipt = null;
+  }
+  return receipt;
+}
 
 export async function POST(req: NextRequest) {
+  const t0 = Date.now();
   const parsed = InputSchema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json(
@@ -29,14 +89,26 @@ export async function POST(req: NextRequest) {
     );
   }
   const { uuidCfdi, rfcEmisor, amountMXN } = parsed.data;
+  const requestId = req.headers.get("x-cobraya-request-id");
 
   const commitmentHash = keccak256(
     encodePacked(["string", "string", "uint256"], [uuidCfdi, rfcEmisor, BigInt(amountMXN)]),
-  );
+  ) as `0x${string}`;
+
+  const inputForReceipt = { uuidCfdi, rfcEmisor, amountMXN };
 
   if (isDemoMode()) {
     const mock = mockFraudCheck({ uuidCfdi, rfcEmisor, amountMXN });
-    return NextResponse.json({ ...mock, receipt: null });
+    const output: FraudOutput = {
+      isUnique: mock.isUnique,
+      commitmentHash: mock.commitmentHash as `0x${string}`,
+      commitTxHash: mock.commitTxHash,
+      snowtraceUrl: mock.snowtraceUrl,
+      blockNumber: mock.blockNumber,
+      timestamp: mock.timestamp,
+    };
+    const receipt = await maybePushAuditStep(requestId, inputForReceipt, output, t0, mock.isUnique);
+    return NextResponse.json({ ...output, receipt });
   }
 
   const rpcUrl = process.env.AVALANCHE_RPC_URL;
@@ -44,7 +116,6 @@ export async function POST(req: NextRequest) {
   const privateKey = process.env.FRAUD_DETECTOR_PRIVATE_KEY as `0x${string}` | undefined;
 
   if (!rpcUrl || !contractAddress || !privateKey) {
-    // CD-9: do NOT enumerate which env var was missing — generic message.
     return NextResponse.json(
       { error: "fraud_detector_not_configured", commitmentHash, receipt: null },
       { status: 503 },
@@ -62,14 +133,15 @@ export async function POST(req: NextRequest) {
     })) as [boolean, bigint, `0x${string}`];
 
     if (active) {
-      return NextResponse.json({
+      const output: FraudOutput = {
         isUnique: false,
         commitmentHash,
         originalCommitTimestamp: Number(ts),
         originalCommitter: committer,
         rejectReason: "INVOICE_ALREADY_COMMITTED",
-        receipt: null,
-      });
+      };
+      const receipt = await maybePushAuditStep(requestId, inputForReceipt, output, t0, false);
+      return NextResponse.json({ ...output, receipt });
     }
 
     const account = privateKeyToAccount(privateKey);
@@ -86,21 +158,23 @@ export async function POST(req: NextRequest) {
       args: [commitmentHash, ZERO_BYTES32],
     });
 
-    const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash, confirmations: 1 });
+    const receiptOnchain = await publicClient.waitForTransactionReceipt({
+      hash: txHash,
+      confirmations: 1,
+    });
 
-    return NextResponse.json({
+    const output: FraudOutput = {
       isUnique: true,
       commitmentHash,
       commitTxHash: txHash,
       snowtraceUrl: `https://testnet.snowtrace.io/tx/${txHash}`,
-      blockNumber: Number(receipt.blockNumber),
+      blockNumber: Number(receiptOnchain.blockNumber),
       timestamp: Math.floor(Date.now() / 1000),
-      receipt: null,
-    });
+    };
+    const receipt = await maybePushAuditStep(requestId, inputForReceipt, output, t0, true);
+    return NextResponse.json({ ...output, receipt });
   } catch (err) {
-    // CD-9: sanitize — only message string, never full stack/keys.
     const message = err instanceof Error ? err.message : "unknown";
-    // Defensive: filter accidental key prefix leakage.
     const safe = message.replace(/0x[0-9a-fA-F]{40,}/g, "<redacted-hex>");
     return NextResponse.json(
       {
