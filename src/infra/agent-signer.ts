@@ -44,11 +44,16 @@ function getHotKeyFor(agentSlug: string): `0x${string}` {
   return key as `0x${string}`;
 }
 
+// MNR-3 (post-AR fix-pack): `input` / `output` typed as `unknown` instead of
+// `Record<string, unknown>`. Callers that pass shaped result objects (e.g.
+// `AuctionResult`, `FraudOutput`) no longer need `as unknown as Record<...>`
+// casts at every call site. Internally we JSON.stringify so any JSON-safe
+// value works.
 export async function signReceipt(args: {
   agentSlug: string;
   stepIndex: number;
-  input: Record<string, unknown>;
-  output: Record<string, unknown>;
+  input: unknown;
+  output: unknown;
   startedAt: number;
   priceUsdc: number;
 }): Promise<AuditReceipt> {

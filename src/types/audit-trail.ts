@@ -29,12 +29,18 @@ export interface AuditStep {
   agentName: string;
   priceUsdc: number;
   agentSigner: `0x${string}`;
-  input: Record<string, unknown>;
-  output: Record<string, unknown>;
+  // MNR-3 (post-AR fix-pack): widened from `Record<string, unknown>` to
+  // `unknown` so callers can pass shaped result objects (`AuctionResult`,
+  // `FraudOutput`) without `as unknown as Record<...>` casts. The audit
+  // JSON consumes these via JSON.stringify, so any JSON-safe value works.
+  input: unknown;
+  output: unknown;
   success: boolean;
   error?: string;
   latencyMs: number;
-  receipt: AuditReceipt;
+  // BLQ-BAJO-3: `receipt` may be null when signReceipt threw and the agent
+  // route degraded the step. The offline verifier handles null gracefully.
+  receipt: AuditReceipt | null;
   onchain: { txHash: `0x${string}`; blockNumber: number; snowtraceUrl: string } | null;
 }
 

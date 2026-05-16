@@ -56,7 +56,7 @@ async function maybePushAuditStep(
       // BLQ-ALTO-2B: hash over RAW input so EIP-712 verifies against original
       // canonical payload; masked copy is what we store in the audit JSON.
       input: inputRaw,
-      output: output as unknown as Record<string, unknown>,
+      output,
       startedAt: t0,
       priceUsdc: PRICE_USDC,
     });
@@ -68,7 +68,7 @@ async function maybePushAuditStep(
         priceUsdc: PRICE_USDC,
         agentSigner: getAgentAddress(SLUG),
         input: inputMasked,
-        output: output as unknown as Record<string, unknown>,
+        output,
         success,
         latencyMs: Date.now() - t0,
         receipt,

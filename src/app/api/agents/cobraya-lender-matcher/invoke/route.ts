@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
       agentSlug: SLUG,
       stepIndex: 3,
       input,
-      output: result as unknown as Record<string, unknown>,
+      output: result,
       startedAt: t0,
       priceUsdc: PRICE_USDC,
     });
@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
         priceUsdc: PRICE_USDC,
         agentSigner: getAgentAddress(SLUG),
         input,
-        output: result as unknown as Record<string, unknown>,
+        output: result,
         success: result.recommendedLender !== null,
         latencyMs: Date.now() - t0,
         receipt,
