@@ -182,19 +182,19 @@ export function LogoAnthropic({ size = 22, className }: LogoProps) {
 }
 
 /**
- * Next.js wordmark — served from /public/logos/nextjs.svg.
- * Wide aspect ratio (~6:1). To read inside the 38×38 .ico container, the
- * page.tsx renders this with a wider override style on its wrapper.
- * Default `size` is just the height; the img keeps proportional width.
+ * Next.js square icon — served from /public/logos/nextjs-icon.svg.
+ * The canonical Next.js mark: black circle with the stylized white "N".
+ * Square aspect ratio so it sits cleanly in the 38×38 .ico container.
  */
 export function LogoNextjs({ size = 22, className }: LogoProps) {
   return (
     <img
-      src="/logos/nextjs.svg"
+      src="/logos/nextjs-icon.svg"
       alt="Next.js"
+      width={size}
       height={size}
       className={className}
-      style={{ display: "block", height: size, width: "auto", objectFit: "contain" }}
+      style={{ display: "block", objectFit: "contain" }}
     />
   );
 }
@@ -259,73 +259,35 @@ export function LogoCNBV({ size = 22, className }: LogoProps) {
 }
 
 /**
- * wasiai-a2a — custom mark. "A2A" in mono with a gold accent dot for the "2".
- * Matches the pitch palette (wine + gold) and reads in both themes.
+ * wasiai-a2a — uses the real wasiai brand mark (from wasiai-v2).
+ * Same logo file for both a2a and facilitator since both are wasiai products;
+ * the card title under each disambiguates.
  */
 export function LogoA2A({ size = 22, className }: LogoProps) {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      role="img"
-      aria-label="wasiai-a2a"
+    <img
+      src="/logos/wasiai.svg"
+      alt="wasiai-a2a"
       width={size}
       height={size}
       className={className}
-    >
-      <title>wasiai-a2a</title>
-      <rect x="1" y="4" width="22" height="16" rx="4" fill="none" stroke="currentColor" strokeWidth="1.4" />
-      <text
-        x="12"
-        y="15.6"
-        textAnchor="middle"
-        fontFamily="ui-monospace, SFMono-Regular, Menlo, monospace"
-        fontSize="8"
-        fontWeight="800"
-        fill="currentColor"
-      >
-        A
-        <tspan fill="#F5C76A">2</tspan>
-        A
-      </text>
-    </svg>
+      style={{ display: "block", objectFit: "contain" }}
+    />
   );
 }
 
 /**
- * wasiai-facilitator — custom mark. Two stacked horizontal lightning arrows
- * (swap glyph) communicating the "settlement facilitator" idea.
+ * wasiai-facilitator — uses the real wasiai brand mark (from wasiai-v2).
  */
 export function LogoFacilitator({ size = 22, className }: LogoProps) {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      role="img"
-      aria-label="wasiai-facilitator"
+    <img
+      src="/logos/wasiai.svg"
+      alt="wasiai-facilitator"
       width={size}
       height={size}
       className={className}
-      fill="none"
-    >
-      <title>wasiai-facilitator</title>
-      {/* Top arrow: left → right */}
-      <path
-        d="M3 9 H17 M14 6 L17 9 L14 12"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      {/* Bottom arrow: right → left */}
-      <path
-        d="M21 15 H7 M10 12 L7 15 L10 18"
-        stroke="currentColor"
-        strokeOpacity="0.7"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+      style={{ display: "block", objectFit: "contain" }}
+    />
   );
 }

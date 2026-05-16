@@ -109,14 +109,21 @@ describe("PitchPage (v3 — design-source aligned)", () => {
 
   it("renders at least 4 distinct brand logos in the stack-grid .ico slots", () => {
     const { container } = render(<PitchPage />);
-    // Each scard now has an inline <svg> inside .ico. Collect the aria-labels
-    // and verify diversity — at least 4 different brand marks are present.
-    const icoSvgs = container.querySelectorAll(".stack-grid .scard .ico svg[aria-label]");
-    expect(icoSvgs.length).toBeGreaterThanOrEqual(4);
+    // Logos now mix inline <svg aria-label> (Cobraya, Foundry, CNBV) and
+    // <img alt> (Avalanche, USDC, Anthropic, Supabase, Next.js, wasiai).
+    // Collect both kinds and verify diversity.
+    const svgs = container.querySelectorAll(".stack-grid .scard .ico svg[aria-label]");
+    const imgs = container.querySelectorAll(".stack-grid .scard .ico img[alt]");
+    const totalLogos = svgs.length + imgs.length;
+    expect(totalLogos).toBeGreaterThanOrEqual(4);
     const labels = new Set<string>();
-    icoSvgs.forEach((el) => {
+    svgs.forEach((el) => {
       const label = el.getAttribute("aria-label");
       if (label) labels.add(label);
+    });
+    imgs.forEach((el) => {
+      const alt = el.getAttribute("alt");
+      if (alt) labels.add(alt);
     });
     expect(labels.size).toBeGreaterThanOrEqual(4);
   });
