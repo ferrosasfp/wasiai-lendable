@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { BUYERS_TIER_1 } from "@/lib/mock-data";
 import { isUuidSeen, markUuidSeen } from "@/lib/agent-state/validator-store";
+import { isValidUuidV4 } from "@/lib/uuid-validator";
+import { buildAuditCookieHeader } from "@/lib/audit-auth";
 import {
   signReceipt,
   getAgentAddress,
@@ -10,7 +12,6 @@ import {
   pushStep,
 } from "@/infra/agent-signer";
 
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const SLUG = "cobraya-cfdi-validator";
 const PRICE_USDC = 0.001;
 
@@ -33,12 +34,23 @@ export async function POST(req: NextRequest) {
   }
   const { uuidCfdi, rfcEmisor, amountMXN, anchorBuyer } = parsed.data;
 
-  if (!UUID_REGEX.test(uuidCfdi)) {
+  if (!isValidUuidV4(uuidCfdi)) {
     return NextResponse.json(
       { error: "invalid_input", details: { uuidCfdi: ["invalid UUID format"] } },
       { status: 400 },
     );
   }
+
+  // BLQ-MED-1: validate x-cobraya-request-id header shape before threading it
+  // into the audit buffer (defends against CRLF injection / poisoned keys).
+  const requestIdHeader = req.headers.get("x-cobraya-request-id");
+  if (requestIdHeader && !isValidUuidV4(requestIdHeader)) {
+    return NextResponse.json(
+      { error: "invalid_request_id" },
+      { status: 400 },
+    );
+  }
+  const requestId = requestIdHeader;
 
   const buyer = BUYERS_TIER_1.find((b) => b.name === anchorBuyer);
   const anchorBuyerTier: 1 | "unknown" = buyer ? 1 : "unknown";
@@ -64,9 +76,17 @@ export async function POST(req: NextRequest) {
   // the response on signer failures: caller wants the agent answer, audit
   // trail is a bonus).
   let receipt: Awaited<ReturnType<typeof signReceipt>> | null = null;
-  const requestId = req.headers.get("x-cobraya-request-id");
+  // BLQ-ALTO-2B: receipt inputHash commits to RAW so verifiers can validate
+  // EIP-712 against the original payload; the audit-step `input` field stores
+  // MASKED so the downloadable JSON never echoes raw PII.
+  const inputForReceipt = { uuidCfdi, rfcEmisor, amountMXN, anchorBuyer };
+  const inputForAudit = {
+    uuidCfdi,
+    rfcEmisorMasked: output.rfcEmisorMasked,
+    amountMXN,
+    anchorBuyer,
+  };
   try {
-    const inputForReceipt = { uuidCfdi, rfcEmisor, amountMXN, anchorBuyer };
     receipt = await signReceipt({
       agentSlug: SLUG,
       stepIndex: 0,
@@ -90,7 +110,7 @@ export async function POST(req: NextRequest) {
         agentName: "Cobraya CFDI Validator",
         priceUsdc: PRICE_USDC,
         agentSigner: getAgentAddress(SLUG),
-        input: inputForReceipt,
+        input: inputForAudit,
         output,
         success: isCompliant,
         latencyMs: Date.now() - t0,
@@ -98,10 +118,30 @@ export async function POST(req: NextRequest) {
         onchain: null,
       });
     }
-  } catch {
-    // Hot key missing/invalid → omit receipt; do not fail the agent response.
+  } catch (err) {
+    // BLQ-BAJO-3: surface signer failure as a structured warn (no stack, no
+    // err.message — could include privkey). Receipt is omitted so the agent
+    // response stays usable.
+    console.warn("[cobraya-agent-receipt] signing failed:", {
+      agentSlug: SLUG,
+      requestId,
+      errorName: err instanceof Error ? err.name : "unknown",
+    });
     receipt = null;
   }
 
-  return NextResponse.json({ ...output, receipt });
+  // BLQ-ALTO-2A: when we successfully attached a step to a requestId-bound
+  // trail, emit an httpOnly cookie that gates the future
+  // GET /api/audit-trail/[requestId] download. Best-effort: if
+  // AUDIT_AUTH_SECRET is missing the build of the cookie throws — we keep the
+  // agent response 200 (the audit download will simply 403 later).
+  const res = NextResponse.json({ ...output, receipt });
+  if (requestId) {
+    try {
+      res.headers.append("Set-Cookie", buildAuditCookieHeader(requestId));
+    } catch {
+      /* AUDIT_AUTH_SECRET missing — leave cookie absent. */
+    }
+  }
+  return res;
 }

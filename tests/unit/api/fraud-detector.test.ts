@@ -21,6 +21,7 @@ describe("/api/agents/cobraya-fraud-detector/invoke (W2.5)", () => {
     vi.resetModules();
     vi.unstubAllEnvs();
     vi.unstubAllGlobals();
+    vi.stubEnv("AUDIT_AUTH_SECRET", "test-audit-secret-fix-pack");
   });
   afterEach(() => {
     vi.restoreAllMocks();
@@ -92,6 +93,78 @@ describe("/api/agents/cobraya-fraud-detector/invoke (W2.5)", () => {
     expect(json.isUnique).toBe(false);
     expect(json.rejectReason).toBe("INVOICE_ALREADY_COMMITTED");
     expect(writeContract).not.toHaveBeenCalled();
+  });
+
+  it("T-AGENT-MASK-RFC-FRAUD demo mode audit trail step.input has masked rfcEmisor (BLQ-ALTO-2B)", async () => {
+    // BLQ-ALTO-2B: `step.input` in the audit trail must store masked rfcEmisor,
+    // while signReceipt's `inputHash` is still computed over the raw payload.
+    vi.doUnmock("viem"); // clear any prior test's vi.doMock — we need real viem here.
+    vi.resetModules();
+    vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "true");
+    vi.stubEnv(
+      "FRAUD_HOT_KEY",
+      "0x4444444444444444444444444444444444444444444444444444444444444444",
+    );
+    vi.stubEnv("AUDIT_AUTH_SECRET", "test-audit-secret-fix-pack");
+    const id = "55555555-5555-5555-5555-555555555555";
+    const { __resetAuditBuffer, getOrInitTrail, getTrail } = await import("@/infra/agent-signer");
+    __resetAuditBuffer();
+    // Seed a trail so pushStep has somewhere to land.
+    getOrInitTrail(id, {
+      uuid: "abc",
+      rfcEmisorMasked: "TLE8***",
+      amountMXN: 48500,
+      anchorBuyer: "Walmart México",
+      paymentTermsDays: 60,
+      sector: "food retail",
+    });
+    const { POST } = await import("@/app/api/agents/cobraya-fraud-detector/invoke/route");
+    const req = new NextRequest(
+      "http://localhost/api/agents/cobraya-fraud-detector/invoke",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-cobraya-request-id": id,
+        },
+        body: JSON.stringify({
+          uuidCfdi: "abc",
+          rfcEmisor: "TLE850120ABC",
+          amountMXN: 48500,
+        }),
+      },
+    );
+    const res = await POST(req);
+    expect(res.status).toBe(200);
+    const trail = getTrail(id);
+    expect(trail).toBeDefined();
+    const step = trail!.steps.find((s) => s.agentSlug === "cobraya-fraud-detector");
+    expect(step).toBeDefined();
+    const stepInputJson = JSON.stringify(step!.input);
+    expect(stepInputJson).toContain("TLE8***");
+    expect(stepInputJson).not.toContain("TLE850120ABC");
+  });
+
+  it("T-REQID-INVALID-FRAUD malformed x-cobraya-request-id → 400 (BLQ-MED-1)", async () => {
+    vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "true");
+    const { POST } = await import("@/app/api/agents/cobraya-fraud-detector/invoke/route");
+    const req = new NextRequest(
+      "http://localhost/api/agents/cobraya-fraud-detector/invoke",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-cobraya-request-id": "not-a-valid-uuid",
+        },
+        body: JSON.stringify({
+          uuidCfdi: "abc",
+          rfcEmisor: "TLE850120ABC",
+          amountMXN: 48500,
+        }),
+      },
+    );
+    const res = await POST(req);
+    expect(res.status).toBe(400);
   });
 
   it("T-FRAUD-4 readContract throws → 502 NETWORK_ERROR (no crash)", async () => {

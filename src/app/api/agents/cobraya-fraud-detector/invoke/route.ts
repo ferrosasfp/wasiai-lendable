@@ -7,6 +7,8 @@ import { privateKeyToAccount } from "viem/accounts";
 import { COMMITMENTS_ABI } from "@/lib/abis/cobraya-invoice-commitments";
 import { mockFraudCheck } from "@/infra/mock-adapter";
 import { signReceipt, getAgentAddress, pushStep } from "@/infra/agent-signer";
+import { isValidUuidV4 } from "@/lib/uuid-validator";
+import { buildAuditCookieHeader } from "@/lib/audit-auth";
 
 const InputSchema = z.object({
   uuidCfdi: z.string().min(1),
@@ -16,7 +18,6 @@ const InputSchema = z.object({
 
 const SLUG = "cobraya-fraud-detector";
 const PRICE_USDC = 0.005;
-const ZERO_BYTES32 = "0x0000000000000000000000000000000000000000000000000000000000000000" as const;
 
 function isDemoMode(): boolean {
   return process.env.NEXT_PUBLIC_DEMO_MODE === "true";
@@ -34,21 +35,25 @@ interface FraudOutput {
   rejectReason?: string;
 }
 
+const ZERO_BYTES32 = "0x0000000000000000000000000000000000000000000000000000000000000000" as const;
+
 async function maybePushAuditStep(
   requestId: string | null,
-  input: Record<string, unknown>,
+  inputRaw: { uuidCfdi: string; rfcEmisor: string; amountMXN: number },
+  inputMasked: Record<string, unknown>,
   output: FraudOutput,
   t0: number,
   success: boolean,
 ): Promise<Awaited<ReturnType<typeof signReceipt>> | null> {
   let receipt: Awaited<ReturnType<typeof signReceipt>> | null = null;
-  const outputForReceipt = output as unknown as Record<string, unknown>;
   try {
     receipt = await signReceipt({
       agentSlug: SLUG,
       stepIndex: 1,
-      input,
-      output: outputForReceipt,
+      // BLQ-ALTO-2B: hash over RAW input so EIP-712 verifies against original
+      // canonical payload; masked copy is what we store in the audit JSON.
+      input: inputRaw,
+      output: output as unknown as Record<string, unknown>,
       startedAt: t0,
       priceUsdc: PRICE_USDC,
     });
@@ -59,8 +64,8 @@ async function maybePushAuditStep(
         agentName: "Cobraya Fraud Detector",
         priceUsdc: PRICE_USDC,
         agentSigner: getAgentAddress(SLUG),
-        input,
-        output: outputForReceipt,
+        input: inputMasked,
+        output: output as unknown as Record<string, unknown>,
         success,
         latencyMs: Date.now() - t0,
         receipt,
@@ -73,10 +78,34 @@ async function maybePushAuditStep(
           : null,
       });
     }
-  } catch {
+  } catch (err) {
+    // BLQ-BAJO-3: log signer failure structurally (no stack, no err.message).
+    console.warn("[cobraya-agent-receipt] signing failed:", {
+      agentSlug: SLUG,
+      requestId,
+      errorName: err instanceof Error ? err.name : "unknown",
+    });
     receipt = null;
   }
   return receipt;
+}
+
+function maskRfc(rfc: string): string {
+  // Mask format consistent with cfdi-validator's `output.rfcEmisorMasked`:
+  // 4-char prefix + "***". Audit JSON `step.input` shows the same shape so a
+  // human eyeballing the trail sees identical redaction across steps.
+  return rfc.length >= 6 ? `${rfc.slice(0, 4)}***` : "***";
+}
+
+function withAuditCookie(res: NextResponse, requestId: string | null): NextResponse {
+  if (requestId) {
+    try {
+      res.headers.append("Set-Cookie", buildAuditCookieHeader(requestId));
+    } catch {
+      /* AUDIT_AUTH_SECRET missing — cookie omitted. */
+    }
+  }
+  return res;
 }
 
 export async function POST(req: NextRequest) {
@@ -89,13 +118,21 @@ export async function POST(req: NextRequest) {
     );
   }
   const { uuidCfdi, rfcEmisor, amountMXN } = parsed.data;
-  const requestId = req.headers.get("x-cobraya-request-id");
+
+  // BLQ-MED-1: validate header before threading it anywhere downstream.
+  const requestIdHeader = req.headers.get("x-cobraya-request-id");
+  if (requestIdHeader && !isValidUuidV4(requestIdHeader)) {
+    return NextResponse.json({ error: "invalid_request_id" }, { status: 400 });
+  }
+  const requestId = requestIdHeader;
 
   const commitmentHash = keccak256(
     encodePacked(["string", "string", "uint256"], [uuidCfdi, rfcEmisor, BigInt(amountMXN)]),
   ) as `0x${string}`;
 
+  // BLQ-ALTO-2B: split raw (for receipt inputHash) vs masked (for audit JSON).
   const inputForReceipt = { uuidCfdi, rfcEmisor, amountMXN };
+  const inputForAudit = { uuidCfdi, rfcEmisorMasked: maskRfc(rfcEmisor), amountMXN };
 
   if (isDemoMode()) {
     const mock = mockFraudCheck({ uuidCfdi, rfcEmisor, amountMXN });
@@ -107,8 +144,15 @@ export async function POST(req: NextRequest) {
       blockNumber: mock.blockNumber,
       timestamp: mock.timestamp,
     };
-    const receipt = await maybePushAuditStep(requestId, inputForReceipt, output, t0, mock.isUnique);
-    return NextResponse.json({ ...output, receipt });
+    const receipt = await maybePushAuditStep(
+      requestId,
+      inputForReceipt,
+      inputForAudit,
+      output,
+      t0,
+      mock.isUnique,
+    );
+    return withAuditCookie(NextResponse.json({ ...output, receipt }), requestId);
   }
 
   const rpcUrl = process.env.AVALANCHE_RPC_URL;
@@ -140,8 +184,15 @@ export async function POST(req: NextRequest) {
         originalCommitter: committer,
         rejectReason: "INVOICE_ALREADY_COMMITTED",
       };
-      const receipt = await maybePushAuditStep(requestId, inputForReceipt, output, t0, false);
-      return NextResponse.json({ ...output, receipt });
+      const receipt = await maybePushAuditStep(
+        requestId,
+        inputForReceipt,
+        inputForAudit,
+        output,
+        t0,
+        false,
+      );
+      return withAuditCookie(NextResponse.json({ ...output, receipt }), requestId);
     }
 
     const account = privateKeyToAccount(privateKey);
@@ -171,8 +222,15 @@ export async function POST(req: NextRequest) {
       blockNumber: Number(receiptOnchain.blockNumber),
       timestamp: Math.floor(Date.now() / 1000),
     };
-    const receipt = await maybePushAuditStep(requestId, inputForReceipt, output, t0, true);
-    return NextResponse.json({ ...output, receipt });
+    const receipt = await maybePushAuditStep(
+      requestId,
+      inputForReceipt,
+      inputForAudit,
+      output,
+      t0,
+      true,
+    );
+    return withAuditCookie(NextResponse.json({ ...output, receipt }), requestId);
   } catch (err) {
     const message = err instanceof Error ? err.message : "unknown";
     const safe = message.replace(/0x[0-9a-fA-F]{40,}/g, "<redacted-hex>");
