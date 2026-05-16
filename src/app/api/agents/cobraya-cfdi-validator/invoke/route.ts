@@ -4,13 +4,7 @@ import { z } from "zod";
 import { BUYERS_TIER_1 } from "@/lib/mock-data";
 import { isUuidSeen, markUuidSeen } from "@/lib/agent-state/validator-store";
 import { isValidUuidV4 } from "@/lib/uuid-validator";
-import { buildAuditCookieHeader } from "@/lib/audit-auth";
-import {
-  signReceipt,
-  getAgentAddress,
-  getOrInitTrail,
-  pushStep,
-} from "@/infra/agent-signer";
+import { signReceipt, getAgentAddress } from "@/infra/agent-signer";
 
 const SLUG = "cobraya-cfdi-validator";
 const PRICE_USDC = 0.001;
@@ -76,56 +70,22 @@ export async function POST(req: NextRequest) {
     signedAt: new Date().toISOString(),
   };
 
-  // W5.5 — sign EIP-712 receipt + push to audit trail (best-effort, never blocks
-  // the response on signer failures: caller wants the agent answer, audit
-  // trail is a bonus).
+  // Sign EIP-712 receipt — the receipt's inputHash commits to the RAW input so
+  // an offline verifier can validate against the original payload, even though
+  // the audit trail JSON (composed client-side) only echoes a masked version.
+  // BLQ-BAJO-3: signer failures degrade to receipt:null + structured warn so
+  // the agent's answer still flows back to the caller.
   let receipt: Awaited<ReturnType<typeof signReceipt>> | null = null;
-  // BLQ-ALTO-2B: receipt inputHash commits to RAW so verifiers can validate
-  // EIP-712 against the original payload; the audit-step `input` field stores
-  // MASKED so the downloadable JSON never echoes raw PII.
-  const inputForReceipt = { uuidCfdi, rfcEmisor, amountMXN, anchorBuyer };
-  const inputForAudit = {
-    uuidCfdi,
-    rfcEmisorMasked: output.rfcEmisorMasked,
-    amountMXN,
-    anchorBuyer,
-  };
   try {
     receipt = await signReceipt({
       agentSlug: SLUG,
       stepIndex: 0,
-      input: inputForReceipt,
+      input: { uuidCfdi, rfcEmisor, amountMXN, anchorBuyer },
       output,
       startedAt: t0,
       priceUsdc: PRICE_USDC,
     });
-    if (requestId) {
-      getOrInitTrail(requestId, {
-        uuid: uuidCfdi,
-        rfcEmisorMasked: output.rfcEmisorMasked,
-        amountMXN,
-        anchorBuyer,
-        paymentTermsDays: 60,
-        sector,
-      });
-      pushStep(requestId, {
-        stepIndex: 0,
-        agentSlug: SLUG,
-        agentName: "Cobraya CFDI Validator",
-        priceUsdc: PRICE_USDC,
-        agentSigner: getAgentAddress(SLUG),
-        input: inputForAudit,
-        output,
-        success: isCompliant,
-        latencyMs: Date.now() - t0,
-        receipt,
-        onchain: null,
-      });
-    }
   } catch (err) {
-    // BLQ-BAJO-3: surface signer failure as a structured warn (no stack, no
-    // err.message — could include privkey). Receipt is omitted so the agent
-    // response stays usable.
     console.warn("[cobraya-agent-receipt] signing failed:", {
       agentSlug: SLUG,
       requestId,
@@ -134,18 +94,10 @@ export async function POST(req: NextRequest) {
     receipt = null;
   }
 
-  // BLQ-ALTO-2A: when we successfully attached a step to a requestId-bound
-  // trail, emit an httpOnly cookie that gates the future
-  // GET /api/audit-trail/[requestId] download. Best-effort: if
-  // AUDIT_AUTH_SECRET is missing the build of the cookie throws — we keep the
-  // agent response 200 (the audit download will simply 403 later).
-  const res = NextResponse.json({ ...output, receipt });
-  if (requestId) {
-    try {
-      res.headers.append("Set-Cookie", buildAuditCookieHeader(requestId));
-    } catch {
-      /* AUDIT_AUTH_SECRET missing — leave cookie absent. */
-    }
-  }
-  return res;
+  return NextResponse.json({
+    ...output,
+    sector,
+    agentSigner: receipt ? getAgentAddress(SLUG) : null,
+    receipt,
+  });
 }

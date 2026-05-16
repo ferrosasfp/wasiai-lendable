@@ -95,29 +95,20 @@ describe("/api/agents/cobraya-fraud-detector/invoke (W2.5)", () => {
     expect(writeContract).not.toHaveBeenCalled();
   });
 
-  it("T-AGENT-MASK-RFC-FRAUD demo mode audit trail step.input has masked rfcEmisor (BLQ-ALTO-2B)", async () => {
-    // BLQ-ALTO-2B: `step.input` in the audit trail must store masked rfcEmisor,
-    // while signReceipt's `inputHash` is still computed over the raw payload.
-    vi.doUnmock("viem"); // clear any prior test's vi.doMock — we need real viem here.
+  it("T-AGENT-MASK-RFC-FRAUD demo mode response NEVER echoes raw rfcEmisor (BLQ-ALTO-2B)", async () => {
+    // BLQ-ALTO-2B remix: the audit trail is composed client-side, so the
+    // server-side guarantee is now that NO field of the response body echoes
+    // the raw RFC. The receipt's inputHash still commits to the raw payload
+    // (verifiable offline against the EIP-712 signer address) — but the raw
+    // value itself never leaves the server.
+    vi.doUnmock("viem");
     vi.resetModules();
     vi.stubEnv("NEXT_PUBLIC_DEMO_MODE", "true");
     vi.stubEnv(
       "FRAUD_HOT_KEY",
       "0x4444444444444444444444444444444444444444444444444444444444444444",
     );
-    vi.stubEnv("AUDIT_AUTH_SECRET", "test-audit-secret-fix-pack");
     const id = "55555555-5555-5555-5555-555555555555";
-    const { __resetAuditBuffer, getOrInitTrail, getTrail } = await import("@/infra/agent-signer");
-    __resetAuditBuffer();
-    // Seed a trail so pushStep has somewhere to land.
-    getOrInitTrail(id, {
-      uuid: "abc",
-      rfcEmisorMasked: "TLE8***",
-      amountMXN: 48500,
-      anchorBuyer: "Walmart México",
-      paymentTermsDays: 60,
-      sector: "food retail",
-    });
     const { POST } = await import("@/app/api/agents/cobraya-fraud-detector/invoke/route");
     const req = new NextRequest(
       "http://localhost/api/agents/cobraya-fraud-detector/invoke",
@@ -136,13 +127,14 @@ describe("/api/agents/cobraya-fraud-detector/invoke (W2.5)", () => {
     );
     const res = await POST(req);
     expect(res.status).toBe(200);
-    const trail = getTrail(id);
-    expect(trail).toBeDefined();
-    const step = trail!.steps.find((s) => s.agentSlug === "cobraya-fraud-detector");
-    expect(step).toBeDefined();
-    const stepInputJson = JSON.stringify(step!.input);
-    expect(stepInputJson).toContain("TLE8***");
-    expect(stepInputJson).not.toContain("TLE850120ABC");
+    const json = await res.json();
+    const raw = JSON.stringify(json);
+    // Raw RFC must NOT appear anywhere in the response body — receipt.inputHash
+    // commits to it, but the value itself stays server-side.
+    expect(raw).not.toContain("TLE850120ABC");
+    // The receipt is still returned and signed.
+    expect(json.receipt?.signature).toMatch(/^0x[0-9a-fA-F]+$/);
+    expect(json.agentSigner).toMatch(/^0x[a-fA-F0-9]{40}$/);
   });
 
   it("T-FRAUD-METADATA-BOUND writeContract receives metadataPointer = keccak(requestId:commitmentHash) (BLQ-MED-2)", async () => {

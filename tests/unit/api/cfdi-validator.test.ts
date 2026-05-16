@@ -23,7 +23,6 @@ describe("/api/agents/cobraya-cfdi-validator/invoke (W2)", () => {
   beforeEach(() => {
     __resetSeenUuids();
     vi.unstubAllEnvs();
-    vi.stubEnv("AUDIT_AUTH_SECRET", "test-audit-secret-fix-pack");
     vi.stubEnv(
       "VALIDATOR_HOT_KEY",
       "0x3333333333333333333333333333333333333333333333333333333333333333",
@@ -105,27 +104,25 @@ describe("/api/agents/cobraya-cfdi-validator/invoke (W2)", () => {
     expect(json2.isCompliant).toBe(false);
   });
 
-  it("T-AGENT-MASK-RFC step.input in audit JSON masks rfcEmisor (BLQ-ALTO-2B)", async () => {
-    const id = "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeed";
-    await POST(
-      makeReq(
-        {
-          uuidCfdi: "ffffffff-ffff-ffff-ffff-ffffffffffff",
-          rfcEmisor: "TLE850120ABC",
-          amountMXN: 48500,
-          anchorBuyer: "Walmart México",
-        },
-        { "x-cobraya-request-id": id },
-      ),
+  it("T-AGENT-MASK-RFC response body masks rfcEmisor; raw RFC never appears (CD-23)", async () => {
+    // The audit trail is composed CLIENT-SIDE from the response body now (the
+    // old server-side buffer was lossy across Vercel serverless instances —
+    // see lib/audit-trail-composer.ts header for the full root-cause writeup).
+    // The server stays authoritative on the MASKED form: `rfcEmisorMasked`
+    // is the only echo of the RFC allowed in any field of the JSON response.
+    const res = await POST(
+      makeReq({
+        uuidCfdi: "ffffffff-ffff-ffff-ffff-ffffffffffff",
+        rfcEmisor: "TLE850120ABC",
+        amountMXN: 48500,
+        anchorBuyer: "Walmart México",
+      }),
     );
-    const { getTrail } = await import("@/infra/agent-signer");
-    const trail = getTrail(id);
-    expect(trail).toBeDefined();
-    const stepInputJson = JSON.stringify(trail!.steps[0]?.input ?? {});
-    // The masked field must be present (4-char prefix to match validator output mask).
-    expect(stepInputJson).toContain("TLE8***");
-    // The raw RFC must NOT leak into step.input.
-    expect(stepInputJson).not.toContain("TLE850120ABC");
+    expect(res.status).toBe(200);
+    const json = (await res.json()) as { rfcEmisorMasked?: string };
+    expect(json.rfcEmisorMasked).toBe("TLE8***");
+    const raw = JSON.stringify(json);
+    expect(raw).not.toContain("TLE850120ABC");
   });
 
   it("T-REQID-INVALID-CFDI x-cobraya-request-id with CRLF junk → 400 (BLQ-MED-1)", async () => {
@@ -145,31 +142,31 @@ describe("/api/agents/cobraya-cfdi-validator/invoke (W2)", () => {
     expect(json.error).toBe("invalid_request_id");
   });
 
-  it("T-AUDIT-COOKIE-EMITTED cfdi-validator response sets cobraya_audit_token cookie", async () => {
-    const id = "22222222-2222-2222-2222-222222222222";
+  it("T-AGENT-SIGNER-IN-BODY response advertises agentSigner address for client trail composition", async () => {
+    // Frontend needs the agent's published EIP-712 signer address so it can
+    // anchor the receipt to a known identity inside the audit trail JSON.
+    // The address is just the public derivation of the hot key; safe to echo.
     const res = await POST(
-      makeReq(
-        {
-          uuidCfdi: "33333333-3333-3333-3333-333333333333",
-          rfcEmisor: "TLE850120ABC",
-          amountMXN: 48500,
-          anchorBuyer: "Walmart México",
-        },
-        { "x-cobraya-request-id": id },
-      ),
+      makeReq({
+        uuidCfdi: "33333333-3333-3333-3333-333333333333",
+        rfcEmisor: "TLE850120ABC",
+        amountMXN: 48500,
+        anchorBuyer: "Walmart México",
+      }),
     );
     expect(res.status).toBe(200);
-    const setCookie = res.headers.get("set-cookie") ?? "";
-    expect(setCookie).toContain(`cobraya_audit_token_${id}=`);
-    expect(setCookie).toContain("HttpOnly");
-    expect(setCookie).toContain("SameSite=Strict");
+    const json = (await res.json()) as {
+      agentSigner?: string | null;
+      receipt?: { signature?: string } | null;
+    };
+    expect(json.agentSigner).toMatch(/^0x[a-fA-F0-9]{40}$/);
+    expect(json.receipt?.signature).toMatch(/^0x[0-9a-fA-F]+$/);
   });
 
   it("T-AGENT-RECEIPT-FAIL hot key missing → 200 with receipt:null + warn log (BLQ-BAJO-3)", async () => {
     // Hot key not stubbed → signReceipt throws → catch sets receipt=null +
     // emits a structured console.warn. Response stays 200.
     vi.unstubAllEnvs();
-    vi.stubEnv("AUDIT_AUTH_SECRET", "test-audit-secret-fix-pack");
     // VALIDATOR_HOT_KEY deliberately NOT set.
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     const res = await POST(
