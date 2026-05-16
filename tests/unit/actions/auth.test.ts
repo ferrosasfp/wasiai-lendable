@@ -3,6 +3,9 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 vi.mock("@/lib/supabase/server", () => ({
   createClient: vi.fn(),
 }));
+vi.mock("@/lib/supabase/admin", () => ({
+  createAdminClient: vi.fn(),
+}));
 vi.mock("next/navigation", () => ({
   redirect: vi.fn((url: string) => {
     throw new Error(`REDIRECT:${url}`);
@@ -13,11 +16,11 @@ vi.mock("next/cache", () => ({
 }));
 
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { redirect } from "next/navigation";
 import { signIn, signUp, signOut } from "@/actions/auth";
 
 type SupaStubOpts = {
-  signUpError?: { code: string } | null;
   signInError?: { code: string } | null;
 };
 
@@ -27,11 +30,24 @@ function buildSupabaseStub(opts: SupaStubOpts = {}) {
       signInWithPassword: vi
         .fn()
         .mockResolvedValue({ error: opts.signInError ?? null }),
-      signUp: vi.fn().mockResolvedValue({
-        data: { session: { access_token: "t" } },
-        error: opts.signUpError ?? null,
-      }),
       signOut: vi.fn().mockResolvedValue({ error: null }),
+    },
+  };
+}
+
+type AdminStubOpts = {
+  createUserError?: { code: string } | null;
+};
+
+function buildAdminStub(opts: AdminStubOpts = {}) {
+  return {
+    auth: {
+      admin: {
+        createUser: vi.fn().mockResolvedValue({
+          data: { user: { id: "mock-uuid", email: "a@b.com" } },
+          error: opts.createUserError ?? null,
+        }),
+      },
     },
   };
 }
@@ -46,41 +62,63 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-describe("signUp — WKH-COBRAYA-DAPP-SHELL W3 (AC-4)", () => {
-  it("redirects to /onboarding/step/1 on success and injects DD-O metadata", async () => {
-    const stub = buildSupabaseStub();
-    (createClient as unknown as ReturnType<typeof vi.fn>).mockReturnValue(stub);
+describe("signUp — WKH-COBRAYA-DAPP-SHELL W3 + DD-P (AC-4)", () => {
+  it("DD-P: uses admin.createUser with email_confirm:true + injects DD-O metadata", async () => {
+    const admin = buildAdminStub();
+    const supabase = buildSupabaseStub();
+    (createAdminClient as unknown as ReturnType<typeof vi.fn>).mockReturnValue(admin);
+    (createClient as unknown as ReturnType<typeof vi.fn>).mockReturnValue(supabase);
     await expect(
       signUp({}, fd({ email: "a@b.com", password: "abc12345" })),
     ).rejects.toThrow("REDIRECT:/onboarding/step/1");
     expect(redirect).toHaveBeenCalledWith("/onboarding/step/1");
-    expect(stub.auth.signUp).toHaveBeenCalledWith({
+    // Admin createUser was called with email_confirm true (LUM-100 per-user) +
+    // DD-O metadata guard for the trigger.
+    expect(admin.auth.admin.createUser).toHaveBeenCalledWith({
       email: "a@b.com",
       password: "abc12345",
-      options: { data: { app: "cobraya" } },
+      email_confirm: true,
+      user_metadata: { app: "cobraya" },
+    });
+    // After admin createUser, the anon client signs in to set session cookies.
+    expect(supabase.auth.signInWithPassword).toHaveBeenCalledWith({
+      email: "a@b.com",
+      password: "abc12345",
     });
   });
 
   it("returns Zod validation error when password fails policy", async () => {
-    const stub = buildSupabaseStub();
-    (createClient as unknown as ReturnType<typeof vi.fn>).mockReturnValue(stub);
+    const admin = buildAdminStub();
+    (createAdminClient as unknown as ReturnType<typeof vi.fn>).mockReturnValue(admin);
     const result = await signUp({}, fd({ email: "a@b.com", password: "weak" }));
     expect(result.error).toContain("al menos 8 caracteres");
-    expect(stub.auth.signUp).not.toHaveBeenCalled();
+    expect(admin.auth.admin.createUser).not.toHaveBeenCalled();
   });
 
-  it("maps user_already_exists to ES-MX copy and logs CD-31-safe", async () => {
-    const stub = buildSupabaseStub({
-      signUpError: { code: "user_already_exists" },
-    });
-    (createClient as unknown as ReturnType<typeof vi.fn>).mockReturnValue(stub);
+  it("maps email_exists to ES-MX copy and logs CD-31-safe", async () => {
+    const admin = buildAdminStub({ createUserError: { code: "email_exists" } });
+    (createAdminClient as unknown as ReturnType<typeof vi.fn>).mockReturnValue(admin);
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     const result = await signUp({}, fd({ email: "a@b.com", password: "abc12345" }));
     expect(result.error).toBe("Este correo ya está registrado.");
     expect(warn).toHaveBeenCalledWith("[cobraya-action]", {
       action: "signUp",
-      errorCode: "user_already_exists",
+      errorCode: "email_exists",
     });
+    warn.mockRestore();
+  });
+
+  it("DD-P: when admin succeeds but signInWithPassword fails, surfaces error and does NOT redirect", async () => {
+    const admin = buildAdminStub();
+    const supabase = buildSupabaseStub({
+      signInError: { code: "invalid_credentials" },
+    });
+    (createAdminClient as unknown as ReturnType<typeof vi.fn>).mockReturnValue(admin);
+    (createClient as unknown as ReturnType<typeof vi.fn>).mockReturnValue(supabase);
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const result = await signUp({}, fd({ email: "a@b.com", password: "abc12345" }));
+    expect(result.error).toBe("Correo o contraseña incorrectos.");
+    expect(redirect).not.toHaveBeenCalled();
     warn.mockRestore();
   });
 });
