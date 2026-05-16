@@ -52,6 +52,17 @@
 
 > Durante el hack-day, ir actualizando esta sección con cada tx hash nueva. Source of truth para el video Scene 5.
 
+### W7 status (post-F3, pre-deploy)
+
+F3 dejó el codebase listo para W7. **Pending operator actions** antes de poder pegar 3 tx hashes nuevos aquí:
+
+1. `vercel login` + `vercel --prod` desde `/home/ferdev/.openclaw/workspace/wasiai-lendable` con todas las env vars de story §1 (especialmente `COBRAYA_COMMITMENTS_ADDRESS`, `TREASURY_PRIVATE_KEY`, `FRAUD_DETECTOR_PRIVATE_KEY`, `ANTHROPIC_API_KEY`, `VALIDATOR/FRAUD/SCORER/MATCHER_HOT_KEY`, `A2A_KEY`).
+2. Ejecutar el `INSERT INTO agents (...)` de story §14.1 contra el Supabase de `wasiai-v2` (requiere `SUPABASE_SERVICE_ROLE_KEY` de v2, no presente en `.env.local` de lendable).
+3. Correr los 3 smoke E2E (Tortillería La Esperanza, Confecciones Nayeli, Construcciones Hermanos Ruiz) contra `https://wasiai-lendable.vercel.app/demo` con `NEXT_PUBLIC_DEMO_MODE=false`.
+4. Pegar las 3 fraud commit tx hashes + 3 settle tx hashes + 3 audit JSON downloads (a `doc/evidence/`) en este archivo.
+
+Una vez completados los pasos `1-4`, el AC-2 ($0.066 USDC × 3 runs = $0.198 USDC debited del A2A_KEY), AC-9 (4 cobraya-* agents en marketplace), AC-10 (3+ tx hashes documentados) y AC-13 (audit verify offline) quedan validables vía evidence aquí.
+
 ---
 
 ### Smart Contracts deployed (Avalanche Fuji)
