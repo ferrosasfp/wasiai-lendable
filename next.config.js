@@ -38,6 +38,13 @@ const withPWA = withPWAInit({
           expiration: { maxEntries: 32, maxAgeSeconds: 60 * 60 * 24 * 30 },
         },
       },
+      // CD-25: cookie-gated routes MUST NEVER be cached, otherwise an authed
+      // user could see another tenant's HTML after a logout. WKH-COBRAYA-DAPP-SHELL W11.
+      {
+        urlPattern: /^\/(login|signup|onboarding|dashboard|negociar|historial|perfil)(\/|$)/,
+        handler: 'NetworkOnly',
+        options: { cacheName: 'cobraya-auth-gated-networkonly' },
+      },
       // Document navigations — NetworkFirst + ~offline fallback
       {
         urlPattern: ({ request, sameOrigin }) => sameOrigin && request.destination === 'document',
