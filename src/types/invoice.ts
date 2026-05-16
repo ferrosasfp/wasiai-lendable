@@ -1,4 +1,9 @@
 export type InvoiceStatus =
+  | "issued"
+  | "factored"
+  | "paid"
+  | "expired"
+  // legacy values kept for backwards compat with existing code paths
   | "pending"
   | "validating"
   | "scoring"
@@ -10,6 +15,7 @@ export type InvoiceStatus =
 export interface Invoice {
   id: string;
   uuid: string;
+  uuidSat?: string;
   issuer: {
     rfc: string;
     name: string;
@@ -20,9 +26,13 @@ export interface Invoice {
   };
   amount: number;
   currency: "MXN" | "USD";
-  issueDate: string;
+  issueDate: string;            // ISO yyyy-mm-dd
   dueDate: string;
   status: InvoiceStatus;
+  // NEW W1
+  anchorBuyer: string;
+  paymentTermsDays: number;
+  sector: "food retail" | "apparel" | "construction" | "services" | "retail";
 }
 
 export interface ValidatorResult {
@@ -36,8 +46,12 @@ export interface ValidatorResult {
 export interface ScoreResult {
   score: number;
   band: "A" | "B" | "C" | "D";
+  advanceRatePct: number;        // 80 | 88 | 92 | 95
+  aprPct: number;                // 12 | 14.5 | 18 | 25
   rationale: string;
-  oraclePromptId: string;
+  rationaleProvenance: "anthropic-claude-haiku-4-5" | "local-fallback";
+  /** @deprecated use rationaleProvenance — kept for backwards compat */
+  oraclePromptId?: string;
 }
 
 export interface LenderMatch {
@@ -71,4 +85,23 @@ export interface Lender {
   rateAPR: number;
   advanceRate: number;
   wallet: `0x${string}`;
+}
+
+// NEW W1 — auction types
+export interface AuctionLender {
+  lenderId: string;
+  lenderName: string;
+  aprPct: number;
+  advanceRatePct: number;
+  estimatedSettleMinutes: number;
+  netAmountUSDC: number;
+  rank: number;
+  qualifies: boolean;
+  rejectionReason?: string;
+}
+
+export interface AuctionResult {
+  auction: AuctionLender[];
+  recommendedLender: string | null;
+  recommendationReason: string;
 }

@@ -1,8 +1,14 @@
+// src/infra/mock-adapter.ts
+// CD-19: infra may not import core; this file lives in infra and DOES use core helpers via re-export…
+// Actually for the legacy mock helpers we kept thin re-uses of core (pure functions, no circular dep).
+// New W1 helpers (mockFraudCheck, mockAuction) are deterministic — no Math.random().
+import { keccak256, encodePacked } from "viem";
 import { termDays } from "@/core/invoice";
-import { buildLenderMatch } from "@/core/matching";
-import { computeBand, computeHeuristicScore, isAnchorBuyerTier1 } from "@/core/scoring";
+import { computeBand, computeHeuristicScore, isAnchorBuyerTier1, computeScore } from "@/core/scoring";
 import { mxnToUSDC } from "@/core/settlement";
+import { runAuction } from "@/core/matching";
 import type {
+  AuctionResult,
   Invoice,
   LenderMatch,
   ScoreResult,
@@ -21,25 +27,60 @@ export function mockValidate(invoice: Invoice): ValidatorResult {
 }
 
 export function mockScore(invoice: Invoice): ScoreResult {
+  // Deterministic — use new computeScore() pipeline.
+  const scored = computeScore({
+    amountMXN: invoice.amount,
+    anchorBuyer: invoice.anchorBuyer,
+    paymentTermsDays: invoice.paymentTermsDays,
+    sector: invoice.sector,
+  });
   const isAnchorTier1 = isAnchorBuyerTier1(invoice.receiver.name);
-  const score = computeHeuristicScore({ isAnchorTier1, amount: invoice.amount });
-  const band = computeBand(score);
   return {
-    score,
-    band,
-    rationale: `${invoice.issuer.name} bills to ${invoice.receiver.name} (tier ${
+    score: scored.score,
+    band: scored.band,
+    advanceRatePct: scored.advanceRatePct,
+    aprPct: scored.aprPct,
+    rationale: `${invoice.issuer.name} factura a ${invoice.receiver.name} (tier ${
       isAnchorTier1 ? "1 anchor buyer" : "2 buyer"
-    }). 12-month payment history clean, no SAT flags.`,
-    oraclePromptId: `oracle-mock-${Date.now()}`,
+    }). Banda determinista ${scored.band} basada en sector, monto y plazo.`,
+    rationaleProvenance: "local-fallback",
   };
 }
 
 export function mockMatch(invoice: Invoice, score: ScoreResult): LenderMatch {
+  // Use auction winner as legacy LenderMatch shape (backwards compat for old /api/match route).
+  const auction = runAuction({
+    band: score.band,
+    amountMXN: invoice.amount,
+    anchorBuyer: invoice.anchorBuyer,
+    sector: invoice.sector,
+  });
+  const winner = auction.auction.find((a) => a.qualifies);
   const grossUSDC = mxnToUSDC(invoice.amount);
-  const term = termDays(invoice) || 60;
-  return buildLenderMatch({ invoice, score, grossUSDC, termDays: term });
+  if (!winner) {
+    return {
+      lenderId: "no-match",
+      lenderName: "Sin lender que califique",
+      advanceRate: 0,
+      rateAPR: 0,
+      estimatedSettlement: { grossUSDC, feeUSDC: 0, netUSDC: 0 },
+    };
+  }
+  return {
+    lenderId: winner.lenderId,
+    lenderName: winner.lenderName,
+    advanceRate: winner.advanceRatePct / 100,
+    rateAPR: winner.aprPct,
+    estimatedSettlement: {
+      grossUSDC,
+      feeUSDC: round4(grossUSDC * (winner.advanceRatePct / 100) - winner.netAmountUSDC),
+      netUSDC: winner.netAmountUSDC,
+    },
+  };
 }
 
+// CD-20 reminder: mockSettle uses Math.random() / Date.now() — this is OK in
+// src/infra/* (just NOT in src/core/*). Demo mode only.
 export function mockSettle(
   match: LenderMatch,
   smeWallet: `0x${string}`,
@@ -60,3 +101,48 @@ export function mockSettle(
     facilitator: "wasiai-facilitator (demo mode)",
   };
 }
+
+// --- W1 helpers used by /api/agents endpoints (mock paths for CD-3) -------
+
+export function mockFraudCheck(input: {
+  uuidCfdi: string;
+  rfcEmisor: string;
+  amountMXN: number;
+}) {
+  const hash = keccak256(
+    encodePacked(
+      ["string", "string", "uint256"],
+      [input.uuidCfdi, input.rfcEmisor, BigInt(input.amountMXN)],
+    ),
+  );
+  return {
+    isUnique: true,
+    commitmentHash: hash,
+    commitTxHash: "0xMOCK_FRAUD_TX_HASH_DEMO_MODE" as `0x${string}`,
+    snowtraceUrl: "https://testnet.snowtrace.io/tx/0xMOCK_FRAUD_TX_HASH_DEMO_MODE",
+    blockNumber: 99999999,
+    timestamp: 1715800000,
+  };
+}
+
+export function mockAuction(input: {
+  amountMXN: number;
+  anchorBuyer: string;
+  paymentTermsDays: number;
+  sector: string;
+}): AuctionResult {
+  const { band } = computeScore(input);
+  return runAuction({
+    band,
+    amountMXN: input.amountMXN,
+    anchorBuyer: input.anchorBuyer,
+    sector: input.sector,
+  });
+}
+
+function round4(n: number): number {
+  return Math.round(n * 10000) / 10000;
+}
+
+// keep termDays/legacy heuristic helpers referenced for back-compat
+export { termDays, computeBand, computeHeuristicScore };
