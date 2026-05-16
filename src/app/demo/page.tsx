@@ -273,6 +273,14 @@ export default function DemoPage() {
         };
         setSoldHistory((prev) => [sold, ...prev]);
         setCardState("sold");
+        // After a successful settle the success-state UI (InvoiceCard "sold"
+        // + reset CTA) renders near the top of the page, but the user just
+        // tapped the Settlement CTA fixed at the bottom of the viewport.
+        // Without an explicit scroll the success looks like nothing happened.
+        // Defer one frame so React commits the DOM changes first.
+        requestAnimationFrame(() => {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
       } else {
         setCardState("failed");
         setCardError("Settlement sin tx hash");
