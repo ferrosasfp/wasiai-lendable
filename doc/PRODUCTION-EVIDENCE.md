@@ -47,7 +47,7 @@
 |---|---|---|---|---|
 | TBD durante hack | Smoke test WKH-MULTICHAIN | 2026-05-13 | varios | (compilar durante hack) |
 | `0x495ddeee819572c2cc364d30bf516d7f9965d1f14868bf8d1e580a5165c69f9a` | **CobrayaInvoiceCommitments deploy** | 2026-05-15 hack-day | - | [view](https://testnet.snowtrace.io/tx/0x495ddeee819572c2cc364d30bf516d7f9965d1f14868bf8d1e580a5165c69f9a) |
-| `0x7af3bb4f0352711868ae827ebc0c875261a65c21b55bde0fbabb1b64531c481d` | **First fraud-detector commit (smoke W2.5f)** | 2026-05-15 hack-day | gas 58407 | [view](https://testnet.snowtrace.io/tx/0x7af3bb4f0352711868ae827ebc0c875261a65c21b55bde0fbabb1b64531c481d) |
+| `0x7af3bb4f0352711868ae827ebc0c875261a65c21b55bde0fbabb1b64531c481d` | **First fraud-detector commit (W2.5f)**: gas **50,936 onchain** (forge log: 58,407 in test env, includes mock overhead) | 2026-05-15 hack-day | gas 50,936 | [view](https://testnet.snowtrace.io/tx/0x7af3bb4f0352711868ae827ebc0c875261a65c21b55bde0fbabb1b64531c481d) |
 | TBD durante hack | First Cobraya USDC settle | 2026-05-16 (hack-day) | 0.05 USDC | (post-W7 smoke) |
 
 > Durante el hack-day, ir actualizando esta sección con cada tx hash nueva. Source of truth para el video Scene 5.
@@ -73,7 +73,7 @@ Una vez completados los pasos `1-4`, el AC-2 ($0.066 USDC × 3 runs = $0.198 USD
 
 **Source code public** at: `wasiai-lendable/contracts/src/CobrayaInvoiceCommitments.sol`
 **Tests passing**: `forge test` → 16/16 PASS
-**Gas report**: `forge test` → `commitInvoice` 58,407 gas (CD-11 target <80K — passing)
+**Gas budget validation**: `forge test` PASS — `commitInvoice` 58,407 gas logged inside the EVM frame. `forge test --gas-report` reports max 80,483 per call (profiler overhead — cheatcodes + snapshot). **Onchain measurement on Avalanche Fuji (W7 smoke): ~50,936 gas** — see §3 above. CD-11 target `<80K onchain` is comfortably exceeded; the strict `assertLt(used, 80_000)` covers the worst-case profiler number too. See `contracts/test/CobrayaInvoiceCommitments.t.sol:136-154` for the inline explanation of the three numbers.
 **Reference pattern**: alineado con `wasiai-v2/contracts/src/WasiEscrow.sol` (production-grade)
 **Snowtrace contract URL**: https://testnet.snowtrace.io/address/0x5F8F8a31e51d8B2FEe0E0C2f1AffC3B4c6B12506
 

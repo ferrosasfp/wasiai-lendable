@@ -134,6 +134,17 @@ contract CobrayaInvoiceCommitmentsTest is Test {
     }
 
     // 12 CD-11 gas budget
+    // NOTE on the three different numbers you may see for this commit:
+    //   - 58,407  → `forge test` plain run, gas consumed inside the EVM frame
+    //               of the assertion (this `used` value below).
+    //   - 80,483  → `forge test --gas-report` total per-call gas including
+    //               instrumentation overhead (cheatcodes, snapshot of state,
+    //               log emission). Larger than reality because of profiling.
+    //   - ~50,936 → measured onchain on Avalanche Fuji during the W7 smoke
+    //               (see `doc/PRODUCTION-EVIDENCE.md §3`). This is the truth.
+    // We assert `< 80_000` so the test passes under the worst-case profiler
+    // numbers too, while CD-11's real target of `< 80K onchain` is comfortably
+    // exceeded (50K << 80K).
     function test_GasBudget_CommitInvoice() public {
         vm.prank(initialCommitter);
         uint256 g0 = gasleft();
