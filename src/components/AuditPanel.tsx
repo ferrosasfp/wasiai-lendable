@@ -1,6 +1,8 @@
-// src/components/AuditPanel.tsx — W5.5 base + W6 final integration.
-// Collapsible bottom-sheet on mobile. Download CTA anchored to /api/audit-trail/{requestId}.
-// AC-13: audit UI · CD-18: touch targets ≥44px.
+// src/components/AuditPanel.tsx
+// Collapsible bottom-sheet on mobile. Download CTA points to a blob URL that
+// the demo page composes (and owns the lifecycle of) once the pipeline has
+// settled — the trail itself is built entirely on the client from the agents'
+// EIP-712 receipts (see lib/audit-trail-composer.ts).
 "use client";
 
 import { useState } from "react";
@@ -14,10 +16,11 @@ export interface AuditStepDisplay {
 
 interface Props {
   steps: AuditStepDisplay[];
-  requestId: string | null;
+  auditDownloadHref?: string | null;
+  auditDownloadFilename?: string;
 }
 
-export function AuditPanel({ steps, requestId }: Props) {
+export function AuditPanel({ steps, auditDownloadHref, auditDownloadFilename }: Props) {
   const [open, setOpen] = useState(false);
   return (
     <details
@@ -37,10 +40,10 @@ export function AuditPanel({ steps, requestId }: Props) {
           </li>
         ))}
       </ul>
-      {requestId && (
+      {auditDownloadHref && (
         <a
-          href={`/api/audit-trail/${requestId}`}
-          download
+          href={auditDownloadHref}
+          download={auditDownloadFilename ?? "cobraya-audit.json"}
           className="block px-4 py-3 bg-ink text-paper text-center mono text-xs uppercase tracking-widest min-h-[44px]"
         >
           Descargar audit trail JSON

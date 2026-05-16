@@ -44,7 +44,7 @@ describe("InvoiceCard", () => {
     expect(negotiatingArticle?.textContent ?? "").toContain("Pipeline en curso");
     negotiating.unmount();
 
-    // sold — uses real tx hash + audit trail link.
+    // sold — uses real tx hash + audit trail blob URL.
     const sold = render(
       <InvoiceCard
         invoice={INVOICE}
@@ -55,7 +55,8 @@ describe("InvoiceCard", () => {
           txHash: "0xabcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
           snowtraceUrl:
             "https://testnet.snowtrace.io/tx/0xabcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
-          requestId: "abcdef12-3456-4789-89ab-cdef12345678",
+          auditDownloadHref: "blob:fake-trail-url",
+          auditDownloadFilename: "cobraya-audit-abcdef12.json",
         }}
       />,
     );
@@ -72,9 +73,10 @@ describe("InvoiceCard", () => {
     expect(link).not.toBeNull();
     expect(link?.href ?? "").toContain("0xabcdef");
     const auditLink = sold.container.querySelector(
-      'a[href="/api/audit-trail/abcdef12-3456-4789-89ab-cdef12345678"]',
+      'a[download="cobraya-audit-abcdef12.json"]',
     );
     expect(auditLink).not.toBeNull();
+    expect(auditLink?.getAttribute("href")).toBe("blob:fake-trail-url");
     sold.unmount();
   });
 

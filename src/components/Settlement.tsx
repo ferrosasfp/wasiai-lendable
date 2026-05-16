@@ -16,7 +16,8 @@ interface SettlementReceiptShape {
 interface Props {
   match: AuctionLender;
   settlement: unknown;
-  requestId: string | null;
+  auditDownloadHref?: string | null;
+  auditDownloadFilename?: string;
   onSign: () => void;
   isSigning?: boolean;
 }
@@ -43,7 +44,14 @@ function parseReceipt(s: unknown): SettlementReceiptShape | null {
   };
 }
 
-export function Settlement({ match, settlement, requestId, onSign, isSigning }: Props) {
+export function Settlement({
+  match,
+  settlement,
+  auditDownloadHref,
+  auditDownloadFilename,
+  onSign,
+  isSigning,
+}: Props) {
   const receipt = parseReceipt(settlement);
 
   if (receipt && receipt.txHash) {
@@ -81,10 +89,10 @@ export function Settlement({ match, settlement, requestId, onSign, isSigning }: 
               </div>
             )}
           </div>
-          {requestId && (
+          {auditDownloadHref && (
             <a
-              href={`/api/audit-trail/${requestId}`}
-              download
+              href={auditDownloadHref}
+              download={auditDownloadFilename ?? "cobraya-audit.json"}
               className="mt-4 block text-center px-4 py-3 border border-ink mono text-xs uppercase tracking-widest min-h-[44px]"
             >
               Descargar audit trail JSON

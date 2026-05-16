@@ -223,7 +223,7 @@ export function InvoiceScanner({ onConfirm, ctaLabel }: Props) {
           className="w-full bg-ink text-paper px-4 py-4 mono text-sm uppercase tracking-widest min-h-[48px]"
           data-stage="done-confirm"
         >
-          Negociar esta factura
+          Es correcta, continuar
         </button>
       )}
 

@@ -6,9 +6,8 @@ import { avalancheFuji } from "viem/chains";
 import { privateKeyToAccount } from "viem/accounts";
 import { COMMITMENTS_ABI } from "@/lib/abis/cobraya-invoice-commitments";
 import { mockFraudCheck } from "@/application/mock-adapter";
-import { signReceipt, getAgentAddress, pushStep } from "@/infra/agent-signer";
+import { signReceipt, getAgentAddress } from "@/infra/agent-signer";
 import { isValidUuidV4 } from "@/lib/uuid-validator";
-import { buildAuditCookieHeader } from "@/lib/audit-auth";
 
 const InputSchema = z.object({
   uuidCfdi: z.string().min(1),
@@ -40,75 +39,33 @@ interface FraudOutput {
   metadataPointer?: `0x${string}`;
 }
 
-async function maybePushAuditStep(
+async function signFraudReceipt(
   requestId: string | null,
   inputRaw: { uuidCfdi: string; rfcEmisor: string; amountMXN: number },
-  inputMasked: Record<string, unknown>,
   output: FraudOutput,
   t0: number,
-  success: boolean,
 ): Promise<Awaited<ReturnType<typeof signReceipt>> | null> {
-  let receipt: Awaited<ReturnType<typeof signReceipt>> | null = null;
   try {
-    receipt = await signReceipt({
+    // BLQ-ALTO-2B: hash over RAW input so EIP-712 verifies against original
+    // canonical payload; the audit trail JSON (composed client-side) only
+    // stores a masked copy.
+    return await signReceipt({
       agentSlug: SLUG,
       stepIndex: 1,
-      // BLQ-ALTO-2B: hash over RAW input so EIP-712 verifies against original
-      // canonical payload; masked copy is what we store in the audit JSON.
       input: inputRaw,
       output,
       startedAt: t0,
       priceUsdc: PRICE_USDC,
     });
-    if (requestId) {
-      pushStep(requestId, {
-        stepIndex: 1,
-        agentSlug: SLUG,
-        agentName: "Cobraya Fraud Detector",
-        priceUsdc: PRICE_USDC,
-        agentSigner: getAgentAddress(SLUG),
-        input: inputMasked,
-        output,
-        success,
-        latencyMs: Date.now() - t0,
-        receipt,
-        onchain: output.commitTxHash
-          ? {
-              txHash: output.commitTxHash,
-              blockNumber: output.blockNumber ?? 0,
-              snowtraceUrl: output.snowtraceUrl ?? "",
-            }
-          : null,
-      });
-    }
   } catch (err) {
-    // BLQ-BAJO-3: log signer failure structurally (no stack, no err.message).
+    // BLQ-BAJO-3: structured warn (no stack, no err.message — could include privkey).
     console.warn("[cobraya-agent-receipt] signing failed:", {
       agentSlug: SLUG,
       requestId,
       errorName: err instanceof Error ? err.name : "unknown",
     });
-    receipt = null;
+    return null;
   }
-  return receipt;
-}
-
-function maskRfc(rfc: string): string {
-  // Mask format consistent with cfdi-validator's `output.rfcEmisorMasked`:
-  // 4-char prefix + "***". Audit JSON `step.input` shows the same shape so a
-  // human eyeballing the trail sees identical redaction across steps.
-  return rfc.length >= 6 ? `${rfc.slice(0, 4)}***` : "***";
-}
-
-function withAuditCookie(res: NextResponse, requestId: string | null): NextResponse {
-  if (requestId) {
-    try {
-      res.headers.append("Set-Cookie", buildAuditCookieHeader(requestId));
-    } catch {
-      /* AUDIT_AUTH_SECRET missing — cookie omitted. */
-    }
-  }
-  return res;
 }
 
 export async function POST(req: NextRequest) {
@@ -146,9 +103,9 @@ export async function POST(req: NextRequest) {
     ? keccak256(stringToBytes(`${requestId}:${commitmentHash}`))
     : keccak256(stringToBytes(`anon:${commitmentHash}`))) as `0x${string}`;
 
-  // BLQ-ALTO-2B: split raw (for receipt inputHash) vs masked (for audit JSON).
+  // Raw input is what the receipt's inputHash commits to. The audit trail JSON
+  // (composed client-side) re-masks for PII hygiene.
   const inputForReceipt = { uuidCfdi, rfcEmisor, amountMXN };
-  const inputForAudit = { uuidCfdi, rfcEmisorMasked: maskRfc(rfcEmisor), amountMXN };
 
   if (isDemoMode()) {
     const mock = mockFraudCheck({ uuidCfdi, rfcEmisor, amountMXN });
@@ -160,15 +117,12 @@ export async function POST(req: NextRequest) {
       blockNumber: mock.blockNumber,
       timestamp: mock.timestamp,
     };
-    const receipt = await maybePushAuditStep(
-      requestId,
-      inputForReceipt,
-      inputForAudit,
-      output,
-      t0,
-      mock.isUnique,
-    );
-    return withAuditCookie(NextResponse.json({ ...output, receipt }), requestId);
+    const receipt = await signFraudReceipt(requestId, inputForReceipt, output, t0);
+    return NextResponse.json({
+      ...output,
+      agentSigner: receipt ? getAgentAddress(SLUG) : null,
+      receipt,
+    });
   }
 
   const rpcUrl = process.env.AVALANCHE_RPC_URL;
@@ -200,15 +154,12 @@ export async function POST(req: NextRequest) {
         originalCommitter: committer,
         rejectReason: "INVOICE_ALREADY_COMMITTED",
       };
-      const receipt = await maybePushAuditStep(
-        requestId,
-        inputForReceipt,
-        inputForAudit,
-        output,
-        t0,
-        false,
-      );
-      return withAuditCookie(NextResponse.json({ ...output, receipt }), requestId);
+      const receipt = await signFraudReceipt(requestId, inputForReceipt, output, t0);
+      return NextResponse.json({
+        ...output,
+        agentSigner: receipt ? getAgentAddress(SLUG) : null,
+        receipt,
+      });
     }
 
     const account = privateKeyToAccount(privateKey);
@@ -239,15 +190,12 @@ export async function POST(req: NextRequest) {
       timestamp: Math.floor(Date.now() / 1000),
       metadataPointer,
     };
-    const receipt = await maybePushAuditStep(
-      requestId,
-      inputForReceipt,
-      inputForAudit,
-      output,
-      t0,
-      true,
-    );
-    return withAuditCookie(NextResponse.json({ ...output, receipt }), requestId);
+    const receipt = await signFraudReceipt(requestId, inputForReceipt, output, t0);
+    return NextResponse.json({
+      ...output,
+      agentSigner: receipt ? getAgentAddress(SLUG) : null,
+      receipt,
+    });
   } catch (err) {
     const message = err instanceof Error ? err.message : "unknown";
     const safe = message.replace(/0x[0-9a-fA-F]{40,}/g, "<redacted-hex>");

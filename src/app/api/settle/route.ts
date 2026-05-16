@@ -6,7 +6,6 @@ import { signTransferAuthorization } from "@/infra/eip3009-signer";
 import { settleOnFacilitator } from "@/infra/facilitator-client";
 import { ONCHAIN_AMOUNT_CAP_USDC, OWNER_ADDRESS, FACILITATOR_URL } from "@/infra/env";
 import { mockSettle } from "@/application/mock-adapter";
-import { pushSettlement } from "@/infra/agent-signer";
 import type { AuditSettlement } from "@/types/audit-trail";
 
 const MatchSchema = z.object({
@@ -50,6 +49,9 @@ export async function POST(req: NextRequest) {
   const wasClamped = requestedAmountUSDC > ONCHAIN_AMOUNT_CAP_USDC;
   const amountUSDC = wasClamped ? ONCHAIN_AMOUNT_CAP_USDC : requestedAmountUSDC;
 
+  const usdcAddress = (process.env.USDC_ADDRESS ??
+    "0x5425890298aed601595a70AB815c96711a31Bc65") as `0x${string}`;
+
   if (isDemoMode()) {
     const to = (OWNER_ADDRESS ?? "0x0000000000000000000000000000000000000000") as `0x${string}`;
     const fake = mockSettle(
@@ -69,8 +71,7 @@ export async function POST(req: NextRequest) {
           name: "USD Coin",
           version: "2",
           chainId: 43113,
-          verifyingContract: (process.env.USDC_ADDRESS ??
-            "0x5425890298aed601595a70AB815c96711a31Bc65") as `0x${string}`,
+          verifyingContract: usdcAddress,
         },
         primaryType: "TransferWithAuthorization",
         message: {
@@ -89,7 +90,6 @@ export async function POST(req: NextRequest) {
       deliveredAmountUSDC: amountUSDC,
       facilitatorUrl: FACILITATOR_URL,
     };
-    if (requestId) pushSettlement(requestId, settlement);
 
     return NextResponse.json({
       receipt: {
@@ -101,6 +101,7 @@ export async function POST(req: NextRequest) {
         testnetCapUSDC: ONCHAIN_AMOUNT_CAP_USDC,
         blockNumber: fake.blockNumber,
       },
+      settlement,
       traces: [],
     });
   }
@@ -109,51 +110,48 @@ export async function POST(req: NextRequest) {
     const to = OWNER_ADDRESS as `0x${string}`;
     const valueOnchain = parseUnits(amountUSDC.toString(), 6);
     const auth = await signTransferAuthorization({ to, valueOnchain });
-    const settlement = await settleOnFacilitator({
+    const settled = await settleOnFacilitator({
       authorization: auth,
       lenderId: match.lenderId,
     });
 
-    if (requestId) {
-      const audit: AuditSettlement = {
-        authorization: {
-          domain: {
-            name: "USD Coin",
-            version: "2",
-            chainId: 43113,
-            verifyingContract: (process.env.USDC_ADDRESS ??
-              "0x5425890298aed601595a70AB815c96711a31Bc65") as `0x${string}`,
-          },
-          primaryType: "TransferWithAuthorization",
-          message: {
-            from: auth.from,
-            to: auth.to,
-            value: auth.value.toString(),
-            validAfter: auth.validAfter.toString(),
-            validBefore: auth.validBefore.toString(),
-            nonce: auth.nonce,
-          },
+    const settlement: AuditSettlement = {
+      authorization: {
+        domain: {
+          name: "USD Coin",
+          version: "2",
+          chainId: 43113,
+          verifyingContract: usdcAddress,
         },
-        signature: auth.signature,
-        txHash: settlement.txHash,
-        blockNumber: settlement.blockNumber,
-        snowtraceUrl: settlement.snowtraceUrl,
-        deliveredAmountUSDC: settlement.deliveredAmountUSDC,
-        facilitatorUrl: FACILITATOR_URL,
-      };
-      pushSettlement(requestId, audit);
-    }
+        primaryType: "TransferWithAuthorization",
+        message: {
+          from: auth.from,
+          to: auth.to,
+          value: auth.value.toString(),
+          validAfter: auth.validAfter.toString(),
+          validBefore: auth.validBefore.toString(),
+          nonce: auth.nonce,
+        },
+      },
+      signature: auth.signature,
+      txHash: settled.txHash,
+      blockNumber: settled.blockNumber,
+      snowtraceUrl: settled.snowtraceUrl,
+      deliveredAmountUSDC: settled.deliveredAmountUSDC,
+      facilitatorUrl: FACILITATOR_URL,
+    };
 
     return NextResponse.json({
       receipt: {
-        txHash: settlement.txHash,
-        snowtraceUrl: settlement.snowtraceUrl,
-        deliveredAmountUSDC: settlement.deliveredAmountUSDC,
+        txHash: settled.txHash,
+        snowtraceUrl: settled.snowtraceUrl,
+        deliveredAmountUSDC: settled.deliveredAmountUSDC,
         requestedAmountUSDC,
         wasClamped,
         testnetCapUSDC: ONCHAIN_AMOUNT_CAP_USDC,
-        blockNumber: settlement.blockNumber,
+        blockNumber: settled.blockNumber,
       },
+      settlement,
       traces: [],
     });
   } catch (err) {

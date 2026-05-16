@@ -2,9 +2,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { runAuction } from "@/core/matching";
-import { signReceipt, getAgentAddress, pushStep } from "@/infra/agent-signer";
+import { signReceipt, getAgentAddress } from "@/infra/agent-signer";
 import { isValidUuidV4 } from "@/lib/uuid-validator";
-import { buildAuditCookieHeader } from "@/lib/audit-auth";
 
 const SLUG = "cobraya-lender-matcher";
 const PRICE_USDC = 0.01;
@@ -46,21 +45,6 @@ export async function POST(req: NextRequest) {
       startedAt: t0,
       priceUsdc: PRICE_USDC,
     });
-    if (requestId) {
-      pushStep(requestId, {
-        stepIndex: 3,
-        agentSlug: SLUG,
-        agentName: "Cobraya Lender Matcher",
-        priceUsdc: PRICE_USDC,
-        agentSigner: getAgentAddress(SLUG),
-        input,
-        output: result,
-        success: result.recommendedLender !== null,
-        latencyMs: Date.now() - t0,
-        receipt,
-        onchain: null,
-      });
-    }
   } catch (err) {
     // BLQ-BAJO-3: structured warn on signer failure.
     console.warn("[cobraya-agent-receipt] signing failed:", {
@@ -71,13 +55,9 @@ export async function POST(req: NextRequest) {
     receipt = null;
   }
 
-  const res = NextResponse.json({ ...result, receipt });
-  if (requestId) {
-    try {
-      res.headers.append("Set-Cookie", buildAuditCookieHeader(requestId));
-    } catch {
-      /* AUDIT_AUTH_SECRET missing — cookie omitted. */
-    }
-  }
-  return res;
+  return NextResponse.json({
+    ...result,
+    agentSigner: receipt ? getAgentAddress(SLUG) : null,
+    receipt,
+  });
 }

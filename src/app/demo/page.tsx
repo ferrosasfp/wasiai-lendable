@@ -4,12 +4,15 @@
 // Phase 1  InvoiceScanner — el usuario "escanea" la factura, se genera un CFDI
 //          fresh con UUID v4 único, y aparece la InvoiceCard en state "pending".
 // Phase 2  User taps "Negociar esta factura" → 4-step compose pipeline.
-// Phase 3  Sign & Settle.
+// Phase 3  Sign & Settle. On 200 we compose the audit trail entirely on the
+//          client from each agent's EIP-712 receipt + the settle response's
+//          signed authorization. The trail blob URL is what the audit-download
+//          anchors point to.
 // Phase 4  InvoiceCard morph a state "sold" + botón "Escanear otra factura"
 //          reinicia el flow manteniendo histórico de sesión.
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type {
   Invoice,
@@ -26,6 +29,12 @@ import { LenderAuctionPanel } from "@/components/LenderAuctionPanel";
 import { Settlement } from "@/components/Settlement";
 import { AuditPanel, type AuditStepDisplay } from "@/components/AuditPanel";
 import { TraceConsole } from "@/components/TraceConsole";
+import type {
+  AuditReceipt,
+  AuditSettlement,
+  AuditTrail,
+} from "@/types/audit-trail";
+import { composeAuditTrail } from "@/lib/audit-trail-composer";
 
 interface ValidatorResponse {
   isCompliant: boolean;
@@ -33,12 +42,45 @@ interface ValidatorResponse {
   policyId: string;
   duplicateCheckInstance: "clean" | "duplicate";
   rfcEmisorMasked: string;
+  sector?: string;
+  signedAt?: string;
+  agentSigner?: `0x${string}` | null;
+  receipt?: AuditReceipt | null;
 }
 
 interface FraudResponse {
   isUnique: boolean;
   commitmentHash: `0x${string}`;
   commitTxHash?: `0x${string}`;
+  snowtraceUrl?: string;
+  blockNumber?: number;
+  timestamp?: number;
+  metadataPointer?: `0x${string}`;
+  rejectReason?: string;
+  agentSigner?: `0x${string}` | null;
+  receipt?: AuditReceipt | null;
+}
+
+interface ScoreResponse extends ScoreResult {
+  agentSigner?: `0x${string}` | null;
+  receipt?: AuditReceipt | null;
+}
+
+interface MatcherResponse extends AuctionResult {
+  agentSigner?: `0x${string}` | null;
+  receipt?: AuditReceipt | null;
+}
+
+interface SettleResponseShape {
+  receipt?: {
+    txHash?: `0x${string}`;
+    snowtraceUrl?: string;
+    deliveredAmountUSDC?: number;
+    blockNumber?: number;
+  };
+  settlement?: AuditSettlement;
+  error?: string;
+  message?: string;
 }
 
 interface SettlementReceiptShape {
@@ -93,6 +135,8 @@ function parseSettleReceipt(s: unknown): SettlementReceiptShape | null {
   };
 }
 
+const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000" as const;
+
 export default function DemoPage() {
   const [requestId, setRequestId] = useState<string | null>(null);
   const [scanned, setScanned] = useState<ScannedInvoicePayload | null>(null);
@@ -101,14 +145,40 @@ export default function DemoPage() {
 
   const [validator, setValidator] = useState<ValidatorResponse | null>(null);
   const [fraud, setFraud] = useState<FraudResponse | null>(null);
-  const [score, setScore] = useState<ScoreResult | null>(null);
-  const [auction, setAuction] = useState<AuctionResult | null>(null);
+  const [score, setScore] = useState<ScoreResponse | null>(null);
+  const [auction, setAuction] = useState<MatcherResponse | null>(null);
   const [selectedMatch, setSelectedMatch] = useState<AuctionLender | null>(null);
-  const [settlement, setSettlement] = useState<unknown>(null);
+  const [settlement, setSettlement] = useState<SettleResponseShape | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [isSigning, setIsSigning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [latencies, setLatencies] = useState<Record<number, number>>({});
+  const [pipelineStartedAt, setPipelineStartedAt] = useState<string | null>(null);
+
+  // Composed audit trail + the blob URL we offer for download. Built ONLY after
+  // a successful settle: every step receipt + the settlement authorization are
+  // bundled, SHA256-rooted, and exposed as a blob: URL. We revoke the URL on
+  // unmount and any time the trail is replaced to avoid leaking object URLs
+  // across pipeline runs.
+  const [trail, setTrail] = useState<AuditTrail | null>(null);
+  const [trailBlobUrl, setTrailBlobUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (trail === null) {
+      setTrailBlobUrl(null);
+      return;
+    }
+    const blob = new Blob([JSON.stringify(trail, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    setTrailBlobUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [trail]);
+
+  const trailFilename = trail
+    ? `cobraya-audit-${trail.requestId}.json`
+    : "cobraya-audit.json";
 
   // Session histórico — facturas vendidas en esta sesión.
   const [soldHistory, setSoldHistory] = useState<SoldInvoice[]>([]);
@@ -126,6 +196,8 @@ export default function DemoPage() {
     setSettlement(null);
     setError(null);
     setLatencies({});
+    setPipelineStartedAt(null);
+    setTrail(null);
   }
 
   function handleScanConfirm(payload: ScannedInvoicePayload) {
@@ -146,10 +218,12 @@ export default function DemoPage() {
     setError(null);
     setCardError(null);
     setLatencies({});
+    setTrail(null);
     setIsRunning(true);
     setCardState("negotiating");
     const id = crypto.randomUUID();
     setRequestId(id);
+    setPipelineStartedAt(new Date().toISOString());
 
     const headers: HeadersInit = {
       "Content-Type": "application/json",
@@ -203,7 +277,7 @@ export default function DemoPage() {
         }),
       ]);
       const fJson = (await fRes.json()) as FraudResponse;
-      const sJson = (await sRes.json()) as ScoreResult;
+      const sJson = (await sRes.json()) as ScoreResponse;
       setFraud(fJson);
       setScore(sJson);
       const parallelLatency = Date.now() - t1;
@@ -227,7 +301,7 @@ export default function DemoPage() {
           sector: inv.sector,
         }),
       });
-      const aJson = (await mRes.json()) as AuctionResult;
+      const aJson = (await mRes.json()) as MatcherResponse;
       setAuction(aJson);
       setLatencies((m) => ({ ...m, 3: Date.now() - t3 }));
     } catch (err) {
@@ -241,7 +315,18 @@ export default function DemoPage() {
   }
 
   async function signAndSettle() {
-    if (!selectedMatch || !requestId || isSigning || !scanned) return;
+    if (
+      !selectedMatch ||
+      !requestId ||
+      isSigning ||
+      !scanned ||
+      !validator ||
+      !fraud ||
+      !score ||
+      !auction ||
+      !pipelineStartedAt
+    )
+      return;
     setIsSigning(true);
     setError(null);
     try {
@@ -259,10 +344,104 @@ export default function DemoPage() {
           },
         }),
       });
-      const json = (await res.json()) as unknown;
+      const json = (await res.json()) as SettleResponseShape;
       setSettlement(json);
       const receipt = parseSettleReceipt(json);
-      if (receipt && receipt.txHash) {
+      if (receipt && receipt.txHash && json.settlement) {
+        // Compose the trail entirely on the client. The agents' EIP-712 receipts
+        // (already in their respective response bodies) are the cryptographic
+        // root of trust; we just bundle them with the matching inputs/latencies
+        // we observed at the edge and compute SHA256 over the canonical JSON.
+        const inv = scannedToInvoice(scanned);
+        const composed = await composeAuditTrail({
+          requestId,
+          startedAt: pipelineStartedAt,
+          invoice: {
+            uuid: scanned.uuidCfdi,
+            rfcEmisorMasked: validator.rfcEmisorMasked,
+            amountMXN: scanned.amountMXN,
+            anchorBuyer: scanned.anchorBuyer,
+            paymentTermsDays: scanned.paymentTermsDays,
+            sector: validator.sector ?? scanned.sector,
+          },
+          validator: {
+            raw: {
+              uuidCfdi: inv.uuid,
+              rfcEmisor: inv.issuer.rfc,
+              amountMXN: inv.amount,
+              anchorBuyer: inv.anchorBuyer,
+            },
+            output: {
+              isCompliant: validator.isCompliant,
+              anchorBuyerTier: validator.anchorBuyerTier,
+              policyId: validator.policyId,
+              duplicateCheckInstance: validator.duplicateCheckInstance,
+              rfcEmisorMasked: validator.rfcEmisorMasked,
+              signedAt: validator.signedAt ?? "",
+            },
+            receipt: validator.receipt ?? null,
+            agentSigner: validator.agentSigner ?? ZERO_ADDRESS,
+            latencyMs: latencies[0] ?? 0,
+          },
+          fraud: {
+            raw: {
+              uuidCfdi: inv.uuid,
+              rfcEmisor: inv.issuer.rfc,
+              amountMXN: inv.amount,
+            },
+            output: {
+              isUnique: fraud.isUnique,
+              commitmentHash: fraud.commitmentHash,
+              commitTxHash: fraud.commitTxHash,
+              snowtraceUrl: fraud.snowtraceUrl,
+              blockNumber: fraud.blockNumber,
+              timestamp: fraud.timestamp,
+              metadataPointer: fraud.metadataPointer,
+              rejectReason: fraud.rejectReason,
+            },
+            receipt: fraud.receipt ?? null,
+            agentSigner: fraud.agentSigner ?? ZERO_ADDRESS,
+            latencyMs: latencies[1] ?? 0,
+          },
+          scorer: {
+            raw: {
+              amountMXN: inv.amount,
+              anchorBuyer: inv.anchorBuyer,
+              paymentTermsDays: inv.paymentTermsDays,
+              sector: inv.sector,
+            },
+            output: {
+              score: score.score,
+              band: score.band,
+              advanceRatePct: score.advanceRatePct,
+              aprPct: score.aprPct,
+              rationale: score.rationale,
+              rationaleProvenance: score.rationaleProvenance,
+            },
+            receipt: score.receipt ?? null,
+            agentSigner: score.agentSigner ?? ZERO_ADDRESS,
+            latencyMs: latencies[2] ?? 0,
+          },
+          matcher: {
+            raw: {
+              band: score.band,
+              amountMXN: inv.amount,
+              anchorBuyer: inv.anchorBuyer,
+              sector: inv.sector,
+            },
+            output: {
+              auction: auction.auction,
+              recommendedLender: auction.recommendedLender,
+              recommendationReason: auction.recommendationReason,
+            },
+            receipt: auction.receipt ?? null,
+            agentSigner: auction.agentSigner ?? ZERO_ADDRESS,
+            latencyMs: latencies[3] ?? 0,
+          },
+          settlement: json.settlement,
+        });
+        setTrail(composed);
+
         const sold: SoldInvoice = {
           scanned,
           lenderName: selectedMatch.lenderName,
@@ -389,7 +568,8 @@ export default function DemoPage() {
                         0,
                       txHash: settleReceipt.txHash as `0x${string}`,
                       snowtraceUrl: settleReceipt.snowtraceUrl,
-                      requestId,
+                      auditDownloadHref: trailBlobUrl,
+                      auditDownloadFilename: trailFilename,
                     }
                   : undefined
               }
@@ -439,7 +619,8 @@ export default function DemoPage() {
             <Settlement
               match={selectedMatch}
               settlement={settlement}
-              requestId={requestId}
+              auditDownloadHref={trailBlobUrl}
+              auditDownloadFilename={trailFilename}
               onSign={signAndSettle}
               isSigning={isSigning}
             />
@@ -465,7 +646,11 @@ export default function DemoPage() {
         </>
       )}
 
-      <AuditPanel steps={auditSteps} requestId={requestId} />
+      <AuditPanel
+        steps={auditSteps}
+        auditDownloadHref={trailBlobUrl}
+        auditDownloadFilename={trailFilename}
+      />
       <TraceConsole traces={[]} />
     </main>
   );

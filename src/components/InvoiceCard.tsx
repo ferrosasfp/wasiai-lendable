@@ -14,7 +14,9 @@ interface SoldDetails {
   netAmountUSDC: number;
   txHash: `0x${string}`;
   snowtraceUrl?: string;
-  requestId: string | null;
+  /** Pre-signed audit trail blob URL. Demo page owns the URL lifecycle. */
+  auditDownloadHref?: string | null;
+  auditDownloadFilename?: string;
 }
 
 interface Props {
@@ -145,10 +147,10 @@ export function InvoiceCard({
               <CopyButton text={sold.txHash} label="Copiar tx hash" />
             </div>
           </div>
-          {sold.requestId && (
+          {sold.auditDownloadHref && (
             <a
-              href={`/api/audit-trail/${sold.requestId}`}
-              download
+              href={sold.auditDownloadHref}
+              download={sold.auditDownloadFilename ?? "cobraya-audit.json"}
               className="mt-3 block text-center px-4 py-3 border border-ink mono text-[11px] uppercase tracking-widest min-h-[44px]"
             >
               Descargar audit trail JSON
