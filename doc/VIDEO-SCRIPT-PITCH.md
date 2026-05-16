@@ -1,137 +1,164 @@
-# Cobraya — Video Pitch Script (3 min, locked to /pitch landing)
+# Cobraya — Video Pitch Script (3:00, locked to /pitch v3 landing)
 
 **Duración objetivo:** 180s (3:00 min)
-**Audiencia:** Avalanche LATAM Fintech Build (jueces + mentores Bankaool/Arkangeles/CNBV)
-**Idioma audio:** Español
-**Subtítulos:** Español + Inglés (toggle en YouTube)
-**Anchor visual:** `/pitch` landing page — cada acto = 1 sección, filmás scroll en orden
+**Audiencia:** Hackathon: LatAm Institucional (jueces + mentores Bankaool/Arkangeles/CNBV)
+**Idioma audio:** Español (LatAm neutro)
+**Subtítulos:** Español + Inglés (toggle YouTube)
+**Anchor visual:** `https://wasiai-cobraya.vercel.app/pitch` (dark theme por defecto)
+**Demo en vivo:** `https://wasiai-cobraya.vercel.app/demo`
+**Tono:** narrador contando una historia real — no leyendo features. Frases que respiren, oraciones que conecten ideas.
 
 ---
 
-## Cómo grabar
+## Setup antes de grabar
 
-1. **Setup**: Screen recording de `https://wasiai-cobraya.vercel.app/pitch` en desktop (1920×1080) + insertos de phone real (PWA installable) en celular.
-2. **Voice-over** grabado por separado (Audacity / móvil con micro decente, sin reverb), montado encima del screen recording.
-3. **Cortes** marcados con `[CUT]` — cada corte cambia plano.
-4. **B-roll** marcado con `[B-ROLL: ...]`.
-5. **Música**: bed cinematográfico calmo+épico (sugerencia: "Endless Motion" de Kevin MacLeod, free/CC, lo bajás de YouTube Audio Library).
+| Pestaña | Qué cargar | Estado pre-grabación |
+|---|---|---|
+| **A** (foreground) | `https://wasiai-cobraya.vercel.app/pitch` | Scroll arriba del todo, dark theme ON, refresh hard |
+| **B** (background) | `https://wasiai-cobraya.vercel.app/demo` | Cargada, factura $48,500 lista para subir |
+| **C** (background) | Snowtrace tx histórica | Pestaña abierta para mostrar al click final |
 
----
-
-## Acto 1 — HERO (0–15s) → Sección 1 de la landing
-
-| t | Frase | Visual | Notas dirección |
-|---|---|---|---|
-| 0:00–0:03 | "México. 4.5 millones de PyMEs." | `[B-ROLL: drone Iztapalapa al amanecer]` | Música arranca suave |
-| 0:03–0:06 | "Una de ellas: Lupita." | `[CUT]` Avatar de Lupita en la sección 2 de la landing (close-up) | |
-| 0:06–0:10 | "Acaba de venderle $48,500 a Walmart." | `[CUT]` Phone real mostrando "$48,500" en la pantalla de subir factura | Inserto celular vertical |
-| 0:10–0:15 | "El pago llega… en 60 días." | `[CUT]` Hero de la landing — titular "Tu factura, líquida en 30 segundos." entrando con fade | Beat dramático en "60 días" |
-
-**Total acto 1:** 15s · 4 frases · ~32 palabras
+Audio voice-over grabado por separado (Audacity / móvil con micro decente, sin reverb). Montaje encima del screen recording.
 
 ---
 
-## Acto 2 — PROBLEMA (15–45s) → Sección 2 de la landing
+## 🎬 ACTO 1 — HOOK (0:00 – 0:20)
 
-| t | Frase | Visual | Notas |
-|---|---|---|---|
-| 0:15–0:20 | "Lupita tiene que pagar nómina el viernes. No puede esperar." | Scroll a sección 2, cámara descansa en "60 días" | |
-| 0:20–0:25 | "Es la realidad del 78% de las PyMEs mexicanas." | Stat "78%" hace zoom-in | |
-| 0:25–0:30 | "El factoraje tradicional toma semanas. Papeleo. Comités. Intermediarios." | `[B-ROLL: stack de carpetas, fila bancaria]` | Tono crítico |
-| 0:30–0:35 | "Y el mercado mueve veinticuatro mil millones de dólares al año." | Stat "$24B USD" hace zoom-in | |
-| 0:35–0:40 | "Pero Lupita no llega a ese mercado." | Avatar de Lupita queda solo en pantalla, fade dark | |
-| 0:40–0:45 | "Hasta hoy." | Pantalla negro → corte a logo Cobraya | Beat largo |
+*Visual: fade-in al hero del `/pitch`. Cámara descansa unos segundos en el H1 "Tu factura, líquida en 30 segundos." y el phone mockup cycling. Cerca del segundo 15, scroll suave a sección Problema.*
 
-**Total acto 2:** 30s · 6 frases · ~52 palabras
+> "En México hay más de cuatro millones de PyMEs… y una de ellas es Lupita.
+>
+> Acaba de venderle a Walmart una factura de cuarenta y ocho mil quinientos pesos. Pero el pago no le llega hasta dentro de sesenta días — y Lupita no puede esperar tanto."
+
+*Pausa breve antes del Acto 2. La frase "no puede esperar tanto" pesa.*
 
 ---
 
-## Acto 3 — LA SOLUCIÓN (45–105s) → Sección 3 de la landing — **EL CORAZÓN**
+## 🎬 ACTO 2 — PROMESA (0:20 – 0:45)
 
-| t | Frase | Visual | Notas |
-|---|---|---|---|
-| 0:45–0:50 | "Cobraya. Factoraje agéntico para PyMEs mexicanas." | Logo Cobraya + tagline | Música sube |
-| 0:50–0:55 | "Lupita sube la factura desde el celular. Treinta segundos después, tiene USDC en su wallet." | `[CUT]` Phone mockup del hero ejecutando el loop animado | El loop de 4s se ve completo |
-| 0:55–1:00 | "Cuatro agentes. Treinta segundos. On-chain." | Scroll a sección 3, las 4 cards aparecen | |
-| 1:00–1:05 | "Agente uno: valida el CFDI contra el SAT. Cero punto cero cero uno USDC." | Card 1 (CFDI Validator) — pulso verde | |
-| 1:05–1:10 | "Agente dos: detecta doble cesión, en Avalanche Fuji. Cero punto cero cero cinco USDC." | Card 2 (Fraud Detector) — pulso verde | Acento en "Avalanche" |
-| 1:10–1:15 | "Agente tres: calcula score crediticio, con rationale firmado por IA. Cero punto cero cinco USDC." | Card 3 (Credit Scorer) — pulso verde | |
-| 1:15–1:20 | "Agente cuatro: subasta entre Bankaool, Arkangeles, BBVA y Konfío. Gana el mejor APR. Cero punto cero uno USDC." | Card 4 (Lender Matcher) — pulso verde, animación auction | Nombres de los 4 lenders se ven uno por uno |
-| 1:20–1:25 | "Settlement vía EIP-3009. USDC en la wallet de Lupita." | `[CUT]` Phone con notificación push "USDC recibido" | Inserto celular |
-| 1:25–1:35 | "Treinta segundos. Sin papeleo. Sin comités. Sin esperar." | Timeline horizontal de la sección 3 se anima end-to-end | Frase corta+enfática |
-| 1:35–1:45 | "Y cada paso queda firmado, on-chain y verificable." | `[CUT]` Audit trail JSON descargándose | Transición a acto 4 |
+*Visual: arrancás en la sección Problema (cards "60 días" vs "30 segundos"), scrolleás suave por Flujo (pipeline 4 fases con flechas) y Agentes (4 cards con JSON snippets) durante estos 25 segundos.*
 
-**Total acto 3:** 60s · 10 frases · ~115 palabras
+> "Acá entra Cobraya: factoraje agéntico para PyMEs mexicanas.
+>
+> Cuatro agentes de inteligencia artificial trabajan junto a un smart contract en Avalanche, y liquidan la factura en treinta segundos. Cada agente tiene su precio en USDC, y cada uno deja una huella verificable on-chain."
+
+*Énfasis en "treinta segundos". La cámara debería pasar por las cards de agentes con sus JSON snippets visibles justo cuando decís esa frase.*
 
 ---
 
-## Acto 4 — POR QUÉ ES REAL (105–150s) → Sección 4 de la landing
+## 🎬 ACTO 3 — LIVE DEMO (0:45 – 2:15)
 
-| t | Frase | Visual | Notas |
-|---|---|---|---|
-| 1:45–1:50 | "Esto no es un mockup." | Scroll a sección 4, título grande | Pausa de 1 beat |
-| 1:50–2:00 | "Smart contract en Avalanche Fuji. Verificado en Snowtrace." | Badge 1 click → Snowtrace abre en split-screen | Mostrar contract address real |
-| 2:00–2:10 | "Audit trail firmado EIP-712. Compatible con Circular 4/2024 de la CNBV." | Badge 2 click → JSON ejemplo se abre | "CNBV" subrayado en pantalla |
-| 2:10–2:20 | "Subasta de lenders, en vivo. Cuatro instituciones reales compitiendo por la factura de Lupita." | Badge 3 click → ruta /negociar mostrando auction | |
-| 2:20–2:30 | "Corre sobre wasiai-a2a y wasiai-facilitator. Infraestructura productiva. Mil seiscientos sesenta tests verdes." | Badge 4 click → GitHub repo | Acento en "productiva" |
+*Visual: cambio de pestaña a `/demo` exactamente en el segundo 50.*
 
-**Total acto 4:** 45s · 5 frases · ~75 palabras
+> "Pero esto no es animación. **Veámoslo correr en vivo.**"
+
+*🔴 Cmd+Tab → pestaña `/demo`. Pausa de 1 segundo para que el juez procese el cambio.*
+
+> "Lupita sube su factura: cuarenta y ocho mil quinientos pesos, plazo sesenta días, Walmart México como comprador."
+
+*El CFDI carga en pantalla, los datos aparecen.*
+
+> "El primer agente valida el CFDI — parsea el XML, verifica la firma del SAT, todo por menos de un centavo de USDC. Listo, factura confirmada."
+
+*Agente 1 ejecuta, progress bar se llena, check verde.*
+
+> "El segundo es el detector de fraude. Commitea el hash de la factura en Avalanche Fuji, para que nadie pueda cederla dos veces. Y miren — acá aparece la transacción real on-chain."
+
+*🎯 Punto clave del video: el tx hash aparece. Subrayalo con el cursor. Si el juez se va a convencer de algo, es acá.*
+
+> "El tercer agente calcula el score crediticio: setecientos cuarenta y dos, banda A. El rationale lo genera Claude Haiku, firmado con EIP-712 para auditoría."
+
+*Score + rationale visible.*
+
+> "Y el cuarto agente abre la subasta. Cuatro lenders compitiendo en vivo: Bankaool, Arkangeles, BBVA Pyme y Konfío. Gana Arkangeles, con diecinueve punto ocho por ciento APR y novecientos cincuenta y dos USDC netos para Lupita."
+
+*4 lender cards visibles, Arkangeles destaca en gold.*
+
+> "El settlement va por EIP-3009, directo a la wallet. Y queda un audit trail completo, firmado y descargable."
+
+*Pantalla final: $940 USDC + done rows con tx clickable.*
+
+> "Treinta segundos en total. Y todo, verificable en Snowtrace."
+
+*Click en tx hash → Snowtrace abre en split o pestaña nueva.*
 
 ---
 
-## Acto 5 — CIERRE (150–180s) → Sección 5 de la landing
+## 🎬 ACTO 4 — VALIDACIÓN (2:15 – 2:45)
 
-| t | Frase | Visual | Notas |
-|---|---|---|---|
-| 2:30–2:40 | "El mercado mexicano de factoraje, veinticuatro mil millones de dólares, está esperando ser agéntico." | Scroll a sección 5, título grande | Música sube al climax |
-| 2:40–2:50 | "Cobraya es ese rail. Sobre Avalanche." | Logo Cobraya + logo Avalanche side-by-side | |
-| 2:50–2:55 | "PyMEs mexicanas, líquidas en treinta segundos." | `[CUT]` Phone real con USDC en la wallet | Sonrisa Lupita (avatar) |
-| 2:55–3:00 | "¿Ya cobraste? Cobraya." | Logo final + tagline + URL `cobraya.mx` (o el dominio final) | Música cierra |
+*Visual: 🔴 vuelta a `/pitch`, scroll directo a sección Comparativa.*
 
-**Total acto 5:** 30s · 4 frases · ~32 palabras
+> "¿Por qué hace falta esto? El factoraje tradicional toma semanas, con papeleo, comités humanos, y costos del cuatro a ocho por ciento mensual.
+>
+> Cobraya hace lo mismo en treinta segundos, sin papeleo, con dos a tres por ciento APR. Y no es código de hackathon — corre sobre infraestructura ya productiva: wasiai-a2a y wasiai-facilitator, con más de mil seiscientos tests verdes detrás."
+
+*Visual: cursor recorre la columna "Cobraya" de la tabla comparativa (los ◆ gold). Después scroll a la sección Stack y se ven los 9 logos pasando: Avalanche, USDC, Anthropic, Next.js, Supabase, wasiai-a2a, wasiai-facilitator, Foundry, CNBV.*
 
 ---
 
-## Resumen de timing
+## 🎬 ACTO 5 — CIERRE (2:45 – 3:00)
 
-| Acto | Duración | Frases | Palabras | Sección landing |
+*Visual: scroll a sección Quote (blockquote serif italic).*
+
+> "El factoring tradicional sirvió durante cincuenta años. Pero ya cumplió.
+>
+> Ahora es turno de los agentes."
+
+*Pausa de 1 segundo. Scroll suave al Final CTA.*
+
+> "Cobraya: tu factura, líquida en treinta segundos.
+>
+> ¿Ya cobraste? Cobraya."
+
+*Fade out con el logo + tagline.*
+
+---
+
+## Resumen
+
+| Acto | Duración | % | Pantalla | Frases |
 |---|---|---|---|---|
-| 1 — Hero | 15s | 4 | ~32 | Sección 1 |
-| 2 — Problema | 30s | 6 | ~52 | Sección 2 |
-| 3 — Solución | 60s | 10 | ~115 | Sección 3 |
-| 4 — Real | 45s | 5 | ~75 | Sección 4 |
-| 5 — Cierre | 30s | 4 | ~32 | Sección 5 |
-| **TOTAL** | **180s** | **29** | **~306** | 5 secciones |
+| 1 — Hook | 20s | 11% | Landing (hero → problema) | 2 párrafos |
+| 2 — Promesa | 25s | 14% | Landing (problema → flujo → agentes) | 1 párrafo |
+| 3 — **Live demo** | **90s** | **50%** | **`/demo` en vivo** | **8 momentos** |
+| 4 — Validación | 30s | 17% | Landing (comparativa → stack) | 1 párrafo |
+| 5 — Cierre | 15s | 8% | Landing (quote → CTA final) | 2 párrafos cortos |
+| **TOTAL** | **180s** | **100%** | 50% landing / 50% demo | ~325 palabras |
 
-**Cadencia:** 306 palabras / 180s ≈ 1.7 wps → **ritmo cinematográfico** (más lento que conversación normal). Pausas dramáticas en acto 1 y acto 5.
+**Word count**: ~325 palabras / 180s ≈ 1.8 wps — cadencia cinematográfica con pausas para respirar.
+
+---
+
+## Variantes alternas
+
+### 60s teaser (para Twitter / LinkedIn / DM mentor)
+Acto 1 (15s) + frase clave de Acto 3 (30s con tx hash) + Acto 5 cierre (15s).
+Hook: "Lupita esperaba sesenta días por su pago. Ahora son treinta segundos." [demo loop] "¿Ya cobraste? Cobraya."
+
+### 90s elevator (mentor face-to-face)
+Acto 1 + Acto 3 completo + 1 frase de Acto 4 ("on-chain, verificable") + Acto 5 cierre.
+
+---
+
+## Tips de delivery
+
+- Decimales USDC → centavos. "$0.001 USDC" se vuelve "menos de un centavo". El juez se identifica con centavos, no con decimales.
+- Listados de 4 cosas → "tal, tal, tal **y** tal". Siempre con "y" antes del último para que no suene a checklist.
+- Antes de cada acto importante, **1 segundo de silencio**. El silencio es la única cosa que da peso a lo que viene.
+- **NO leas este script de corrido como tutorial.** Es un guión cinematográfico — el voice-over respira, deja pausas, y deja que las imágenes cuenten cuando puedan.
+- **NO inventes tx hashes ni cifras** que no estén en el repo / Snowtrace real. Si una stat no se puede probar, cambiala por una que sí.
+- **Si te quedás sin tiempo**, grabá el 60s teaser primero. Es mejor un teaser perfecto que un 3-min apurado.
 
 ---
 
 ## Checklist de filming
 
-- [ ] Pantalla limpia: cerrar todas las pestañas que no sean `/pitch`
-- [ ] Modo oscuro de OS desactivado (la landing usa paleta luma clara)
-- [ ] Audio: probar voice-over en silencio absoluto, sin eco
-- [ ] B-roll Iztapalapa: pedir prestado o usar archivo CC0 (Pexels search "Mexico City street market")
-- [ ] Subtítulos auto-generados de YouTube + corrección manual de los 4 nombres de lenders
+- [ ] Pestañas A/B/C abiertas y cargadas (ver tabla setup arriba)
+- [ ] `DEMO_MODE=false` en Vercel → fraud-detector commitea on-chain real
+- [ ] Wallet TREASURY tiene AVAX gas + USDC budget para 3-5 runs
+- [ ] Cronometrá Acto 3 sin grabar — el `/demo` real tiene que correr en menos de 90s. Si tarda más, optimizar antes de grabar.
+- [ ] B-roll Iztapalapa (opcional, para Acto 1) — Pexels search "Mexico City sunrise"
+- [ ] Bed musical — instrumental sin lyrics, calmo + épico, ~3:10 de duración. Sugerencia: "Endless Motion" de Kevin MacLeod (CC0, YouTube Audio Library)
+- [ ] Subtítulos auto-generados de YouTube + corrección manual de los 4 nombres de lenders (Bankaool / Arkangeles / BBVA Pyme / Konfío)
 - [ ] Thumbnail YouTube: phone con "$940 USDC" + texto grande "30 segundos" + logo Cobraya
 - [ ] Descripción del video: incluir links a `/pitch`, repo, Snowtrace contract, audit trail JSON
-
----
-
-## Variantes alternas (si necesitás más corto)
-
-### 60s teaser (Twitter / LinkedIn / DM a mentor)
-- Acto 1 (15s) + primera mitad de Acto 3 (30s) + Acto 5 cierre (15s) = 60s exactos
-- Hook: "Lupita esperaba 60 días por su pago. Ahora son 30 segundos." [demo del loop] "¿Ya cobraste? Cobraya."
-
-### 90s elevator
-- Acto 1 + Acto 3 completo + 1 frase de Acto 4 ("On-chain en Avalanche, verificable") + Acto 5 cierre
-
----
-
-## Notas finales
-
-- **NO leer este script de corrido como tutorial.** Es un guión cinematográfico — el voice-over respira, deja pausas, y deja que las imágenes cuenten cuando puedan.
-- **NO inventar tx hashes ni cifras** que no estén en el repo / Snowtrace real. Si una stat no se puede probar, cambiala por una que sí.
-- **Si te quedás sin tiempo**, grabá el 60s teaser primero. Es mejor un teaser perfecto que un 3-min apurado.
