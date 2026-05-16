@@ -1,69 +1,132 @@
+// src/components/Settlement.tsx — W6 REPLACE
+// Mobile-first full-screen sheet. CTA primaria bottom-anchored con safe-area-inset-bottom.
+// Audit JSON download como secondary CTA. CopyButton para tx hash.
 "use client";
 
-import { snowtraceUrl } from "@/core/settlement";
-import type { SettlementReceipt } from "@/types/invoice";
+import type { AuctionLender } from "@/types/invoice";
+import { CopyButton } from "@/components/CopyButton";
 
-interface Props {
-  receipt: SettlementReceipt | null;
-  onSettle: () => void;
-  canSettle: boolean;
-  isSettling: boolean;
+interface SettlementReceiptShape {
+  txHash?: `0x${string}`;
+  snowtraceUrl?: string;
+  deliveredAmountUSDC?: number;
+  blockNumber?: number;
 }
 
-export function Settlement({ receipt, onSettle, canSettle, isSettling }: Props) {
-  if (receipt) {
+interface Props {
+  match: AuctionLender;
+  settlement: unknown;
+  requestId: string | null;
+  onSign: () => void;
+  isSigning?: boolean;
+}
+
+function parseReceipt(s: unknown): SettlementReceiptShape | null {
+  if (!s || typeof s !== "object") return null;
+  const obj = s as Record<string, unknown>;
+  // /settle returns { receipt: {...} } — unwrap.
+  const candidate =
+    obj.receipt && typeof obj.receipt === "object"
+      ? (obj.receipt as Record<string, unknown>)
+      : obj;
+  if (typeof candidate.txHash !== "string") return null;
+  return {
+    txHash: candidate.txHash as `0x${string}`,
+    snowtraceUrl:
+      typeof candidate.snowtraceUrl === "string" ? candidate.snowtraceUrl : undefined,
+    deliveredAmountUSDC:
+      typeof candidate.deliveredAmountUSDC === "number"
+        ? candidate.deliveredAmountUSDC
+        : undefined,
+    blockNumber:
+      typeof candidate.blockNumber === "number" ? candidate.blockNumber : undefined,
+  };
+}
+
+export function Settlement({ match, settlement, requestId, onSign, isSigning }: Props) {
+  const receipt = parseReceipt(settlement);
+
+  if (receipt && receipt.txHash) {
+    const amount = receipt.deliveredAmountUSDC ?? match.netAmountUSDC;
     return (
-      <div>
-        <div className="text-xs mono uppercase tracking-widest text-muted mb-4">04 · Settled onchain</div>
-        <div className="border border-green-500 p-6 bg-white">
-          <div className="serif text-3xl mb-4">${receipt.amountUSDC.toFixed(2)} USDC enviados</div>
+      <section className="mt-6">
+        <div className="text-xs mono uppercase tracking-widest text-muted mb-3">
+          04 · Settled onchain
+        </div>
+        <div className="border-2 border-emerald-600 p-4 bg-emerald-50">
+          <div className="serif text-2xl mb-3">
+            ${amount.toFixed(4)} USDC entregados
+          </div>
           <div className="space-y-2 text-xs mono">
-            <div>
-              <span className="text-muted">tx hash · </span>
+            <div className="flex items-center gap-2">
+              <span className="text-muted">tx · </span>
               <a
-                href={snowtraceUrl(receipt.txHash, receipt.chainId)}
+                href={receipt.snowtraceUrl ?? `https://testnet.snowtrace.io/tx/${receipt.txHash}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="underline hover:text-accent"
+                className="underline break-all flex-1"
               >
                 {receipt.txHash.slice(0, 10)}...{receipt.txHash.slice(-8)}
               </a>
+              <CopyButton text={receipt.txHash} label="Copiar tx hash" />
             </div>
             <div>
               <span className="text-muted">chain · </span>
-              {receipt.chainId === 43114 ? "Avalanche mainnet" : "Avalanche Fuji testnet"}
+              Avalanche Fuji testnet
             </div>
-            <div>
-              <span className="text-muted">block · </span>
-              {receipt.blockNumber.toLocaleString()}
-            </div>
-            <div>
-              <span className="text-muted">facilitator · </span>
-              {receipt.facilitator}
-            </div>
+            {receipt.blockNumber !== undefined && (
+              <div>
+                <span className="text-muted">block · </span>
+                {receipt.blockNumber.toLocaleString()}
+              </div>
+            )}
           </div>
+          {requestId && (
+            <a
+              href={`/api/audit-trail/${requestId}`}
+              download
+              className="mt-4 block text-center px-4 py-3 border border-ink mono text-xs uppercase tracking-widest min-h-[44px]"
+            >
+              Descargar audit trail JSON
+            </a>
+          )}
         </div>
-      </div>
+      </section>
     );
   }
 
   return (
-    <div>
-      <div className="text-xs mono uppercase tracking-widest text-muted mb-4">03 · Settlement</div>
-      <div className="border border-line p-6">
-        <p className="text-sm leading-relaxed mb-6 text-muted">
-          El inversor firma una autorización EIP-3009 gasless. Nuestro facilitator paga el gas y settle
-          en USDC sobre Avalanche. Sin la PyME necesitar wallet con AVAX.
-        </p>
+    <>
+      <section className="mt-6 mb-32">
+        <div className="text-xs mono uppercase tracking-widest text-muted mb-3">
+          03 · Settlement
+        </div>
+        <div className="border border-ink/30 p-4">
+          <div className="font-semibold mb-2">{match.lenderName}</div>
+          <div className="mono text-sm mb-3">
+            USDC {match.netAmountUSDC.toFixed(4)} · ~{match.estimatedSettleMinutes}min
+          </div>
+          <p className="text-xs leading-relaxed text-muted">
+            El facilitator firma una autorización EIP-3009 gasless y settle en USDC
+            sobre Avalanche Fuji. Sin que vos necesités wallet con AVAX.
+          </p>
+        </div>
+      </section>
+
+      {/* Bottom-anchored primary CTA with safe-area-inset-bottom (CD-18 mobile-first). */}
+      <div
+        className="fixed left-0 right-0 bottom-0 px-4 pt-3 bg-paper border-t border-ink/10 z-20"
+        style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
+      >
         <button
           type="button"
-          onClick={onSettle}
-          disabled={!canSettle || isSettling}
-          className="bg-ink text-paper px-6 py-3 mono text-xs uppercase tracking-widest hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          onClick={onSign}
+          disabled={isSigning}
+          className="w-full bg-ink text-paper mono text-xs uppercase tracking-widest min-h-[48px] disabled:opacity-40"
         >
-          {isSettling ? "Settling..." : "Firmar y settle"}
+          {isSigning ? "Firmando..." : "Firmar y cobrar"}
         </button>
       </div>
-    </div>
+    </>
   );
 }
