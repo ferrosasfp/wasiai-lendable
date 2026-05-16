@@ -43,7 +43,7 @@ export function AuditPanel({ steps, auditDownloadHref, auditDownloadFilename }: 
         <a
           href={auditDownloadHref}
           download={auditDownloadFilename ?? "cobraya-audit.json"}
-          className="block px-4 py-3 bg-luma-700 text-luma-50 text-center mono text-xs uppercase tracking-widest min-h-[44px]"
+          className="cta-primary"
         >
           Descargar audit trail JSON
         </a>

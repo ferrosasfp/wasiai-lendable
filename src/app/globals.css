@@ -157,4 +157,90 @@ body {
     letter-spacing: -0.03em;
     font-size: 2rem;
   }
+  .h2-serif {
+    font-family: "Instrument Serif", serif;
+    font-weight: 400;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    font-size: 1.5rem;
+    color: var(--luma-700);
+  }
+
+  /* ───── Primary CTA — Cobraya guinda gradient with subtle hover lift.
+     Used for: Escanear factura, Es correcta continuar, Negociar esta factura,
+     Firmar y cobrar, Escanear otra factura, Descargar audit trail, signUp /
+     signIn submit buttons. Single source so future palette swaps update once. */
+  .cta-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    min-height: 48px;
+    padding: 14px 20px;
+    background: linear-gradient(135deg, var(--luma-700) 0%, var(--luma-600) 100%);
+    color: var(--luma-50);
+    border-radius: 14px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 14px -4px rgba(79, 8, 32, 0.35);
+    transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+  }
+  .cta-primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px -6px rgba(79, 8, 32, 0.5);
+    filter: brightness(1.08);
+  }
+  .cta-primary:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px -2px rgba(79, 8, 32, 0.4);
+  }
+  .cta-primary:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .cta-primary:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--luma-200), 0 10px 22px -6px rgba(79, 8, 32, 0.5);
+  }
+
+  /* ───── Secondary CTA — outline guinda. Used for: Escanear otra factura
+     (post-settle reset), back links, dismiss confirmations. */
+  .cta-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    min-height: 48px;
+    padding: 13px 20px;
+    background: var(--luma-50);
+    color: var(--luma-700);
+    border: 1.5px solid var(--luma-300);
+    border-radius: 14px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+  }
+  .cta-secondary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    border-color: var(--luma-600);
+    background: var(--luma-100);
+  }
+  .cta-secondary:active:not(:disabled) {
+    transform: translateY(0);
+  }
+  .cta-secondary:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--luma-200);
+  }
 }
