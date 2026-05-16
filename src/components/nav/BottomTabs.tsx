@@ -1,20 +1,29 @@
 // src/components/nav/BottomTabs.tsx
 //
-// Mobile bottom navigation — Cash App / Mercado Pago pattern:
-// 3 surrounding tabs + a raised FAB ("Negociar") that floats above the bar.
-// The FAB is the primary action (factoring a new invoice) — its elevation
-// communicates "this is what you do here" without needing copy.
+// Mobile bottom navigation — Cash App / Mercado Pago pattern with a raised
+// FAB ("Negociar") that lives IN-FLOW (no `absolute`/`left-1/2` translation)
+// so spacing stays perfectly symmetric across the 4-col grid.
 //
-// Layout (4-col grid, FAB occupies the 3rd column visually but is absolutely
-// positioned so it lifts above the bar via translateY):
+// Earlier iteration used `absolute left-1/2 -translate-x-1/2` which pinned
+// the FAB to 50% of the nav width. With a 4-col grid that's between cols 2
+// and 3 — visually too close to Historial and a wide gap before Perfil.
+// User-reported: "Historia muy pegado a Negociar […] hay una distancia
+// entre Negociar y Perfil". Fix: FAB occupies its own grid column; the lift
+// is purely vertical (`-mt-4`, 16px) so the slot above the FAB sees the
+// disc rise out of the bar without breaking horizontal alignment.
 //
-//   ┌──────────────────────────────────────────────────────┐
-//   │ [Inicio]   [Historial]    [⊕]      [Perfil]          │
-//   │                          FAB ↑ -translate-y-1/2      │
-//   └──────────────────────────────────────────────────────┘
+//   ┌──────────────────────────────────────────────────┐
+//   │                          ⊕                       │ ← -mt-4 lift
+//   │                       Negociar                   │
+//   │  ⌂        📄                          👤         │
+//   │ Inicio  Historial                    Perfil      │
+//   └──────────────────────────────────────────────────┘
+//      col 1     col 2        col 3         col 4
+//      25%       25%           25%           25%
 //
-// The FAB uses bg-luma-600 (guinda primary) + ring-luma-50 (cream outer ring
-// to lift it off the bar visually) + shadow-2xl.
+// The disc is `w-12 h-12` (48px) — matches the CD-23 touch-target floor
+// without towering over the regular icons. Elevation comes from
+// `ring-2 ring-luma-50` + `shadow-lg`, not from a tall translate.
 'use client';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
@@ -29,16 +38,14 @@ type Tab = {
   Icon: typeof House;
 };
 
-const leftTabs: Tab[] = [
-  { href: '/dashboard', label: 'Inicio', Icon: House },
-  { href: '/historial', label: 'Historial', Icon: Receipt },
-];
-
-const rightTabs: Tab[] = [
-  { href: '/perfil', label: 'Perfil', Icon: User },
-];
-
-const FAB: Tab = { href: '/negociar', label: 'Negociar', Icon: Sparkles };
+const TABS: { left: Tab[]; fab: Tab; right: Tab[] } = {
+  left: [
+    { href: '/dashboard', label: 'Inicio', Icon: House },
+    { href: '/historial', label: 'Historial', Icon: Receipt },
+  ],
+  fab: { href: '/negociar', label: 'Negociar', Icon: Sparkles },
+  right: [{ href: '/perfil', label: 'Perfil', Icon: User }],
+};
 
 export function BottomTabs() {
   const pathname = usePathname() ?? '';
@@ -57,20 +64,14 @@ export function BottomTabs() {
       className="md:hidden fixed bottom-0 left-0 right-0 bg-luma-50/95 backdrop-blur-md border-t border-luma-200 z-40"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
-      <div className="relative grid grid-cols-4 items-center px-2 pt-2 pb-1">
-        {leftTabs.map((t) => (
+      <div className="grid grid-cols-4 items-end px-2 pt-2 pb-1">
+        {TABS.left.map((t) => (
           <TabButton key={t.href} tab={t} active={isActive(t.href)} />
         ))}
-
-        {/* Spacer column where the FAB visually centers above the bar. */}
-        <div aria-hidden className="h-12" />
-
-        {rightTabs.map((t) => (
+        <FloatingActionButton tab={TABS.fab} active={isActive(TABS.fab.href)} />
+        {TABS.right.map((t) => (
           <TabButton key={t.href} tab={t} active={isActive(t.href)} />
         ))}
-
-        {/* FAB — absolutely positioned over column 3, lifted via translateY. */}
-        <FloatingActionButton tab={FAB} active={isActive(FAB.href)} />
       </div>
     </nav>
   );
@@ -88,10 +89,7 @@ function TabButton({ tab, active }: { tab: Tab; active: boolean }) {
       )}
     >
       <Icon
-        className={cn(
-          'w-5 h-5 transition-transform',
-          active && 'scale-110',
-        )}
+        className={cn('w-5 h-5 transition-transform', active && 'scale-110')}
         strokeWidth={active ? 2.4 : 1.8}
         aria-hidden
       />
@@ -108,29 +106,25 @@ function FloatingActionButton({ tab, active }: { tab: Tab; active: boolean }) {
       aria-current={active ? 'page' : undefined}
       aria-label={`${tab.label} — acción principal`}
       className={cn(
-        'absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-0',
-        'flex flex-col items-center',
+        // In-flow column of the grid (no absolute positioning).
+        // `-mt-4` lifts the disc 16px above the row baseline; the label
+        // sits below the disc inside the column, no overflow.
+        'flex flex-col items-center justify-end min-h-[48px] -mt-4 text-[11px] transition-colors',
+        active ? 'text-luma-700 font-semibold' : 'text-luma-600',
       )}
     >
       <div
         className={cn(
-          'flex items-center justify-center w-14 h-14 rounded-full',
-          'bg-luma-600 text-luma-50 ring-4 ring-luma-50',
-          'shadow-[0_8px_24px_-4px_rgba(79,8,32,0.5)]',
+          'flex items-center justify-center w-12 h-12 rounded-full',
+          'bg-luma-600 text-luma-50 ring-2 ring-luma-50',
+          'shadow-[0_6px_18px_-4px_rgba(79,8,32,0.45)]',
           'transition-transform hover:scale-105 active:scale-95',
           active && 'bg-luma-700',
         )}
       >
-        <Icon className="w-6 h-6" strokeWidth={2.2} aria-hidden />
+        <Icon className="w-5 h-5" strokeWidth={2.2} aria-hidden />
       </div>
-      <span
-        className={cn(
-          'mt-1 text-[11px] transition-colors',
-          active ? 'text-luma-700 font-semibold' : 'text-luma-600',
-        )}
-      >
-        {tab.label}
-      </span>
+      <span className="mt-1">{tab.label}</span>
     </Link>
   );
 }

@@ -38,10 +38,16 @@ describe("<BottomTabs /> — WKH-COBRAYA-DAPP-SHELL W5 (AC-15)", () => {
     });
     const fab = screen.getByRole("link", { name: /negociar.*acci[oó]n principal/i });
     // FAB's button-shaped child carries the size class; ensure it exists.
+    // Post-rebalance the FAB disc is w-12/h-12 (48px) so it sits inside its
+    // grid column without breaking the row baseline; CD-23 still satisfied
+    // (48px = floor). Lift comes from `-mt-4` + ring + shadow, not size.
     const disc = fab.querySelector("div");
     expect(disc).not.toBeNull();
-    expect(disc!.className).toContain("w-14");
-    expect(disc!.className).toContain("h-14");
+    expect(disc!.className).toContain("w-12");
+    expect(disc!.className).toContain("h-12");
+    // FAB Link itself also keeps a 48px touch baseline (the disc + label
+    // stack add up to ≥48px even with -mt-4 lift).
+    expect(fab.className).toContain("min-h-[48px]");
   });
 
   it("self-hides on /", () => {
