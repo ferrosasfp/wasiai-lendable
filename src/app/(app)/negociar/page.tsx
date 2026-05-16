@@ -29,7 +29,6 @@ import { PipelineProgress } from "@/components/PipelineProgress";
 import { LenderAuctionPanel } from "@/components/LenderAuctionPanel";
 import { Settlement } from "@/components/Settlement";
 import { AuditPanel, type AuditStepDisplay } from "@/components/AuditPanel";
-import { TraceConsole } from "@/components/TraceConsole";
 import type {
   AuditReceipt,
   AuditSettlement,
@@ -692,7 +691,13 @@ export default function NegociarPage() {
         auditDownloadHref={trailBlobUrl}
         auditDownloadFilename={trailFilename}
       />
-      <TraceConsole traces={[]} />
+      {/* TraceConsole was a developer-only debug panel ported from agentshop;
+          in Cobraya the AuditPanel + the downloadable trail JSON already serve
+          the user-facing trazabilidad story, and the "Inside the call · live
+          trace (0)" footer never connected to a real trace stream — it just
+          rendered empty placeholder copy in English on mobile, violating
+          CD-22 and confusing PyME users. Removed. Engine file stays intact
+          per CD-30; we just stop importing it here. */}
     </main>
   );
 }
