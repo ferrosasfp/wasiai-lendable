@@ -1,0 +1,985 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Cobraya · Pitch — Tu factura, líquida en 30 segundos</title>
+<meta name="description" content="Factoraje agéntico para PyMEs mexicanas. 4 agentes de IA + smart contract en Avalanche. Sin esperar 60 días."/>
+<meta name="theme-color" content="#7A1232"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
+
+<style>
+:root {
+  /* dark default */
+  --bg: #0c0708;
+  --bg-2: #15090c;
+  --bg-3: #1d0d12;
+  --fg: #f7f1ed;
+  --fg-2: rgba(247,241,237,0.66);
+  --fg-3: rgba(247,241,237,0.42);
+  --line: rgba(255,255,255,0.07);
+  --line-2: rgba(255,255,255,0.14);
+  --wine: #B91C3D;
+  --wine-deep: #7A1232;
+  --wine-soft: #ff5a78;
+  --gold: #E8B045;
+  --gold-soft: #fce29a;
+  --green: #10B981;
+  --green-soft: #34D399;
+  --teal: #06B6D4;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+  --serif: 'Instrument Serif', serif;
+}
+html[data-theme="light"] {
+  --bg: #fbf9f6;
+  --bg-2: #f3eee8;
+  --bg-3: #ece4dc;
+  --fg: #1a0d10;
+  --fg-2: rgba(26,13,16,0.66);
+  --fg-3: rgba(26,13,16,0.42);
+  --line: rgba(26,13,16,0.10);
+  --line-2: rgba(26,13,16,0.18);
+  --wine: #7A1232;
+  --wine-deep: #5a0a23;
+  --wine-soft: #B91C3D;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); transition: background 0.3s, color 0.3s; }
+body { font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-feature-settings: "ss01"; }
+a { color: inherit; text-decoration: none; }
+.mono { font-family: var(--mono); font-feature-settings: "zero","ss01"; }
+.it { font-family: var(--serif); font-style: italic; font-weight: 400; color: var(--wine); letter-spacing: -0.01em; }
+html[data-theme="dark"] .it { color: var(--wine-soft); }
+.wrap { max-width: 1280px; margin: 0 auto; padding: 0 28px; }
+@media (max-width: 560px) { .wrap { padding: 0 18px; } }
+
+/* ─────────── NAV ─────────── */
+.nav { position: sticky; top: 0; z-index: 50; background: rgba(12,7,8,0.78); backdrop-filter: blur(20px); border-bottom: 1px solid var(--line); transition: background 0.3s; }
+html[data-theme="light"] .nav { background: rgba(251,249,246,0.85); }
+.nav-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; gap: 16px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 15px; letter-spacing: -0.01em; }
+.brand-mark { width: 26px; height: 26px; border-radius: 8px; background: linear-gradient(135deg, var(--wine) 0%, var(--wine-deep) 100%); display: grid; place-items: center; color: #fff; font-size: 12px; font-weight: 800; box-shadow: 0 4px 14px rgba(185,28,61,0.32); }
+.brand .sep { color: var(--fg-3); margin: 0 2px; font-weight: 400; }
+.brand .sub { font-family: var(--mono); font-size: 10.5px; color: var(--fg-3); letter-spacing: 0.1em; text-transform: uppercase; }
+@media (max-width: 720px) { .brand .sep, .brand .sub { display: none; } }
+.live-pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border: 1px solid rgba(16,185,129,0.32); background: rgba(16,185,129,0.08); border-radius: 99px; font-family: var(--mono); font-size: 10px; color: var(--green); letter-spacing: 0.12em; text-transform: uppercase; }
+.live-pill::before { content: ''; width: 5px; height: 5px; border-radius: 99px; background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 1.8s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.45; transform: scale(1.25); } }
+.nav-links { display: flex; gap: 24px; font-size: 13px; color: var(--fg-2); }
+.nav-links a:hover { color: var(--fg); }
+@media (max-width: 920px) { .nav-links { display: none; } }
+.nav-cta { display: flex; gap: 10px; align-items: center; }
+.theme-toggle { width: 36px; height: 36px; border-radius: 9px; border: 1px solid var(--line-2); background: transparent; color: var(--fg-2); cursor: pointer; display: grid; place-items: center; transition: all 0.2s; }
+.theme-toggle:hover { color: var(--fg); background: rgba(255,255,255,0.04); }
+html[data-theme="light"] .theme-toggle:hover { background: rgba(0,0,0,0.04); }
+.theme-toggle .sun { display: none; }
+.theme-toggle .moon { display: block; }
+html[data-theme="light"] .theme-toggle .sun { display: block; }
+html[data-theme="light"] .theme-toggle .moon { display: none; }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 9px; font: 500 13px/1 'Inter'; cursor: pointer; border: 0; transition: all 0.18s; white-space: nowrap; }
+.btn-wine { background: var(--wine); color: #fff; box-shadow: 0 4px 14px rgba(185,28,61,0.32); }
+.btn-wine:hover { background: var(--wine-soft); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(185,28,61,0.42); }
+.btn-ghost { background: transparent; color: var(--fg); border: 1px solid var(--line-2); }
+.btn-ghost:hover { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.22); }
+html[data-theme="light"] .btn-ghost:hover { background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.22); }
+.btn-lg { padding: 14px 22px; font-size: 14px; }
+
+/* ─────────── TYPOGRAPHY ─────────── */
+.kicker { display: inline-flex; align-items: center; gap: 10px; font-family: var(--mono); font-size: 11px; color: var(--wine-soft); letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 22px; }
+.kicker::before { content: '◆'; }
+html[data-theme="light"] .kicker { color: var(--wine); }
+.h1 { font-size: clamp(48px, 8vw, 104px); font-weight: 700; letter-spacing: -0.045em; line-height: 0.92; margin: 0; }
+.h2 { font-size: clamp(34px, 5vw, 64px); font-weight: 700; letter-spacing: -0.035em; line-height: 1.02; margin: 0 0 18px; max-width: 920px; }
+.h3 { font-size: clamp(22px, 2.6vw, 32px); font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; margin: 0; }
+.lede { font-size: 17px; line-height: 1.6; color: var(--fg-2); max-width: 60ch; margin: 0 0 28px; }
+.eyebrow { display: inline-flex; align-items: center; gap: 10px; font-family: var(--mono); font-size: 11px; color: var(--wine-soft); letter-spacing: 0.16em; text-transform: uppercase; }
+.eyebrow::before { content: ''; width: 28px; height: 1px; background: currentColor; }
+
+/* ─────────── HERO ─────────── */
+.hero { position: relative; overflow: hidden; padding: 72px 0 80px; border-bottom: 1px solid var(--line); }
+.hero-bg {
+  position: absolute; inset: 0; pointer-events: none; opacity: 0.92;
+  background:
+    radial-gradient(ellipse 70% 50% at 15% 30%, rgba(185,28,61,0.20), transparent 55%),
+    radial-gradient(ellipse 50% 40% at 90% 70%, rgba(232,176,69,0.10), transparent 55%);
+}
+html[data-theme="light"] .hero-bg {
+  background:
+    radial-gradient(ellipse 70% 50% at 15% 30%, rgba(122,18,50,0.10), transparent 55%),
+    radial-gradient(ellipse 50% 40% at 90% 70%, rgba(232,176,69,0.06), transparent 55%);
+}
+.hero-grid { position: relative; display: grid; grid-template-columns: 1.15fr 1fr; gap: 56px; align-items: center; }
+@media (max-width: 1000px) { .hero-grid { grid-template-columns: 1fr; gap: 56px; } }
+.hero-meta { display: inline-flex; align-items: center; gap: 12px; padding: 8px 14px; border: 1px solid var(--line); border-radius: 99px; font-family: var(--mono); font-size: 11px; color: var(--fg-2); letter-spacing: 0.08em; margin-bottom: 28px; }
+.hero-meta .dot { width: 7px; height: 7px; border-radius: 99px; background: var(--wine-soft); box-shadow: 0 0 8px var(--wine-soft); }
+html[data-theme="light"] .hero-meta .dot { background: var(--wine); box-shadow: 0 0 8px var(--wine); }
+.hero-meta .x { color: var(--fg-3); }
+.hero h1 .nb { white-space: nowrap; }
+.hero .ctas { display: flex; gap: 12px; margin-top: 36px; flex-wrap: wrap; }
+.hero-quick { display: flex; flex-wrap: wrap; gap: 16px 28px; margin-top: 40px; padding-top: 28px; border-top: 1px solid var(--line); }
+.hero-quick .qi { display: flex; align-items: baseline; gap: 8px; }
+.hero-quick .qi .v { font-family: var(--mono); font-size: 15px; font-weight: 600; color: var(--fg); letter-spacing: -0.01em; }
+.hero-quick .qi .l { font-family: var(--mono); font-size: 11px; color: var(--fg-3); letter-spacing: 0.06em; text-transform: uppercase; }
+.hero-quick .qi.gold .v { color: var(--gold); }
+.hero-quick .qi.green .v { color: var(--green); }
+
+/* Phone mockup */
+.phone-wrap { display: flex; justify-content: center; align-items: center; perspective: 1200px; }
+.phone {
+  width: 320px; height: 640px; border-radius: 44px;
+  background: linear-gradient(135deg, #1a0d12 0%, #2a141b 100%);
+  padding: 12px;
+  box-shadow:
+    0 50px 100px -30px rgba(0,0,0,0.7),
+    0 0 0 1px rgba(255,255,255,0.06),
+    inset 0 0 0 1px rgba(255,255,255,0.04);
+  position: relative;
+  transform: rotateY(-8deg) rotateX(2deg);
+  transform-style: preserve-3d;
+}
+@media (max-width: 1000px) { .phone { transform: none; width: 300px; height: 600px; } }
+@media (max-width: 380px) { .phone { width: 260px; height: 520px; } }
+html[data-theme="light"] .phone {
+  background: linear-gradient(135deg, #1a0d12 0%, #2a141b 100%);
+  box-shadow: 0 40px 80px -24px rgba(122,18,50,0.35), 0 0 0 1px rgba(0,0,0,0.08);
+}
+.phone-screen { width: 100%; height: 100%; border-radius: 32px; background: #0c0708; overflow: hidden; position: relative; }
+.phone-notch { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 100px; height: 26px; background: #000; border-radius: 14px; z-index: 5; }
+.phone-status { padding: 18px 22px 8px; display: flex; justify-content: space-between; font: 600 13px/1 'Inter'; color: #f7f1ed; }
+.screen { position: absolute; inset: 0; padding: 56px 20px 22px; display: flex; flex-direction: column; opacity: 0; transition: opacity 0.5s; pointer-events: none; }
+.screen.is-on { opacity: 1; pointer-events: auto; }
+.screen-h { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.screen-h .back { font-size: 22px; color: rgba(247,241,237,0.5); }
+.screen-h .step { font-family: var(--mono); font-size: 10px; color: rgba(247,241,237,0.45); letter-spacing: 0.12em; text-transform: uppercase; }
+.screen-t { font: 700 22px/1.15 'Inter'; color: #f7f1ed; margin: 4px 0 18px; letter-spacing: -0.02em; }
+.screen-sub { font-size: 12.5px; color: rgba(247,241,237,0.55); margin-bottom: 14px; }
+
+/* screen 1 — scan */
+.scan-card { background: linear-gradient(135deg, rgba(185,28,61,0.22), rgba(122,18,50,0.10)); border: 1px solid rgba(185,28,61,0.35); border-radius: 18px; padding: 22px 18px; text-align: center; margin-top: 8px; }
+.scan-card .check { width: 44px; height: 44px; border-radius: 50%; background: var(--green); display: grid; place-items: center; margin: 0 auto 12px; color: #04150a; font-size: 22px; font-weight: 800; box-shadow: 0 0 18px rgba(16,185,129,0.4); }
+.scan-card .ok { font: 600 11px/1 var(--mono); color: var(--green); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 12px; }
+.scan-card .amt { font: 800 28px/1 'Inter'; color: #fff; letter-spacing: -0.03em; margin-bottom: 4px; }
+.scan-card .meta { font-size: 11px; color: rgba(247,241,237,0.55); letter-spacing: 0.04em; }
+.screen-btn { margin-top: auto; padding: 14px; background: var(--wine); color: #fff; border-radius: 14px; text-align: center; font: 600 14px/1 'Inter'; }
+
+/* screen 2 — agents */
+.agent-list { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+.agent-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: rgba(255,255,255,0.04); border-radius: 11px; }
+.agent-row .ico { width: 28px; height: 28px; border-radius: 7px; background: rgba(185,28,61,0.2); border: 1px solid rgba(185,28,61,0.4); display: grid; place-items: center; font-size: 12px; }
+.agent-row .nm { font: 500 12.5px/1 'Inter'; color: #f7f1ed; flex: 1; }
+.agent-row .st { font-family: var(--mono); font-size: 10px; color: var(--green); }
+.agent-row.pending .st { color: rgba(247,241,237,0.4); }
+.agent-row.pending .ico { background: rgba(255,255,255,0.05); border-color: var(--line); }
+.agent-bar { height: 4px; background: rgba(255,255,255,0.06); border-radius: 99px; margin-top: 14px; overflow: hidden; }
+.agent-bar .fill { height: 100%; background: linear-gradient(90deg, var(--wine), var(--gold)); border-radius: 99px; transition: width 0.5s; }
+.agent-foot { font-family: var(--mono); font-size: 10px; color: rgba(247,241,237,0.45); margin-top: 8px; letter-spacing: 0.06em; }
+
+/* screen 3 — auction */
+.bid-list { display: flex; flex-direction: column; gap: 6px; }
+.bid { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 12px; transition: all 0.3s; }
+.bid.win { background: linear-gradient(135deg, rgba(232,176,69,0.22), rgba(185,28,61,0.12)); border-color: rgba(232,176,69,0.45); box-shadow: 0 0 24px rgba(232,176,69,0.18); }
+.bid .lg { width: 28px; height: 28px; border-radius: 7px; background: rgba(255,255,255,0.06); display: grid; place-items: center; font: 700 12px/1 var(--mono); color: var(--gold); }
+.bid.win .lg { background: var(--gold); color: #1a0d10; }
+.bid .nm { flex: 1; }
+.bid .nm .b { font: 600 12px/1 'Inter'; color: #f7f1ed; }
+.bid .nm .b .star { color: var(--gold); margin-left: 4px; font-family: var(--mono); font-size: 9px; }
+.bid .nm .sub { font: 500 10px/1 var(--mono); color: rgba(247,241,237,0.4); margin-top: 3px; letter-spacing: 0.04em; }
+.bid .apr { font-family: var(--mono); font-size: 12.5px; color: #f7f1ed; font-weight: 600; letter-spacing: -0.01em; text-align: right; }
+.bid .apr .small { display: block; font-size: 10px; color: rgba(247,241,237,0.5); margin-top: 2px; letter-spacing: 0.02em; }
+.bid.win .apr { color: var(--gold); }
+
+/* screen 4 — done */
+.done-amt { text-align: center; margin-top: 32px; }
+.done-amt .lab { font: 600 11px/1 var(--mono); color: var(--green); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 6px; }
+.done-amt .v { font: 800 44px/1 'Inter'; color: #fff; letter-spacing: -0.04em; }
+.done-amt .v .u { font-size: 0.45em; color: var(--green); margin-left: 4px; vertical-align: 0.3em; }
+.done-amt .t { font-family: var(--mono); font-size: 11px; color: rgba(247,241,237,0.55); margin-top: 8px; }
+.done-list { margin-top: 20px; display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.18); border-radius: 12px; }
+.done-row { display: flex; justify-content: space-between; font-size: 11px; }
+.done-row .k { color: rgba(247,241,237,0.5); font-family: var(--mono); letter-spacing: 0.04em; }
+.done-row .v { color: #f7f1ed; font-family: var(--mono); }
+.done-row .v.tx { color: var(--gold); }
+
+/* phone step bar */
+.phone-steps { position: absolute; left: 0; right: 0; bottom: -34px; display: flex; justify-content: center; gap: 6px; }
+.phone-steps .ds { width: 24px; height: 4px; border-radius: 99px; background: var(--line); transition: all 0.3s; }
+.phone-steps .ds.on { background: var(--wine-soft); width: 36px; box-shadow: 0 0 8px var(--wine-soft); }
+
+/* ─────────── SECTION SHELL ─────────── */
+.sec { padding: 100px 0; border-bottom: 1px solid var(--line); position: relative; }
+.sec-head { margin-bottom: 56px; max-width: 920px; }
+@media (max-width: 720px) { .sec { padding: 72px 0; } }
+
+/* ─────────── PROBLEM (Lupita) ─────────── */
+.problem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media (max-width: 900px) { .problem-grid { grid-template-columns: 1fr; } }
+.pcard { padding: 32px; border: 1px solid var(--line); border-radius: 16px; background: rgba(255,255,255,0.015); position: relative; overflow: hidden; }
+html[data-theme="light"] .pcard { background: var(--bg-2); }
+.pcard.old::before, .pcard.new::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+.pcard.old::before { background: var(--fg-3); }
+.pcard.new::before { background: linear-gradient(90deg, var(--wine), var(--gold)); }
+.pcard .label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--fg-3); margin-bottom: 14px; }
+.pcard.new .label { color: var(--wine-soft); }
+html[data-theme="light"] .pcard.new .label { color: var(--wine); }
+.pcard h3 { font: 800 clamp(38px, 5vw, 56px)/1 'Inter'; letter-spacing: -0.04em; margin: 0 0 18px; color: var(--fg); }
+.pcard.old h3 { color: var(--fg-2); }
+.pcard.new h3 { background: linear-gradient(90deg, var(--wine-soft), var(--gold)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+html[data-theme="light"] .pcard.new h3 { background: linear-gradient(90deg, var(--wine), #c9821a); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.pcard .strip { display: flex; justify-content: space-between; font: 500 10.5px/1 var(--mono); color: var(--fg-3); letter-spacing: 0.08em; text-transform: uppercase; margin: 8px 0 14px; padding: 6px 0; border-top: 1px dashed var(--line); border-bottom: 1px dashed var(--line); }
+.pcard p { font-size: 14px; color: var(--fg-2); line-height: 1.6; margin: 0; }
+.problem-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 28px; border-top: 1px solid var(--line); padding-top: 28px; }
+@media (max-width: 720px) { .problem-stats { grid-template-columns: 1fr; gap: 18px; padding-top: 24px; } }
+.ps-cell { padding: 0 24px; border-right: 1px solid var(--line); }
+.ps-cell:last-child { border-right: 0; }
+@media (max-width: 720px) { .ps-cell { padding: 12px 0; border-right: 0; border-bottom: 1px solid var(--line); } .ps-cell:last-child { border-bottom: 0; } }
+.ps-cell .v { font: 800 clamp(28px, 3.4vw, 42px)/1 'Inter'; letter-spacing: -0.035em; color: var(--fg); }
+.ps-cell .v .it { font-family: var(--serif); font-style: italic; font-weight: 400; color: var(--gold); }
+.ps-cell .l { font-family: var(--mono); font-size: 11px; color: var(--fg-3); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 8px; }
+
+/* ─────────── HOW IT WORKS — pipeline ─────────── */
+.pipe { border: 1px solid var(--line); border-radius: 16px; background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent 60%), var(--bg-2); overflow: hidden; box-shadow: 0 24px 60px -24px rgba(0,0,0,0.5); }
+html[data-theme="light"] .pipe { background: #fff; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.06); }
+.pipe-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 22px; border-bottom: 1px solid var(--line); }
+.pipe-title { display: flex; align-items: center; gap: 10px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--fg-2); }
+.pipe-title .dot { width: 7px; height: 7px; border-radius: 99px; background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 1.8s infinite; }
+.pipe-chips { display: flex; gap: 8px; font-family: var(--mono); font-size: 10px; color: var(--fg-3); letter-spacing: 0.08em; flex-wrap: wrap; }
+.pipe-chips span { padding: 4px 8px; border: 1px solid var(--line); border-radius: 5px; }
+.pipe-chips .hot { color: var(--wine-soft); border-color: rgba(185,28,61,0.34); background: rgba(185,28,61,0.08); }
+html[data-theme="light"] .pipe-chips .hot { color: var(--wine); }
+.pipe-body { display: grid; grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 980px) { .pipe-body { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .pipe-body { grid-template-columns: 1fr; } }
+.phase { padding: 28px 24px 30px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); position: relative; }
+.phase:last-child { border-right: 0; }
+.phase::after {
+  content: '→'; position: absolute; right: -11px; top: 60px; width: 22px; height: 22px; border-radius: 99px;
+  background: var(--bg-2); color: var(--wine-soft); font-size: 13px; display: grid; place-items: center; z-index: 2; border: 1px solid var(--line);
+}
+html[data-theme="light"] .phase::after { background: #fff; color: var(--wine); }
+.phase:last-child::after { display: none; }
+@media (max-width: 980px) { .phase:nth-child(2)::after { display: none; } }
+@media (max-width: 560px) { .phase::after { display: none; } }
+.phase .ph-num { font-family: var(--mono); font-size: 11px; color: var(--wine-soft); letter-spacing: 0.16em; }
+html[data-theme="light"] .phase .ph-num { color: var(--wine); }
+.phase .ph-time { display: inline-block; margin-top: 8px; font-family: var(--mono); font-size: 10.5px; color: var(--gold); padding: 3px 8px; background: rgba(232,176,69,0.1); border: 1px solid rgba(232,176,69,0.2); border-radius: 5px; }
+.phase .ph-name { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; margin: 14px 0 10px; }
+.phase .ph-desc { font-size: 13.5px; color: var(--fg-2); line-height: 1.55; }
+
+/* ─────────── AGENTS GRID ─────────── */
+.agents-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+@media (max-width: 820px) { .agents-grid { grid-template-columns: 1fr; } }
+.acard {
+  border: 1px solid var(--line); border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.025) 0%, transparent 60%), var(--bg-2);
+  padding: 26px 28px 28px;
+  position: relative; overflow: hidden;
+  transition: all 0.3s;
+}
+html[data-theme="light"] .acard { background: #fff; box-shadow: 0 6px 24px -6px rgba(0,0,0,0.04); }
+.acard:hover { border-color: rgba(185,28,61,0.32); transform: translateY(-2px); }
+.acard::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--wine), transparent 70%); }
+.acard-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+.acard .price { display: inline-flex; align-items: center; gap: 6px; padding: 6px 11px; border: 1px solid rgba(185,28,61,0.32); background: rgba(185,28,61,0.08); border-radius: 99px; font-family: var(--mono); font-size: 11px; color: var(--wine-soft); font-weight: 600; letter-spacing: 0.04em; }
+html[data-theme="light"] .acard .price { color: var(--wine); }
+.acard .idx { font-family: var(--mono); font-size: 11px; color: var(--fg-3); letter-spacing: 0.16em; }
+.acard h3 { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; margin: 0 0 6px; }
+.acard .slug { font-family: var(--mono); font-size: 11.5px; color: var(--fg-3); margin-bottom: 16px; letter-spacing: 0.02em; }
+.acard p { font-size: 13.5px; color: var(--fg-2); line-height: 1.6; margin: 0 0 14px; }
+.acard .verif { font-family: var(--mono); font-size: 11px; color: var(--fg-3); padding: 10px 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--line); border-radius: 8px; margin-top: 12px; line-height: 1.55; }
+html[data-theme="light"] .acard .verif { background: var(--bg-3); }
+.acard .verif b { color: var(--wine-soft); font-weight: 500; }
+html[data-theme="light"] .acard .verif b { color: var(--wine); }
+.acard pre { font-family: var(--mono); font-size: 11.5px; line-height: 1.6; color: var(--fg-2); margin: 12px 0 0; padding: 12px 14px; background: rgba(0,0,0,0.28); border: 1px solid var(--line); border-radius: 8px; overflow-x: auto; }
+html[data-theme="light"] .acard pre { background: var(--bg-3); }
+.acard pre .k { color: var(--teal); }
+.acard pre .s { color: var(--gold); }
+.acard pre .n { color: var(--green); }
+
+/* ─────────── COMPARISON ─────────── */
+.vs { border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+.vs-row { display: grid; grid-template-columns: 1.3fr 1fr 1fr; border-bottom: 1px solid var(--line); }
+.vs-row:last-child { border-bottom: 0; }
+.vs-row.head { background: rgba(255,255,255,0.03); }
+html[data-theme="light"] .vs-row.head { background: var(--bg-2); }
+.vs-row.head .col-w { background: linear-gradient(135deg, rgba(185,28,61,0.18), rgba(232,176,69,0.08)); }
+.vs-row > div { padding: 18px 22px; }
+.vs-row > .col-w { background: rgba(185,28,61,0.05); border-left: 1px solid var(--line); border-right: 0; }
+.vs-row > .col-o { color: var(--fg-2); }
+@media (max-width: 720px) { .vs-row { grid-template-columns: 1fr; } .vs-row > div { padding: 14px 18px; border-bottom: 1px solid var(--line); } .vs-row > div:last-child { border-bottom: 0; } .vs-row > .col-w { border-left: 0; } }
+.vs-row .label { font-family: var(--mono); font-size: 11px; color: var(--fg-3); letter-spacing: 0.12em; text-transform: uppercase; }
+.vs-row.head .label { color: var(--fg); font-weight: 600; }
+.vs-row.head .col-o, .vs-row.head .col-w { font: 700 14px/1.3 'Inter'; letter-spacing: -0.01em; }
+.vs-row.head .col-w { color: var(--wine-soft); }
+html[data-theme="light"] .vs-row.head .col-w { color: var(--wine); }
+.vs-row .v { font: 600 14px/1.4 'Inter'; }
+.vs-row .v.bad { color: var(--fg-2); }
+.vs-row .v.good { color: var(--fg); }
+.vs-row .v.good::before { content: '◆ '; color: var(--gold); margin-right: 2px; }
+
+/* ─────────── STACK ─────────── */
+.stack-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+@media (max-width: 900px) { .stack-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 520px) { .stack-grid { grid-template-columns: 1fr; } }
+.scard { padding: 22px 22px 24px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,0.015); display: flex; flex-direction: column; gap: 10px; }
+html[data-theme="light"] .scard { background: #fff; }
+.scard .ico { width: 38px; height: 38px; border-radius: 9px; background: rgba(185,28,61,0.12); border: 1px solid rgba(185,28,61,0.28); display: grid; place-items: center; font: 700 16px/1 var(--mono); color: var(--wine-soft); margin-bottom: 4px; }
+html[data-theme="light"] .scard .ico { color: var(--wine); }
+.scard .nm { font: 600 14px/1.3 'Inter'; color: var(--fg); }
+.scard .desc { font-size: 12px; color: var(--fg-3); line-height: 1.55; }
+
+/* ─────────── PROOF ─────────── */
+.proof-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+@media (max-width: 820px) { .proof-grid { grid-template-columns: 1fr; } }
+.proof-card { padding: 26px 28px 28px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,0.015); display: block; transition: all 0.25s; }
+html[data-theme="light"] .proof-card { background: #fff; }
+.proof-card:hover { border-color: rgba(185,28,61,0.32); transform: translateY(-2px); background: rgba(185,28,61,0.04); }
+.proof-card .label { font-family: var(--mono); font-size: 11px; color: var(--gold); letter-spacing: 0.14em; text-transform: uppercase; }
+.proof-card h3 { font: 600 19px/1.3 'Inter'; letter-spacing: -0.015em; margin: 8px 0 6px; color: var(--fg); }
+.proof-card .meta { font-family: var(--mono); font-size: 11.5px; color: var(--wine-soft); letter-spacing: 0.04em; word-break: break-all; }
+html[data-theme="light"] .proof-card .meta { color: var(--wine); }
+.proof-card .body { font-size: 13px; color: var(--fg-2); line-height: 1.6; margin: 12px 0 14px; }
+.proof-card .strip { display: flex; gap: 8px; flex-wrap: wrap; }
+.proof-card .strip span { padding: 4px 10px; border: 1px solid var(--line); border-radius: 6px; font-family: var(--mono); font-size: 11px; color: var(--fg-2); letter-spacing: 0.04em; }
+.proof-card .strip .star { color: var(--gold); border-color: rgba(232,176,69,0.32); background: rgba(232,176,69,0.08); }
+.proof-card .arr { display: inline-block; margin-top: 14px; font-family: var(--mono); font-size: 11.5px; color: var(--wine-soft); letter-spacing: 0.04em; }
+html[data-theme="light"] .proof-card .arr { color: var(--wine); }
+
+/* ─────────── QUOTE ─────────── */
+.quote-sec { padding: 90px 0; border-bottom: 1px solid var(--line); position: relative; overflow: hidden; }
+.quote-sec::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 50% 60% at 50% 50%, rgba(232,176,69,0.06), transparent 70%); pointer-events: none; }
+.quote-sec blockquote { font-family: var(--serif); font-style: italic; font-size: clamp(28px, 4vw, 48px); font-weight: 400; line-height: 1.2; letter-spacing: -0.015em; max-width: 880px; margin: 0 auto; text-align: center; color: var(--fg); position: relative; }
+.quote-sec blockquote span { color: var(--gold); }
+.quote-sec .by { text-align: center; font-family: var(--mono); font-size: 11px; color: var(--fg-3); letter-spacing: 0.16em; text-transform: uppercase; margin-top: 28px; }
+
+/* ─────────── FINAL CTA ─────────── */
+.final { position: relative; padding: 110px 28px 130px; text-align: center; background: radial-gradient(ellipse 60% 70% at 50% 30%, rgba(185,28,61,0.18), transparent 60%), var(--bg); overflow: hidden; border-bottom: 1px solid var(--line); }
+.final h2 { font-size: clamp(48px, 8vw, 96px); font-weight: 800; letter-spacing: -0.045em; line-height: 0.94; margin: 0 auto 24px; max-width: 920px; }
+.final h2 .it { font-family: var(--serif); font-style: italic; font-weight: 400; color: var(--gold); }
+.final p { font-size: 17px; color: var(--fg-2); max-width: 52ch; margin: 0 auto 36px; line-height: 1.55; }
+.final .ctas { display: inline-flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+
+/* ─────────── FOOTER ─────────── */
+.footer { padding: 56px 0 28px; }
+.foot-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 40px; }
+@media (max-width: 720px) { .foot-grid { grid-template-columns: 1fr 1fr; } }
+.foot-grid h5 { font-family: var(--mono); font-size: 10.5px; color: var(--fg-3); text-transform: uppercase; letter-spacing: 0.14em; margin: 0 0 14px; font-weight: 500; }
+.foot-grid ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.foot-grid a { font-size: 13.5px; color: var(--fg-2); }
+.foot-grid a:hover { color: var(--fg); }
+.foot-grid p { font-size: 13.5px; color: var(--fg-2); line-height: 1.6; max-width: 38ch; margin: 0 0 14px; }
+.foot-bottom { display: flex; justify-content: space-between; padding-top: 24px; margin-top: 36px; border-top: 1px solid var(--line); font-family: var(--mono); font-size: 11px; color: var(--fg-3); letter-spacing: 0.08em; flex-wrap: wrap; gap: 14px; }
+
+/* ─────────── SCROLL REVEALS ─────────── */
+[data-rev] { opacity: 0; transform: translateY(14px); transition: opacity 0.7s cubic-bezier(0.2,0.8,0.2,1), transform 0.7s cubic-bezier(0.2,0.8,0.2,1); }
+[data-rev].is-in { opacity: 1; transform: translateY(0); }
+[data-rev][data-d="1"] { transition-delay: 80ms; }
+[data-rev][data-d="2"] { transition-delay: 160ms; }
+[data-rev][data-d="3"] { transition-delay: 240ms; }
+[data-rev][data-d="4"] { transition-delay: 320ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ─────────── NAV ─────────── -->
+<header class="nav">
+  <div class="wrap nav-row">
+    <a href="#" class="brand">
+      <span class="brand-mark">C</span>
+      <span>Cobraya</span>
+      <span class="sep">·</span>
+      <span class="sub">Avalanche LATAM 2026</span>
+    </a>
+    <nav class="nav-links">
+      <a href="#problema">Problema</a>
+      <a href="#flujo">Flujo</a>
+      <a href="#agentes">Agentes</a>
+      <a href="#comparativa">vs. tradicional</a>
+      <a href="#prueba">Prueba</a>
+    </nav>
+    <div class="nav-cta">
+      <span class="live-pill">Live · Fuji</span>
+      <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema">
+        <svg class="sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        <svg class="moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <a class="btn btn-wine" href="https://wasiai-cobraya.vercel.app/demo" target="_blank" rel="noopener">Ver demo →</a>
+    </div>
+  </div>
+</header>
+
+<!-- ─────────── HERO ─────────── -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="wrap hero-grid">
+    <div>
+      <div class="hero-meta" data-rev>
+        <span class="dot"></span>
+        Avalanche LATAM Fintech Build 2026
+        <span class="x">·</span>
+        <span style="color:var(--fg-2)">Factoraje agéntico · MX</span>
+      </div>
+      <h1 class="h1" data-rev data-d="1">
+        Tu factura,<br/>
+        <span class="it">líquida en</span><br/>
+        <span class="nb">30 segundos.</span>
+      </h1>
+      <p class="lede" data-rev data-d="2" style="margin-top:32px">
+        Factoraje agéntico para PyMEs mexicanas. <strong style="color:var(--fg);font-weight:500">4 agentes de IA</strong> + smart contract en Avalanche. Sin papeleo. Sin comités. Sin esperar 60 días.
+      </p>
+      <div class="ctas" data-rev data-d="3">
+        <a class="btn btn-wine btn-lg" href="https://wasiai-cobraya.vercel.app/demo" target="_blank" rel="noopener">▶  Ver demo en vivo</a>
+        <a class="btn btn-ghost btn-lg" href="https://testnet.snowtrace.io/address/0x5F8F8a31e51d8B2FEe0E0C2f1AffC3B4c6B12506" target="_blank" rel="noopener">Contrato en Snowtrace ↗</a>
+      </div>
+      <div class="hero-quick" data-rev data-d="4">
+        <div class="qi gold"><span class="v">$24B</span><span class="l">TAM MX</span></div>
+        <div class="qi green"><span class="v">Fuji ✓</span><span class="l">deployed</span></div>
+        <div class="qi"><span class="v">CNBV</span><span class="l">circ. 4/2024</span></div>
+        <div class="qi"><span class="v">1660+</span><span class="l">tests</span></div>
+      </div>
+    </div>
+
+    <!-- PHONE MOCKUP -->
+    <div class="phone-wrap" data-rev data-d="2">
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="phone-status"><span>9:41</span><span>● ● ●</span></div>
+
+          <!-- Screen 1 — scan -->
+          <div class="screen is-on" data-screen="0">
+            <div class="screen-h"><span class="back">‹ Cobraya</span><span class="step">Paso 1 de 4</span></div>
+            <div class="screen-t">Escanear factura</div>
+            <div class="screen-sub">Subí tu factura CFDI</div>
+            <div class="scan-card">
+              <div class="check">✓</div>
+              <div class="ok">CFDI detectado</div>
+              <div class="amt">$48,500.00 MXN</div>
+              <div class="meta">Factura · Walmart México · 60 días</div>
+            </div>
+            <div class="screen-btn">Continuar</div>
+          </div>
+
+          <!-- Screen 2 — agents -->
+          <div class="screen" data-screen="1">
+            <div class="screen-h"><span class="back">‹ Cobraya</span><span class="step">Paso 2 de 4</span></div>
+            <div class="screen-t">Validando</div>
+            <div class="screen-sub">4 agentes procesan tu factura</div>
+            <div class="agent-list">
+              <div class="agent-row"><div class="ico">✓</div><div class="nm">CFDI Validator</div><div class="st">OK</div></div>
+              <div class="agent-row"><div class="ico">✓</div><div class="nm">Fraud Detector</div><div class="st">OK</div></div>
+              <div class="agent-row"><div class="ico">✓</div><div class="nm">Credit Scorer</div><div class="st">742 / A</div></div>
+              <div class="agent-row pending"><div class="ico" style="color:var(--gold)">●</div><div class="nm">Lender Matcher</div><div class="st" style="color:var(--gold)">subastando…</div></div>
+            </div>
+            <div class="agent-bar"><div class="fill" style="width:78%"></div></div>
+            <div class="agent-foot">on-chain · 12s restantes</div>
+          </div>
+
+          <!-- Screen 3 — auction -->
+          <div class="screen" data-screen="2">
+            <div class="screen-h"><span class="back">‹ Cobraya</span><span class="step">Paso 3 de 4</span></div>
+            <div class="screen-t">Subasta</div>
+            <div class="screen-sub">4 lenders compitiendo</div>
+            <div class="bid-list">
+              <div class="bid"><div class="lg">B</div><div class="nm"><div class="b">Bankaool</div><div class="sub">advance · 5–7d</div></div><div class="apr">21.5%<span class="small">$940</span></div></div>
+              <div class="bid win"><div class="lg">A</div><div class="nm"><div class="b">Arkangeles <span class="star">⭐ MEJOR</span></div><div class="sub">advance · 24h</div></div><div class="apr">19.8%<span class="small">$952</span></div></div>
+              <div class="bid"><div class="lg">V</div><div class="nm"><div class="b">BBVA Pyme</div><div class="sub">advance · 3d</div></div><div class="apr">23.2%<span class="small">$931</span></div></div>
+              <div class="bid"><div class="lg">K</div><div class="nm"><div class="b">Konfío</div><div class="sub">advance · 48h</div></div><div class="apr">20.4%<span class="small">$946</span></div></div>
+            </div>
+            <div class="screen-btn" style="background:var(--gold);color:#1a0d10">Aceptar Arkangeles</div>
+          </div>
+
+          <!-- Screen 4 — done -->
+          <div class="screen" data-screen="3">
+            <div class="screen-h"><span class="back" style="color:var(--green)">✓ Cobraya</span><span class="step">¡Recibiste!</span></div>
+            <div class="done-amt">
+              <div class="lab">USDC en wallet</div>
+              <div class="v">$940.00<span class="u">USDC</span></div>
+              <div class="t">pagado en 28 segundos</div>
+            </div>
+            <div class="done-list">
+              <div class="done-row"><span class="k">lender</span><span class="v">Arkangeles</span></div>
+              <div class="done-row"><span class="k">red</span><span class="v">Avalanche Fuji</span></div>
+              <div class="done-row"><span class="k">apr</span><span class="v">19.8%</span></div>
+              <div class="done-row"><span class="k">tx</span><span class="v tx">0xa3f…c1d ↗</span></div>
+            </div>
+            <div style="margin-top:auto;font-family:var(--mono);font-size:10.5px;color:rgba(247,241,237,0.5);text-align:center;letter-spacing:0.06em">Audit trail firmado · descargar JSON</div>
+          </div>
+
+        </div>
+        <!-- step indicator -->
+        <div class="phone-steps">
+          <div class="ds on" data-ds="0"></div>
+          <div class="ds" data-ds="1"></div>
+          <div class="ds" data-ds="2"></div>
+          <div class="ds" data-ds="3"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─────────── PROBLEM (Lupita) ─────────── -->
+<section class="sec" id="problema">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker" data-rev>El problema</div>
+      <h2 class="h2" data-rev data-d="1">
+        Lupita vende.<br/>
+        Walmart paga… <span class="it">en 60 días.</span>
+      </h2>
+      <p class="lede" data-rev data-d="2">
+        La PyME mexicana factura, entrega, y se queda sin liquidez esperando que un comité humano firme un papel. <strong style="color:var(--fg);font-weight:500">78% de las PyMEs cierran por flujo de caja</strong>.
+      </p>
+    </div>
+
+    <div class="problem-grid">
+      <div class="pcard old" data-rev>
+        <div class="label">Factoraje tradicional</div>
+        <h3>60 días</h3>
+        <div class="strip"><span>Día 1</span><span>Día 30</span><span>Día 60</span></div>
+        <p>Papeleo, comités humanos, 4–8% mensual. La PyME espera, el comprador paga cuando quiere, el flujo de caja se rompe.</p>
+      </div>
+      <div class="pcard new" data-rev data-d="1">
+        <div class="label">Cobraya</div>
+        <h3>30 segundos</h3>
+        <div class="strip"><span>0s</span><span>10s</span><span>30s · USDC ✓</span></div>
+        <p>Sin papeleo, agentes IA, 2–3% APR. La PyME cobra. El smart contract libera USDC. La auditoría queda firmada.</p>
+      </div>
+    </div>
+
+    <div class="problem-stats" data-rev data-d="2">
+      <div class="ps-cell">
+        <div class="v">$48,500 <span class="it">MXN</span></div>
+        <div class="l">factura típica PyME</div>
+      </div>
+      <div class="ps-cell">
+        <div class="v">60d <span class="it">→ 30s</span></div>
+        <div class="l">reducción de tiempo</div>
+      </div>
+      <div class="ps-cell">
+        <div class="v">78%</div>
+        <div class="l">PyMEs cierran por flujo de caja</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── HOW IT WORKS — pipeline ─────────── -->
+<section class="sec" id="flujo">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker" data-rev>Cómo funciona</div>
+      <h2 class="h2" data-rev data-d="1">
+        En <span class="it">4 pasos.</span><br/>
+        Lupita los hace desde el celular.
+      </h2>
+      <p class="lede" data-rev data-d="2">
+        Los agentes lo hacen on-chain. Cada paso queda firmado con EIP-712 y verificable en Snowtrace.
+      </p>
+    </div>
+
+    <div class="pipe" data-rev data-d="3">
+      <div class="pipe-head">
+        <div class="pipe-title"><span class="dot"></span>Cobraya Pipeline · LATAM Fintech</div>
+        <div class="pipe-chips">
+          <span class="hot">CFDI 4.0</span>
+          <span>USDC</span>
+          <span>Avalanche Fuji</span>
+          <span>EIP-3009</span>
+        </div>
+      </div>
+      <div class="pipe-body">
+        <div class="phase">
+          <div class="ph-num">01 · Subir</div>
+          <div class="ph-time">~3 s</div>
+          <div class="ph-name">Subí tu factura CFDI</div>
+          <div class="ph-desc">Foto del XML del SAT desde el celular. Sin uploads pesados. PWA installable, mobile-first.</div>
+        </div>
+        <div class="phase">
+          <div class="ph-num">02 · Procesar</div>
+          <div class="ph-time">~15 s</div>
+          <div class="ph-name">4 agentes la procesan</div>
+          <div class="ph-desc">Validan SAT, detectan doble-cesión, calculan score, lanzan subasta. Cada uno paga con USDC vía x402.</div>
+        </div>
+        <div class="phase">
+          <div class="ph-num">03 · Subastar</div>
+          <div class="ph-time">~7 s</div>
+          <div class="ph-name">4 lenders compiten</div>
+          <div class="ph-desc">Bankaool · Arkangeles · BBVA · Konfío. Subasta transparente, firmas EIP-712. Gana la mejor oferta.</div>
+        </div>
+        <div class="phase">
+          <div class="ph-num">04 · Recibir</div>
+          <div class="ph-time">~5 s</div>
+          <div class="ph-name">USDC en wallet</div>
+          <div class="ph-desc">Settlement EIP-3009 directo a la wallet del SME. Audit trail firmado. Sin gas, sin fricción.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── AGENTS ─────────── -->
+<section class="sec" id="agentes">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker" data-rev>Los 4 agentes</div>
+      <h2 class="h2" data-rev data-d="1">
+        4 agentes. 4 precios en USDC.<br/>
+        <span class="it">4 evidencias on-chain.</span>
+      </h2>
+      <p class="lede" data-rev data-d="2">
+        Cada uno cuesta lo que vale. Cada uno deja huella verificable en Avalanche Fuji.
+      </p>
+    </div>
+
+    <div class="agents-grid">
+      <article class="acard" data-rev>
+        <div class="acard-top">
+          <span class="price">$0.001 USDC · por llamada</span>
+          <span class="idx">01</span>
+        </div>
+        <h3>CFDI Validator</h3>
+        <div class="slug mono">agentshop-cfdi-validator</div>
+        <p>Parsea el XML del CFDI 4.0, verifica firma del SAT, valida emisor y receptor contra el RFC. Sin esto, todo se cae.</p>
+        <div class="verif"><b>Verifica:</b> Hash del CFDI commiteado on-chain antes del settlement</div>
+<pre>{
+  <span class="k">"uuid"</span>: <span class="s">"9F8E…A21"</span>,
+  <span class="k">"total"</span>: <span class="n">48500</span>,
+  <span class="k">"verified"</span>: <span class="n">true</span>
+}</pre>
+      </article>
+
+      <article class="acard" data-rev data-d="1">
+        <div class="acard-top">
+          <span class="price">$0.005 USDC · por llamada</span>
+          <span class="idx">02</span>
+        </div>
+        <h3>Fraud Detector</h3>
+        <div class="slug mono">agentshop-fraud-detector</div>
+        <p>Detecta doble-cesión consultando el commitment contract en Avalanche Fuji. Anti-fraude regulatorio MX nativo.</p>
+        <div class="verif"><b>Verifica:</b> Lookup en CobrayaInvoiceCommitments.sol — gas &lt; 80K</div>
+<pre>{
+  <span class="k">"hash"</span>: <span class="s">"0x7d3…"</span>,
+  <span class="k">"previouslyCommitted"</span>: <span class="n">false</span>
+}</pre>
+      </article>
+
+      <article class="acard" data-rev data-d="2">
+        <div class="acard-top">
+          <span class="price">$0.05 USDC · por llamada</span>
+          <span class="idx">03</span>
+        </div>
+        <h3>Credit Scorer</h3>
+        <div class="slug mono">agentshop-credit-scorer</div>
+        <p>Calcula score 300–850 con multi-factor (RFC, sector, historial, buyer). Rationale generado por Claude Haiku.</p>
+        <div class="verif"><b>Verifica:</b> Receipt EIP-712 firmado, rationale provenance trackeado</div>
+<pre>{
+  <span class="k">"score"</span>: <span class="n">742</span>,
+  <span class="k">"band"</span>: <span class="s">"A"</span>,
+  <span class="k">"rationale"</span>: <span class="s">"…"</span>
+}</pre>
+      </article>
+
+      <article class="acard" data-rev data-d="3">
+        <div class="acard-top">
+          <span class="price">$0.01 USDC · por llamada</span>
+          <span class="idx">04</span>
+        </div>
+        <h3>Lender Matcher</h3>
+        <div class="slug mono">agentshop-lender-matcher</div>
+        <p>Lanza subasta entre 4 lenders, evalúa APR + advance rate + speed. Gana la mejor oferta para el SME.</p>
+        <div class="verif"><b>Verifica:</b> Subasta transparente, 4 ofertas firmadas EIP-712</div>
+<pre>{
+  <span class="k">"winner"</span>: <span class="s">"arkangeles"</span>,
+  <span class="k">"apr"</span>: <span class="n">19.8</span>,
+  <span class="k">"net"</span>: <span class="n">952</span>
+}</pre>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── COMPARISON ─────────── -->
+<section class="sec" id="comparativa">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker" data-rev>Lo viejo vs lo nuevo</div>
+      <h2 class="h2" data-rev data-d="1">Lo viejo, <span class="it">ya cumplió.</span></h2>
+    </div>
+
+    <div class="vs" data-rev data-d="2">
+      <div class="vs-row head">
+        <div class="label">Atributo</div>
+        <div class="col-o">Factoraje tradicional</div>
+        <div class="col-w">Cobraya</div>
+      </div>
+      <div class="vs-row">
+        <div class="label">Tiempo</div>
+        <div class="col-o v bad">7–30 días</div>
+        <div class="col-w v good">30 segundos</div>
+      </div>
+      <div class="vs-row">
+        <div class="label">Papeleo</div>
+        <div class="col-o v bad">Físico + KYC</div>
+        <div class="col-w v good">Cero</div>
+      </div>
+      <div class="vs-row">
+        <div class="label">Quién decide</div>
+        <div class="col-o v bad">Comité humano</div>
+        <div class="col-w v good">4 agentes IA + smart contract</div>
+      </div>
+      <div class="vs-row">
+        <div class="label">Costo total</div>
+        <div class="col-o v bad">4–8% mensual</div>
+        <div class="col-w v good">2–3% APR</div>
+      </div>
+      <div class="vs-row">
+        <div class="label">Transparencia</div>
+        <div class="col-o v bad">Opaca</div>
+        <div class="col-w v good">On-chain Avalanche</div>
+      </div>
+      <div class="vs-row">
+        <div class="label">Disponibilidad</div>
+        <div class="col-o v bad">Lun–Vie 9–17h</div>
+        <div class="col-w v good">24 / 7 / 365</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── STACK ─────────── -->
+<section class="sec">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker" data-rev>El stack</div>
+      <h2 class="h2" data-rev data-d="1">Producción, <span class="it">no hackathon.</span></h2>
+      <p class="lede" data-rev data-d="2">Cobraya corre sobre infraestructura agéntica probada. No reinventamos: integramos.</p>
+    </div>
+
+    <div class="stack-grid">
+      <div class="scard" data-rev>
+        <div class="ico">▲</div>
+        <div class="nm">Avalanche Fuji</div>
+        <div class="desc">Smart contract verificado · ChainID 43113 · gas &lt; 80K</div>
+      </div>
+      <div class="scard" data-rev data-d="1">
+        <div class="ico">$</div>
+        <div class="nm">USDC + EIP-3009</div>
+        <div class="desc">Settlement gasless. La PyME no necesita nativos.</div>
+      </div>
+      <div class="scard" data-rev data-d="2">
+        <div class="ico">FD</div>
+        <div class="nm">Foundry + OpenZeppelin</div>
+        <div class="desc">Ownable2Step, gas optimized, 100% coverage.</div>
+      </div>
+      <div class="scard" data-rev data-d="1">
+        <div class="ico">A</div>
+        <div class="nm">Anthropic Claude</div>
+        <div class="desc">Rationale IA firmado, provenance trackeado.</div>
+      </div>
+      <div class="scard" data-rev data-d="2">
+        <div class="ico">A2</div>
+        <div class="nm">wasiai-a2a</div>
+        <div class="desc">Marketplace de agentes · 1660+ tests · Railway prod.</div>
+      </div>
+      <div class="scard" data-rev data-d="3">
+        <div class="ico">FX</div>
+        <div class="nm">wasiai-facilitator</div>
+        <div class="desc">Settlement service multi-chain · Railway prod.</div>
+      </div>
+      <div class="scard" data-rev data-d="2">
+        <div class="ico">▲</div>
+        <div class="nm">Next.js 14 PWA</div>
+        <div class="desc">Mobile-first, installable, offline-ready.</div>
+      </div>
+      <div class="scard" data-rev data-d="3">
+        <div class="ico">SB</div>
+        <div class="nm">Supabase</div>
+        <div class="desc">Postgres con RLS app-layer, snapshots firmados.</div>
+      </div>
+      <div class="scard" data-rev data-d="4">
+        <div class="ico">CN</div>
+        <div class="nm">CNBV ready</div>
+        <div class="desc">Circular 4/2024 · audit trail listo para regulador.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── PROOF ─────────── -->
+<section class="sec" id="prueba">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker" data-rev>La prueba</div>
+      <h2 class="h2" data-rev data-d="1">Verificalo <span class="it">vos mismo.</span></h2>
+      <p class="lede" data-rev data-d="2">4 evidencias. 4 links. 0 promesas.</p>
+    </div>
+
+    <div class="proof-grid">
+      <a class="proof-card" href="https://testnet.snowtrace.io/address/0x5F8F8a31e51d8B2FEe0E0C2f1AffC3B4c6B12506" target="_blank" rel="noopener" data-rev>
+        <div class="label">Smart contract verificado</div>
+        <h3>CobrayaInvoiceCommitments.sol</h3>
+        <div class="meta">0x5F8F…2506 · Avalanche Fuji · ChainID 43113</div>
+        <div class="body">Foundry + OpenZeppelin. Gas usado &lt; 80K por commit. Ownable2Step, fully audited.</div>
+        <div class="strip"><span>Ownable2Step</span><span>OpenZeppelin</span><span class="star">gas &lt; 80K</span></div>
+        <div class="arr">Ver en Snowtrace ↗</div>
+      </a>
+      <a class="proof-card" href="#audit-example" data-rev data-d="1">
+        <div class="label">Audit trail firmado EIP-712</div>
+        <h3>Compliance CNBV · Circular 4/2024</h3>
+        <div class="meta">JSON canónico · ed25519 + EIP-712</div>
+        <div class="body">Cada agente firma su receipt. La PyME descarga el JSON. El regulador puede replicar la verificación off-chain.</div>
+        <div class="strip"><span>EIP-712</span><span>provenance</span><span class="star">CNBV ready</span></div>
+        <div class="arr">Ver ejemplo JSON ↓</div>
+      </a>
+      <a class="proof-card" href="https://wasiai-cobraya.vercel.app/demo" target="_blank" rel="noopener" data-rev data-d="2">
+        <div class="label">4 lenders compitiendo en vivo</div>
+        <h3>Subasta transparente</h3>
+        <div class="meta">Bankaool · Arkangeles · BBVA · Konfío</div>
+        <div class="body">Cuatro ofertas firmadas, comparables en pantalla. Gana la mejor para el SME, no para Cobraya.</div>
+        <div class="strip"><span>21.5%</span><span class="star">19.8% ⭐</span><span>23.2%</span><span>20.4%</span></div>
+        <div class="arr">Ver subasta ↗</div>
+      </a>
+      <a class="proof-card" href="https://github.com/ferrosasfp/wasiai-a2a" target="_blank" rel="noopener" data-rev data-d="3">
+        <div class="label">1660+ tests en producción</div>
+        <h3>wasiai-a2a + wasiai-facilitator</h3>
+        <div class="meta">github.com/ferrosasfp/wasiai-a2a</div>
+        <div class="body">No es código de hackathon. Es la misma infra agéntica que corre WasiAI A2A en Railway prod desde 2026.</div>
+        <div class="strip"><span>181 Cobraya</span><span>1660+ A2A</span><span class="star">Railway prod</span></div>
+        <div class="arr">Ver código ↗</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── QUOTE ─────────── -->
+<section class="quote-sec">
+  <div class="wrap">
+    <blockquote data-rev>
+      "El factoring tradicional sirvió. 50 años. <span>Ya cumplió.</span><br/>
+      Es turno de los <span style="font-style:italic">agentes.</span>"
+    </blockquote>
+    <div class="by" data-rev data-d="1">— Cobraya · Avalanche LATAM Fintech Build 2026</div>
+  </div>
+</section>
+
+<!-- ─────────── FINAL CTA ─────────── -->
+<section class="final">
+  <div class="wrap">
+    <h2 data-rev>¿Ya cobraste? <span class="it">Cobraya.</span></h2>
+    <p data-rev data-d="1">Probá Cobraya con tu propia factura. Sin signup. Sin wallet connect. Sin fricción. Tx hash al final.</p>
+    <div class="ctas" data-rev data-d="2">
+      <a class="btn btn-wine btn-lg" href="https://wasiai-cobraya.vercel.app/" target="_blank" rel="noopener">▶  Probar Cobraya</a>
+      <a class="btn btn-ghost btn-lg" href="#video">Ver video (3 min)</a>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── FOOTER ─────────── -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="brand" style="margin-bottom:14px">
+          <span class="brand-mark">C</span>
+          <span>Cobraya</span>
+        </div>
+        <p>Factoraje agéntico para PyMEs mexicanas. 4 agentes de IA + smart contract en Avalanche. Tu factura, líquida en 30 segundos.</p>
+        <div class="mono" style="font-size:11px;color:var(--fg-3);text-transform:uppercase;letter-spacing:0.12em">
+          <span style="color:var(--wine-soft)">◆</span> Avalanche LATAM Fintech Build 2026
+        </div>
+      </div>
+      <div>
+        <h5>Producto</h5>
+        <ul>
+          <li><a href="https://wasiai-cobraya.vercel.app/demo" target="_blank" rel="noopener">Demo en vivo</a></li>
+          <li><a href="https://wasiai-cobraya.vercel.app/pitch" target="_blank" rel="noopener">Pitch</a></li>
+          <li><a href="https://github.com/ferrosasfp/wasiai-cobraya" target="_blank" rel="noopener">GitHub ↗</a></li>
+          <li><a href="https://github.com/ferrosasfp/wasiai-a2a" target="_blank" rel="noopener">A2A marketplace ↗</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Stack</h5>
+        <ul>
+          <li><a>Avalanche Fuji</a></li>
+          <li><a>USDC · EIP-3009</a></li>
+          <li><a>Anthropic Claude</a></li>
+          <li><a>Foundry + OpenZeppelin</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Hackathon</h5>
+        <ul>
+          <li><a>Avalanche LATAM 2026</a></li>
+          <li><a href="https://testnet.snowtrace.io/address/0x5F8F8a31e51d8B2FEe0E0C2f1AffC3B4c6B12506" target="_blank" rel="noopener">Contrato ↗</a></li>
+          <li><a href="#audit-example">Audit trail</a></li>
+          <li><a href="#video">Video pitch</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Cobraya · MIT licensed</span>
+      <span>v1 · "tu factura, líquida en 30 segundos"</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ─────── Theme toggle ───────
+(() => {
+  const html = document.documentElement;
+  const btn = document.getElementById('themeToggle');
+  const saved = localStorage.getItem('cobraya-theme');
+  if (saved) html.setAttribute('data-theme', saved);
+  btn.addEventListener('click', () => {
+    const cur = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', cur);
+    localStorage.setItem('cobraya-theme', cur);
+  });
+})();
+
+// ─────── Scroll reveal ───────
+(() => {
+  const els = document.querySelectorAll('[data-rev]');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } });
+  }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+  els.forEach(el => io.observe(el));
+})();
+
+// ─────── Phone screen cycle ───────
+(() => {
+  const screens = document.querySelectorAll('.screen');
+  const dots = document.querySelectorAll('.phone-steps .ds');
+  let i = 0;
+  setInterval(() => {
+    screens[i].classList.remove('is-on');
+    dots[i].classList.remove('on');
+    i = (i + 1) % screens.length;
+    screens[i].classList.add('is-on');
+    dots[i].classList.add('on');
+  }, 3200);
+})();
+
+// ─────── Smooth scroll for anchors ───────
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const href = a.getAttribute('href');
+    if (href.length < 2) return;
+    const target = document.querySelector(href);
+    if (target) {
+      e.preventDefault();
+      window.scrollTo({ top: target.offsetTop - 70, behavior: 'smooth' });
+    }
+  });
+});
+</script>
+</body>
+</html>
