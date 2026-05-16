@@ -124,7 +124,7 @@ export function InvoiceScanner({ onConfirm, ctaLabel }: Props) {
         <button
           type="button"
           onClick={() => void startScan()}
-          className="w-full bg-luma-700 text-luma-50 px-4 py-5 mono text-sm uppercase tracking-widest min-h-[56px] flex items-center justify-center gap-3"
+          className="cta-primary text-sm"
           aria-label="Escanear factura"
           data-stage="idle"
         >
@@ -220,7 +220,7 @@ export function InvoiceScanner({ onConfirm, ctaLabel }: Props) {
         <button
           type="button"
           onClick={handleConfirm}
-          className="w-full bg-luma-700 text-luma-50 px-4 py-4 mono text-sm uppercase tracking-widest min-h-[48px]"
+          className="cta-primary text-sm"
           data-stage="done-confirm"
         >
           Es correcta, continuar

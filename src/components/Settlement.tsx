@@ -132,7 +132,7 @@ export function Settlement({
           type="button"
           onClick={onSign}
           disabled={isSigning}
-          className="w-full bg-luma-700 text-luma-50 mono text-xs uppercase tracking-widest min-h-[48px] disabled:opacity-40"
+          className="cta-primary"
         >
           {isSigning ? "Firmando..." : "Firmar y cobrar"}
         </button>

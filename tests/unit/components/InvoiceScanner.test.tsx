@@ -13,9 +13,9 @@ describe("InvoiceScanner", () => {
     ) as HTMLButtonElement | null;
     expect(btn).not.toBeNull();
     expect(btn?.textContent ?? "").toContain("Escanear factura");
-    // Mobile-first: ≥48px touch target enforced via min-h-[56px] utility.
-    expect(btn?.className ?? "").toContain("min-h-[56px]");
-    expect(btn?.className ?? "").toContain("w-full");
+    // CTA primary unified class — min-height ≥48px enforced inside the
+    // `.cta-primary` selector in globals.css (CD-23 still satisfied).
+    expect(btn?.className ?? "").toContain("cta-primary");
   });
 
   it("renders a custom CTA label when provided", () => {

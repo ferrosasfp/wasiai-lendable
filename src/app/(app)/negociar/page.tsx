@@ -577,7 +577,7 @@ export default function NegociarPage() {
       {/* Phase 1 — scan factura (only when there's no active invoice). */}
       {!scanned && (
         <section>
-          <h2 className="serif text-lg mb-3">Escaneá tu factura</h2>
+          <h2 className="h2-serif mb-3">Escaneá tu factura</h2>
           <InvoiceScanner
             onConfirm={handleScanConfirm}
             ctaLabel={
@@ -627,7 +627,7 @@ export default function NegociarPage() {
               <button
                 type="button"
                 onClick={() => void runPipeline()}
-                className="w-full bg-luma-700 text-luma-50 px-4 py-4 mono text-xs uppercase tracking-widest min-h-[48px]"
+                className="cta-primary"
               >
                 Negociar esta factura
               </button>
@@ -646,7 +646,7 @@ export default function NegociarPage() {
 
           {auction && (
             <section className="mt-6">
-              <h2 className="serif text-lg mb-3">Subasta de lenders</h2>
+              <h2 className="h2-serif mb-3">Subasta de lenders</h2>
               <LenderAuctionPanel
                 auction={auction}
                 onSelect={setSelectedMatch}
@@ -671,7 +671,7 @@ export default function NegociarPage() {
               <button
                 type="button"
                 onClick={resetForNextScan}
-                className="w-full bg-luma-700 text-luma-50 px-4 py-4 mono text-xs uppercase tracking-widest min-h-[48px]"
+                className="cta-primary"
               >
                 Escanear otra factura
               </button>
