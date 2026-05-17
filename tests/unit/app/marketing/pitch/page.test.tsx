@@ -141,7 +141,10 @@ describe("PitchPage (v3 — design-source aligned)", () => {
     expect(screen.getByText("CFDI tokenizado")).toBeDefined();
     expect(screen.getByText("Off-ramp MXN")).toBeDefined();
     expect(screen.getByText("Mercado secundario")).toBeDefined();
-    expect(screen.getByText("Sandbox CNBV")).toBeDefined();
+    // "Sandbox CNBV" now appears in multiple places (chip, card title, subtitle)
+    // after the audit pass renamed "Circular 4/2024" → "Sandbox CNBV". Use getAllByText
+    // and assert at least one is present.
+    expect(screen.getAllByText(/Sandbox CNBV/i).length).toBeGreaterThan(0);
   });
 
   it("footer has 4 columns (brand + producto + stack + hackathon)", () => {

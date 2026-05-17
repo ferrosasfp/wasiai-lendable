@@ -3,7 +3,7 @@
 > **Status**: planning doc (design only, no implementation).
 > Implementation lives in hack-day Wave W6.5.
 >
-> **Compliance angle**: CNBV Circular 4/2024 "trazabilidad agéntica en operaciones fintech" requiere log estructurado de cada decisión automatizada. Este schema lo implementa **literal**.
+> **Compliance angle**: sandbox CNBV (Ley Fintech 2018, Art. 80) "trazabilidad agéntica en operaciones fintech" requiere log estructurado de cada decisión automatizada. Este schema lo implementa **literal**.
 
 ---
 

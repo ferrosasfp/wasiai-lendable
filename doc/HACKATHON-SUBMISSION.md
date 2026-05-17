@@ -21,9 +21,9 @@
 
 ## Project description (1–2 paragraphs)
 
-> Cobraya es factoraje agéntico para PyMEs mexicanas. Lupita, dueña de una tortillería en Iztapalapa, le vendió a Walmart una factura de $48,500 MXN — pero el pago no le llega hasta dentro de 60 días, y no puede esperar tanto. Cobraya resuelve eso: 4 agentes de IA y un smart contract en Avalanche validan la factura, detectan doble cesión on-chain, calculan score crediticio firmado por Claude Haiku, y lanzan una subasta entre Bankaool, Arkangeles, BBVA Pyme y Konfío. La PyME recibe USDC directo en su wallet vía EIP-3009, con audit trail firmado EIP-712 listo para CNBV Circular 4/2024.
+> Cobraya es factoraje agéntico para PyMEs mexicanas. Lupita, dueña de una tortillería en Iztapalapa, le vendió a Walmart una factura de $48,500 MXN — pero el pago no le llega hasta dentro de 60 días, y no puede esperar tanto. Cobraya resuelve eso: 4 agentes de IA y un smart contract en Avalanche validan la factura, detectan doble cesión on-chain, calculan score crediticio firmado por Claude Haiku, y lanzan una subasta entre Bankaool, Arkangeles, BBVA Pyme y Konfío. La PyME recibe USDC directo en su wallet vía EIP-3009, con audit trail firmado EIP-712 listo para sandbox CNBV (Ley Fintech 2018, Art. 80).
 >
-> No es código de hackathon. Cobraya corre sobre infraestructura agéntica productiva: wasiai-a2a (marketplace de agentes multi-chain) y wasiai-facilitator (settlement service), ambos en Railway prod con más de 1660 tests verdes. El contrato `CobrayaInvoiceCommitments.sol` está verificado en Avalanche Fuji con consumo de gas < 80K por commit.
+> No es código de hackathon. Cobraya corre sobre infraestructura agéntica productiva: wasiai-a2a (marketplace de agentes multi-chain) y wasiai-facilitator (settlement service), ambos en Railway prod con más de 940 tests verdes. El contrato `CobrayaInvoiceCommitments.sol` está verificado en Avalanche Fuji con consumo de gas < 80K por commit.
 
 ---
 
@@ -76,7 +76,7 @@ Pregunta frecuente de mentores: "Lupita es una tortillera en Iztapalapa — no t
 - UX final: "meté tu RFC, subí tu factura, recibí pesos en tu cuenta". La capa USDC + Avalanche queda invisible para Lupita, pero el audit trail on-chain queda para el regulador
 
 ### Por qué este diseño no es bug — es feature
-1. **Audit trail bulletproof** para CNBV (Circular 4/2024): cada settlement queda firmado on-chain
+1. **Audit trail bulletproof** para CNBV (sandbox CNBV (Ley Fintech 2018, Art. 80)): cada settlement queda firmado on-chain
 2. **Composability DeFi**: una vez que la PyME tiene USDC, puede acceder a yield, swaps, otros productos
 3. **Multi-jurisdicción**: si mañana abrimos a PyMEs colombianas o brasileras, USDC es el mismo. MXN bancario es rail específico de México. USDC desacopla el rail del país
 
@@ -149,7 +149,7 @@ El próximo paso es **tokenizar el CFDI como NFT (ERC-721)** en Avalanche:
 ### Por qué importa al regulador
 Hay un movimiento concreto en México llamado **"Factura Electrónica Negociable"**: SAT y CNBV vienen empujando que las facturas cedidas queden registradas en un sistema centralizado para combatir doble cesión. Hoy ese registro es voluntario, lento y costoso de consultar.
 
-**Cobraya propone el reemplazo descentralizado**: el smart contract `CobrayaInvoiceCommitments.sol` ya es el registro de cesiones on-chain. Tokenizar el CFDI lo lleva al siguiente nivel — trazabilidad fiscal completa, anti-fraude estructural, alignment con Circular 4/2024 CNBV, y candidato natural a **sandbox regulatorio CNBV**.
+**Cobraya propone el reemplazo descentralizado**: el smart contract `CobrayaInvoiceCommitments.sol` ya es el registro de cesiones on-chain. Tokenizar el CFDI lo lleva al siguiente nivel — trazabilidad fiscal completa, anti-fraude estructural, alignment con sandbox CNBV (Ley Fintech 2018, Art. 80) CNBV, y candidato natural a **sandbox regulatorio CNBV**.
 
 ### Roadmap concreto
 - **V2 (3 meses)**: `CobrayaInvoiceNFT.sol` ERC-721 + lifecycle hooks + UI de NFT visible al SME
@@ -163,9 +163,9 @@ Hay un movimiento concreto en México llamado **"Factura Electrónica Negociable
 
 1. **Anti doble-cesión on-chain** — `CobrayaInvoiceCommitments.sol` commitea el hash de cada CFDI antes del settlement. El mismo problema regulatorio #1 que vio CNBV en factoraje MX, resuelto en gas < 80K por op.
 2. **Subasta de lenders visible y firmada** — 4 lenders compitiendo en vivo (Bankaool, Arkangeles, BBVA Pyme, Konfío) con ofertas firmadas EIP-712. La PyME ve qué APR y qué advance rate ofrece cada uno. Gana la mejor para la PyME, no para Cobraya.
-3. **Audit trail JSON canónico** firmado EIP-712 + EIP-3009 con provenance LLM trackeado. Compatible Circular 4/2024 CNBV (trazabilidad agéntica). Ver `audit-example.json`.
+3. **Audit trail JSON canónico** firmado EIP-712 + EIP-3009 con provenance LLM trackeado. Compatible sandbox CNBV (Ley Fintech 2018, Art. 80) CNBV (trazabilidad agéntica). Ver `audit-example.json`.
 4. **Settlement gasless EIP-3009** — la PyME no necesita gas nativo. USDC en su wallet en 30s, sin fricción.
-5. **Production proof reel** — corre sobre wasiai-a2a (marketplace de agentes multi-chain) y wasiai-facilitator (settlement service multi-chain), ambos productivos en Railway con 1660+ tests verdes. No es código de hack.
+5. **Production proof reel** — corre sobre wasiai-a2a (marketplace de agentes multi-chain) y wasiai-facilitator (settlement service multi-chain), ambos productivos en Railway con 940+ tests verdes. No es código de hack.
 
 ---
 
@@ -173,10 +173,12 @@ Hay un movimiento concreto en México llamado **"Factura Electrónica Negociable
 
 | Métrica | Valor | Fuente |
 |---|---|---|
-| TAM México (factoring) | **$24B USD/año** | Banxico + CNBV reports 2024 |
-| PyMEs MX activas | 4.5 millones | INEGI Censos Económicos |
-| PyMEs MX que cierran por flujo de caja | 78% | INEGI + Asociación de Factoraje |
-| Migración agéntica (proyección 1%) | $240M USDC/año en agent fees | Cálculo interno |
+| TAM México (factoring) | ~$24B USD/año | estimación del sector |
+| PyMEs MX activas | ~4.5 millones | datos públicos INEGI |
+| PyMEs MX que cierran por problemas de liquidez | ~78% | estudios de mortalidad de PyMEs |
+| Migración agéntica (proyección 1%) | ~$240M USDC/año en agent fees | proyección interna |
+
+> **Nota sobre fuentes**: las cifras son estimaciones de orden de magnitud basadas en datos públicos disponibles y discusión del sector. Para due diligence con cifras auditadas, recomendamos contratar análisis de mercado dedicado (Statista, Frost & Sullivan, o equivalente).
 
 ---
 
@@ -200,7 +202,7 @@ Hay un movimiento concreto en México llamado **"Factura Electrónica Negociable
 ## Testing footprint
 
 - **Cobraya repo**: 189 tests automatizados (Vitest + RTL + Foundry forge)
-- **wasiai-a2a**: 1660+ tests (la misma infra agéntica que corre en prod)
+- **wasiai-a2a**: 940+ tests (la misma infra agéntica que corre en prod)
 - **wasiai-facilitator**: 100+ tests sobre settlement multi-chain
 - **Foundry coverage**: 100% lines + branches + funcs en `CobrayaInvoiceCommitments.sol`
 - Lighthouse score `/pitch`: pendiente medir post-deploy final
@@ -277,7 +279,7 @@ MIT.
 - [x] Audit trail JSON canónico servido públicamente
 - [x] GitHub repos abiertos y públicos
 - [x] README + docs en español + inglés
-- [x] Audit trail compliance CNBV Circular 4/2024
+- [x] Audit trail compliance sandbox CNBV (Ley Fintech 2018, Art. 80)
 - [ ] Video pitch 3 min subido a YouTube (pendiente grabar)
 - [ ] Form de submission del hackathon llenado (usar este doc como source)
 - [ ] Tweet / LinkedIn de anuncio (post-submission)

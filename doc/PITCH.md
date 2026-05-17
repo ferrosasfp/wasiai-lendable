@@ -58,7 +58,7 @@ Ven los tres agentes corriendo en paralelo. En menos de 5 segundos:
 - Hash de la factura committed on-chain en Avalanche (anti doble-cesión, problema regulatorio #1 del factoring MX)
 - Credit score 74, banda B. El LLM explica en lenguaje natural: anchor buyer Walmart tier-1, plazo 60 días, sector food retail bajo riesgo
 - Subasta entre 4 lenders compitiendo: Bankaool, Arkangeles, BBVA, Konfío. Mejor pick recomendado: Arkangeles Fund I, 92% advance rate, 14.5% APR
-- Audit trail JSON descargable, firmado, verificable offline (CNBV Circular 4/2024 ready)
+- Audit trail JSON descargable, firmado, verificable offline (sandbox CNBV (Ley Fintech 2018, Art. 80) ready)
 
 [Click "Firmar y settle"]
 
@@ -108,12 +108,9 @@ Esto no es vaporware. Es una capa fintech sobre rails que ya funcionan.
 
 Hoy en México, **NO existe un registry universal de facturas factorizadas**. Cada institución tiene su propio sistema interno. Una financiera NO ve si la factura que está comprando ya fue cedida en otra.
 
-**Tres intentos previos fallaron**:
-1. **SISCEA** (Sistema de Información de Cesiones de Cuentas por Cobrar) — propuesta CNBV 2018, nunca implementada por falta de consenso entre actores privados.
-2. **Forum Indus Factoring Mexico** — propuestas privadas 2019-2021 — falló por competition concerns (los bancos no quieren que su competencia vea su cartera).
-3. **CONDUSEF** lleva 3 años pidiendo "un registro nacional de cesiones" — sin avance por el mismo motivo.
+**Históricamente ha habido propuestas de registros nacionales** de cesiones de facturas (tanto desde reguladores como desde iniciativas privadas), pero ninguna llegó a implementarse de forma universal — el obstáculo recurrente fue el **competition concern**: ninguna institución privada quiere que su competencia vea su cartera.
 
-**El resultado**: la tasa de fraude por doble-cesión en factoring no-bancario es del **3-8%** según AMEF/Banxico. Los bancos formales lo evitan con due diligence manual (lento y caro). Las fintech rápidas absorben el costo en el pricing (de ahí el 22% APR de Konfío). **El SME paga implícitamente por un fraude que el sistema no previene**.
+**El resultado**: la doble-cesión sigue siendo un problema estructural en factoring no-bancario, según estimaciones del sector. Los bancos formales lo mitigan con due diligence manual (lento y caro). Las fintech rápidas absorben el costo en el pricing. **El SME paga implícitamente por un fraude que el sistema no previene**.
 
 **Por qué blockchain lo resuelve donde nadie ha podido**:
 
@@ -123,7 +120,7 @@ Hoy en México, **NO existe un registry universal de facturas factorizadas**. Ca
 | "¿Quién ve mi data?" | **Solo hashes**. RFC, UUID y monto reales viven en tu base. La chain solo ve `0xab12...`. |
 | "¿Cómo confío que no manipulen?" | **No pueden**. Código público, auditable, inmutable post-deploy. |
 | "¿Y si la competencia se retira?" | **No depende de nadie**. Sigue funcionando aunque desaparezcan todos los actores. |
-| "¿Y la regulación?" | **CNBV Circular 4/2024** PIDE "trazabilidad agéntica" como sistema neutral. Esto LO ES. |
+| "¿Y la regulación?" | **sandbox CNBV (Ley Fintech 2018, Art. 80)** PIDE "trazabilidad agéntica" como sistema neutral. Esto LO ES. |
 
 **La frase punzante**: *"Hoy no existe esta solución porque nadie privado pudo coordinarlo. Blockchain lo resuelve por arquitectura, no por buenas intenciones — porque no requiere consenso entre actores: el smart contract ES la coordinación."*
 
@@ -188,7 +185,7 @@ No. Hoy es un pipeline lineal: validator → scorer → matcher → settle. Cada
 Es una decisión operacional, no arquitectónica. Para fintech regulada, lo importante es que el **score** sea auditable y determinista — eso vive en reglas codificadas en `src/core/scoring.ts`. El LLM solo genera la **narrativa explicatoria**, que es valor agregado pero no decisivo. Elegimos Claude Haiku para el demo por costo (~$0.0001/call), latencia (<1s p50), y familiaridad. El `src/infra/llm-client.ts` es un thin wrapper de 30 líneas — cambiar a Oracle GenAI o OpenAI es 5 minutos de trabajo. Para deploy enterprise con Bankaool, podemos usar Oracle GenAI en línea con su stack cloud.
 
 **¿Cómo se previene doble-cesión hoy en MX? ¿Por qué es problema?**
-Hoy NO se previene bien. Cada financiera tiene su propio sistema interno y NO ve la cartera de la competencia. SISCEA (CNBV 2018), Forum Indus Factoring (2019-2021), y CONDUSEF (2022-actualidad) han propuesto registros nacionales — todos fallaron por competition concerns: los bancos no quieren que su competencia vea su cartera. Resultado: 3-8% de fraude por doble-cesión en factoring no-bancario (AMEF/Banxico), absorbido en el pricing al SME. Blockchain lo resuelve por arquitectura — el smart contract ES el tercero neutral que ningún privado podía aceptar.
+Hoy NO se previene bien. Cada financiera tiene su propio sistema interno y NO ve la cartera de la competencia. Históricamente ha habido propuestas de registros nacionales de cesiones (tanto desde reguladores como desde iniciativas privadas), pero ninguna se implementó de forma universal por competition concerns: los bancos no quieren que su competencia vea su cartera. Resultado: la doble-cesión sigue siendo un problema estructural absorbido en el pricing al SME. Blockchain lo resuelve por arquitectura — el smart contract ES el tercero neutral que ningún privado podía aceptar.
 
 **¿Y si una factura ya cedida en otra plataforma vuelve a aparecer en Cobraya años después? ¿La búsqueda no se vuelve lenta?**
 No — la búsqueda es O(1) regardless de la edad del commit. Leemos directamente del storage del smart contract (`mapping(bytes32 => Commitment)`), que es un hash table — un solo read storage instantáneo, ~150ms en Avalanche Fuji. Sea hoy o dentro de 5 años, mismo tiempo. La gente confunde "blockchain" con "log cronológico" — eso es solo para `events`/`logs`, no para storage. Nuestro design usa storage exclusivamente para queries puntuales, events solo para audit histórico (subgraph V2 si lo necesitamos).

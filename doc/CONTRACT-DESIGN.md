@@ -48,7 +48,7 @@ import "@openzeppelin/contracts/access/Ownable2Step.sol";
  * @title  CobrayaInvoiceCommitments
  * @notice Onchain registry de facturas cedidas — previene doble-cesión cross-platform.
  * @dev    Deploy en Avalanche Fuji (chainId 43113) para hackathon; mainnet-ready (43114).
- *         CNBV Circular 4/2024: implementa "trazabilidad agéntica" via commitment hash + event log.
+ *         sandbox CNBV (Ley Fintech 2018, Art. 80): implementa "trazabilidad agéntica" via commitment hash + event log.
  *
  *         Flujo de estado de un commitment:
  *           None → Active (via commitInvoice)

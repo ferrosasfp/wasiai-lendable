@@ -289,25 +289,27 @@ Esto es el "first vertical" reference para narrative "Cobraya es la segunda vert
 
 ## 8. Estadísticas para el TAM moment (Scene 4)
 
-### Fuentes (citar in-video bottom-right)
+### Cifras de orden de magnitud (citar in-video con disclaimer)
 
-- **PyMEs en México**: 4.7 millones — INEGI Censos Económicos 2024
-- **TAM factoring MX**: $24B USD/año — CNBV Reporte de Inclusión Financiera 2025 + Banxico Informe Anual 2024
-- **Avg time-to-cash**: 4.7 días — Asociación Mexicana de Empresas de Factoraje (AMEF) estudio 2024
-- **Avg discount fee**: 7.2% — AMEF + análisis Konfío public reports
-- **Capital de trabajo perdido**: $1.8B USD — INEGI Encuesta Nacional sobre Productividad y Competitividad 2024
+- **PyMEs en México**: ~4.5 millones (datos públicos INEGI)
+- **TAM factoring MX**: ~$24B USD/año (estimación del sector)
+- **Tiempo promedio a cash en factoring tradicional**: días (varía por institución)
+- **Tasa de descuento típica**: rango 5-10% (estimación del mercado)
+- **Capital de trabajo no atendido**: miles de millones de dólares (estimación del sector)
 
-> Disclaimer en video: "Datos estimados a partir de fuentes públicas INEGI 2024 / CNBV 2025 / AMEF 2024"
+> Disclaimer en video: "Cifras de orden de magnitud basadas en datos públicos disponibles y estimaciones del sector. No constituyen fuente auditada."
+
+⚠️ **Importante**: si vas a presentar a CNBV, Banxico, o jurado con expertos en regulación, contratá un análisis de mercado dedicado (Statista, Frost & Sullivan, IFC México, etc.) para tener cifras citables con fuente y página.
 
 ---
 
 ## 9. CNBV Compliance angles
 
-### Circular 4/2024 (citable)
+### Sandbox CNBV bajo Ley Fintech 2018 (Art. 80)
 
-- Pide "trazabilidad agéntica completa en operaciones automatizadas fintech"
-- Cobraya la implementa via audit trail schema (ver `doc/AUDIT-TRAIL-SCHEMA.md`)
-- Citation en video: "Compliance angle: alineado con Circular 4/2024 de la CNBV sobre trazabilidad agéntica"
+- La Ley Fintech mexicana (2018) crea un mecanismo de "modelos novedosos" (Art. 80) — una sandbox donde fintechs pueden operar sin licencia completa durante periodo limitado bajo supervisión CNBV
+- Cobraya es candidato natural por: (a) resolver un problema regulatorio concreto (doble-cesión), (b) tener audit trail completo on-chain, (c) trazabilidad agéntica de cada decisión
+- Citation defensible en video: "alineado con el marco de sandbox CNBV bajo Ley Fintech 2018 (Art. 80)"
 
 ### Ley General de Títulos y Operaciones de Crédito (LGTOC)
 
