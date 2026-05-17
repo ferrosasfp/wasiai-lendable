@@ -48,7 +48,7 @@
 |---|---|
 | **Landing pitch** | `https://wasiai-cobraya.vercel.app/pitch` |
 | **Demo en vivo público** | `https://wasiai-cobraya.vercel.app/demo` |
-| **Video pitch (3 min)** | _[PENDING] subir a YouTube y pegar URL acá_ |
+| **Video pitch (3 min)** | `https://www.youtube.com/watch?v=UcliO0pN-qs` |
 | **GitHub repo (Cobraya)** | `https://github.com/ferrosasfp/wasiai-cobraya` |
 | **GitHub repo (a2a)** | `https://github.com/ferrosasfp/wasiai-a2a` |
 | **Smart contract en Snowtrace** | `https://testnet.snowtrace.io/address/0x5F8F8a31e51d8B2FEe0E0C2f1AffC3B4c6B12506` |
@@ -281,6 +281,6 @@ MIT.
 - [x] GitHub repos abiertos y públicos
 - [x] README + docs en español + inglés
 - [x] Audit trail compliance sandbox CNBV (Ley Fintech 2018, Art. 80)
-- [ ] Video pitch 3 min subido a YouTube (pendiente grabar)
+- [x] Video pitch 3 min subido a YouTube — https://www.youtube.com/watch?v=UcliO0pN-qs
 - [ ] Form de submission del hackathon llenado (usar este doc como source)
 - [ ] Tweet / LinkedIn de anuncio (post-submission)

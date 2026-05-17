@@ -49,7 +49,7 @@ const A2A_REPO = "https://github.com/ferrosasfp/wasiai-a2a";
 // TODO(audit): wire to /public/audit-example.json once a stable signed sample
 // is exposed. The design source uses this anchor as a placeholder too.
 const AUDIT_EXAMPLE_URL = "/audit-example.json";
-const VIDEO_URL = "#video";
+const VIDEO_URL = "https://www.youtube.com/watch?v=UcliO0pN-qs";
 
 export default function PitchPage() {
   const snowtraceUrl = getCommitmentsUrl();
@@ -822,8 +822,13 @@ export default function PitchPage() {
             >
               ▶ Probar Cobraya
             </a>
-            <a className="btn btn-ghost btn-lg" href={VIDEO_URL}>
-              Ver video (3 min)
+            <a
+              className="btn btn-ghost btn-lg"
+              href={VIDEO_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              ▶ Ver video (3 min)
             </a>
           </div>
         </div>
@@ -993,7 +998,13 @@ export default function PitchPage() {
                   <a href={AUDIT_EXAMPLE_URL}>Audit trail</a>
                 </li>
                 <li>
-                  <a href={VIDEO_URL}>Video pitch</a>
+                  <a
+                    href={VIDEO_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Video pitch ↗
+                  </a>
                 </li>
               </ul>
             </div>
