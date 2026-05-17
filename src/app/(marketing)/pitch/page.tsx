@@ -151,10 +151,10 @@ export default function PitchPage() {
               </div>
               <div className="qi">
                 <span className="v">CNBV</span>
-                <span className="l">circ. 4/2024</span>
+                <span className="l">Sandbox CNBV</span>
               </div>
               <div className="qi">
-                <span className="v">1660+</span>
+                <span className="v">940+</span>
                 <span className="l">tests</span>
               </div>
             </div>
@@ -181,7 +181,8 @@ export default function PitchPage() {
               La PyME mexicana factura, entrega, y se queda sin liquidez
               esperando que un comité humano firme un papel.{" "}
               <strong style={{ color: "var(--fg)", fontWeight: 500 }}>
-                78% de las PyMEs cierran por flujo de caja
+                la mayoría de las PyMEs que cierran lo hace por problemas
+                de liquidez
               </strong>
               .
             </p>
@@ -230,8 +231,8 @@ export default function PitchPage() {
               <div className="l">reducción de tiempo</div>
             </div>
             <div className="ps-cell">
-              <div className="v">78%</div>
-              <div className="l">PyMEs cierran por flujo de caja</div>
+              <div className="v">Mayoría</div>
+              <div className="l">PyMEs cierran por falta de liquidez</div>
             </div>
           </div>
         </div>
@@ -567,7 +568,7 @@ export default function PitchPage() {
               </div>
               <div className="nm">wasiai-a2a</div>
               <div className="desc">
-                Marketplace de agentes · 1660+ tests · Railway prod.
+                Marketplace de agentes · 940+ tests · Railway prod.
               </div>
             </div>
             <div className="scard" data-rev data-d="3">
@@ -603,7 +604,7 @@ export default function PitchPage() {
               </div>
               <div className="nm">CNBV ready</div>
               <div className="desc">
-                Circular 4/2024 · audit trail listo para regulador.
+                sandbox CNBV (Ley Fintech 2018, Art. 80) · audit trail listo para regulador.
               </div>
             </div>
           </div>
@@ -656,7 +657,7 @@ export default function PitchPage() {
               data-d="1"
             >
               <div className="label">Audit trail firmado EIP-712</div>
-              <h3>Compliance CNBV · Circular 4/2024</h3>
+              <h3>Sandbox CNBV · Ley Fintech 2018</h3>
               <div className="meta">JSON canónico · ed25519 + EIP-712</div>
               <div className="body">
                 Cada agente firma su receipt. La PyME descarga el JSON. El
@@ -702,7 +703,7 @@ export default function PitchPage() {
               data-rev
               data-d="3"
             >
-              <div className="label">1660+ tests en producción</div>
+              <div className="label">940+ tests en producción</div>
               <h3>wasiai-a2a + wasiai-facilitator</h3>
               <div className="meta">github.com/ferrosasfp/wasiai-a2a</div>
               <div className="body">
@@ -711,7 +712,7 @@ export default function PitchPage() {
               </div>
               <div className="strip">
                 <span>181 Cobraya</span>
-                <span>1660+ A2A</span>
+                <span>940+ A2A</span>
                 <span className="star">Railway prod</span>
               </div>
               <div className="arr">Ver código ↗</div>
@@ -806,7 +807,7 @@ export default function PitchPage() {
                 </span>
               </div>
               <h3>Sandbox CNBV</h3>
-              <div className="slug mono">Circular 4/2024 aligned</div>
+              <div className="slug mono">sandbox CNBV (Ley Fintech 2018)</div>
               <p>
                 Trazabilidad agéntica + tokenización ya están en el discurso
                 del regulador. Cobraya es candidato natural a piloto CNBV

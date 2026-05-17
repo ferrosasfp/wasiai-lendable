@@ -90,7 +90,7 @@ Audio voice-over grabado por separado (Audacity / móvil con micro decente, sin 
 
 > "¿Por qué hace falta esto? El factoraje tradicional toma semanas, con papeleo, comités humanos, y costos del cuatro a ocho por ciento mensual.
 >
-> Cobraya hace lo mismo en treinta segundos, sin papeleo, con dos a tres por ciento APR. Y no es código de hackathon — corre sobre infraestructura ya productiva: wasiai-a2a y wasiai-facilitator, con más de mil seiscientos tests verdes detrás."
+> Cobraya hace lo mismo en treinta segundos, sin papeleo, con dos a tres por ciento APR. Y no es código de hackathon — corre sobre infraestructura ya productiva: wasiai-a2a y wasiai-facilitator, con más de novecientos cuarenta tests verdes detrás."
 
 *Visual: cursor recorre la columna "Cobraya" de la tabla comparativa (los ◆ gold). Después scroll a la sección Stack y se ven los 9 logos pasando: Avalanche, USDC, Anthropic, Next.js, Supabase, wasiai-a2a, wasiai-facilitator, Foundry, CNBV.*
 

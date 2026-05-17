@@ -5,7 +5,7 @@
 > **Goal**: que después del video, un institucional LATAM diga "este equipo entiende el problema real, hay que llamarlos".
 > **Idioma**: voiceover en **español neutro** (ElevenLabs Multilingual v2). Subtitles en español + inglés.
 > **Production**: ElevenLabs TTS + CapCut Pro + Artlist music + **Chrome DevTools mobile emulation (iPhone 14 Pro 393x852)** para screen recording + phone B-roll para Scene 1 + Snowtrace tabs.
-> **Mobile-first**: Cobraya es PWA installable. 78% de PyMEs MX usan smartphone como dispositivo principal (INEGI ENDUTIH 2024). El demo se ve en phone, NO en laptop.
+> **Mobile-first**: Cobraya es PWA installable. alta penetración de smartphone en PyMEs MX. El demo se ve en phone, NO en laptop.
 
 ---
 
@@ -55,7 +55,7 @@ Música: low-tension ambient, builds slowly.
 - Quick stock footage: shot de PyME mexicana (mercado, tortillería, fábrica chica) — Artgrid free tier o similar
 - Overlay: "Lupita · Tortillería La Esperanza · Iztapalapa, CDMX"
 - Cut to: factura física CFDI en mesa, calendario marcando "60 días"
-- **Close-up (3 sec final)**: Lupita saca su smartphone del mandil — **el dispositivo del 78% de PyMEs en MX** según INEGI 2024. B-roll real phone (iPhone o Android) en hand.
+- **Close-up (3 sec final)**: Lupita saca su smartphone del mandil — **el dispositivo principal de la mayoría de las PyMEs en MX**. B-roll real phone (iPhone o Android) en hand.
 
 **Voiceover** (20 sec, ~70 words):
 
@@ -147,16 +147,14 @@ Música: low-tension ambient, builds slowly.
 
 > **NEW**: este momento es **pitch gold institucional**. Inserción entre demo flow y TAM moment.
 
-**Visual**: Black screen brief, después un timeline animado con 3 puntos en MX:
+**Visual**: Black screen brief, después un timeline animado contrastando el pasado con el presente:
 ```
-2018 SISCEA propuesto    ━━━━ ❌ (CNBV no implementó)
-2019 Forum Indus         ━━━━ ❌ (bancos competition concerns)
-2022 CONDUSEF push       ━━━━ ❌ (sin avance)
-2026 Cobraya            ━━━━ ✅ (smart contract Avalanche)
+Pasado · Propuestas de registro nacional   ━━━━ ❌ (competition concerns)
+2026 Cobraya · Smart contract Avalanche    ━━━━ ✅ (tercero neutral)
 ```
 
 **Voiceover** (10 sec, ~35 words):
-> "México lleva ocho años intentando crear un registro nacional de cesiones de facturas. SISCEA, Forum Indus, CONDUSEF — todos fallaron por competition concerns. El smart contract es el tercero neutral que ningún privado podía aceptar."
+> "México lleva años intentando crear un registro universal de cesiones de facturas. Todos los intentos privados fallaron por competition concerns. El smart contract es el tercero neutral que ningún actor privado podía aceptar."
 
 ---
 
@@ -196,7 +194,7 @@ Música: builds.
 Música: peak.
 
 **Voiceover** (15 sec, ~50 words):
-> "Cobraya no es vaporware. Corre sobre WasiAI A2A, infraestructura que llevamos cinco meses en producción, con mil seiscientos sesenta tests, transacciones onchain reales, y cuatro chains soportadas. Cobraya es la segunda vertical en este rail. La primera fue WasiAgentShop, presentada al Kite Hackathon. La tercera, quien quiera."
+> "Cobraya no es vaporware. Corre sobre WasiAI A2A, infraestructura que llevamos cinco meses en producción, con novecientos cuarenta tests, transacciones onchain reales, y cuatro chains soportadas. Cobraya es la segunda vertical en este rail. La primera fue WasiAgentShop, presentada al Kite Hackathon. La tercera, quien quiera."
 
 ---
 
@@ -243,7 +241,7 @@ Música: outro.
 | 3.3 | Bottom-left | "Score: rules · Rationale: LLM" | 2s |
 | 3.4 | Side bar | "4 lenders bidding · matcher ranks" | 3s |
 | 3.5 | Center | "Audit trail · CNBV-ready" | 2s |
-| 4 | All | "Numbers via INEGI 2024, CNBV factoring stats 2025" | 1s (small font) |
+| 4 | All | "Cifras: estimaciones del sector basadas en datos públicos" | 1s (small font) |
 | 5 | All | "Production endpoints live" | 2s |
 | 6 | URLs at bottom | github + vercel + wasiai.io | 5s |
 
