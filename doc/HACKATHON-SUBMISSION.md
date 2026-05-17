@@ -53,6 +53,7 @@
 | **GitHub repo (a2a)** | `https://github.com/ferrosasfp/wasiai-a2a` |
 | **Smart contract en Snowtrace** | `https://testnet.snowtrace.io/address/0x5F8F8a31e51d8B2FEe0E0C2f1AffC3B4c6B12506` |
 | **Audit trail ejemplo (JSON)** | `https://wasiai-cobraya.vercel.app/audit-example.json` |
+| **Evidencia de 3 tx reales en Fuji** | `doc/evidence/FRAUD-DETECTOR-PROD-EVIDENCE.md` |
 
 ---
 
@@ -161,7 +162,7 @@ Hay un movimiento concreto en México llamado **"Factura Electrónica Negociable
 
 ## Key innovations (5 differentiators)
 
-1. **Anti doble-cesión on-chain** — `CobrayaInvoiceCommitments.sol` commitea el hash de cada CFDI antes del settlement. El mismo problema regulatorio #1 que vio CNBV en factoraje MX, resuelto en gas < 80K por op.
+1. **Anti doble-cesión on-chain** — `CobrayaInvoiceCommitments.sol` commitea el hash de cada CFDI antes del settlement. El mismo problema regulatorio #1 que vio CNBV en factoraje MX, resuelto en gas real ~51K por op (CD-11 cap es 80K). **3 transacciones reales verificables**: ver `doc/evidence/FRAUD-DETECTOR-PROD-EVIDENCE.md`.
 2. **Subasta de lenders visible y firmada** — 4 lenders compitiendo en vivo (Bankaool, Arkangeles, BBVA Pyme, Konfío) con ofertas firmadas EIP-712. La PyME ve qué APR y qué advance rate ofrece cada uno. Gana la mejor para la PyME, no para Cobraya.
 3. **Audit trail JSON canónico** firmado EIP-712 + EIP-3009 con provenance LLM trackeado. Compatible sandbox CNBV (Ley Fintech 2018, Art. 80) CNBV (trazabilidad agéntica). Ver `audit-example.json`.
 4. **Settlement gasless EIP-3009** — la PyME no necesita gas nativo. USDC en su wallet en 30s, sin fricción.
