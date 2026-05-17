@@ -128,6 +128,22 @@ describe("PitchPage (v3 — design-source aligned)", () => {
     expect(labels.size).toBeGreaterThanOrEqual(4);
   });
 
+  it("renders the roadmap section H2 'De factoring agéntico a infraestructura financiera'", () => {
+    render(<PitchPage />);
+    const h2 = screen.getByText(
+      /De factoring agéntico a infraestructura financiera/,
+    );
+    expect(h2).toBeDefined();
+  });
+
+  it("renders the 4 roadmap card titles (CFDI tokenizado, Off-ramp MXN, Mercado secundario, Sandbox CNBV)", () => {
+    render(<PitchPage />);
+    expect(screen.getByText("CFDI tokenizado")).toBeDefined();
+    expect(screen.getByText("Off-ramp MXN")).toBeDefined();
+    expect(screen.getByText("Mercado secundario")).toBeDefined();
+    expect(screen.getByText("Sandbox CNBV")).toBeDefined();
+  });
+
   it("footer has 4 columns (brand + producto + stack + hackathon)", () => {
     const { container } = render(<PitchPage />);
     const footGrid = container.querySelector("footer.footer .foot-grid");

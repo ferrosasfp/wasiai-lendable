@@ -720,6 +720,103 @@ export default function PitchPage() {
         </div>
       </section>
 
+      {/* ─────────── ROADMAP ─────────── */}
+      <section className="sec" id="roadmap">
+        <div className="wrap">
+          <div className="sec-head">
+            <div className="kicker" data-rev>
+              Lo que viene
+            </div>
+            <h2 className="h2" data-rev data-d="1">
+              De factoring agéntico a infraestructura financiera.
+            </h2>
+            <p className="lede" data-rev data-d="2">
+              Cobraya hoy es MVP en testnet. La V1 productiva apunta a algo
+              más grande: ser el rail de tokenización de cuentas por cobrar
+              en Latinoamérica.
+            </p>
+          </div>
+
+          <div className="agents-grid">
+            <article className="acard" data-rev>
+              <div className="acard-top">
+                <span
+                  className="idx"
+                  aria-hidden="true"
+                  style={{ color: "var(--gold)", fontSize: 18, letterSpacing: 0 }}
+                >
+                  ◆
+                </span>
+              </div>
+              <h3>CFDI tokenizado</h3>
+              <div className="slug mono">ERC-721 en Avalanche</div>
+              <p>
+                Cada factura es un NFT con lifecycle on-chain — emitida,
+                cedida, cobrada, settled. Reemplaza el registro centralizado
+                de cesiones que hoy es lento, opaco y propenso a fraude.
+              </p>
+            </article>
+
+            <article className="acard" data-rev data-d="1">
+              <div className="acard-top">
+                <span
+                  className="idx"
+                  aria-hidden="true"
+                  style={{ color: "var(--gold)", fontSize: 18, letterSpacing: 0 }}
+                >
+                  ◆
+                </span>
+              </div>
+              <h3>Off-ramp MXN</h3>
+              <div className="slug mono">Integración Bitso · Volabit · SPEI</div>
+              <p>
+                La PyME recibe pesos mexicanos en su cuenta bancaria. La capa
+                USDC + Avalanche queda invisible. UX 100% bancaria, audit
+                trail 100% on-chain.
+              </p>
+            </article>
+
+            <article className="acard" data-rev data-d="2">
+              <div className="acard-top">
+                <span
+                  className="idx"
+                  aria-hidden="true"
+                  style={{ color: "var(--gold)", fontSize: 18, letterSpacing: 0 }}
+                >
+                  ◆
+                </span>
+              </div>
+              <h3>Mercado secundario</h3>
+              <div className="slug mono">Liquidez para lenders</div>
+              <p>
+                Bankaool compra la factura, pero podría venderla a otro
+                lender antes del vencimiento. Portafolio activo, liquidez
+                extra, secondary market sobre invoice-NFTs.
+              </p>
+            </article>
+
+            <article className="acard" data-rev data-d="3">
+              <div className="acard-top">
+                <span
+                  className="idx"
+                  aria-hidden="true"
+                  style={{ color: "var(--gold)", fontSize: 18, letterSpacing: 0 }}
+                >
+                  ◆
+                </span>
+              </div>
+              <h3>Sandbox CNBV</h3>
+              <div className="slug mono">Circular 4/2024 aligned</div>
+              <p>
+                Trazabilidad agéntica + tokenización ya están en el discurso
+                del regulador. Cobraya es candidato natural a piloto CNBV
+                junto a Bitso, BBVA, Konfío.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
       {/* ─────────── QUOTE ─────────── */}
       <section className="quote-sec">
         <div className="wrap">
