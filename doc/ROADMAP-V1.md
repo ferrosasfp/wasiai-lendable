@@ -8,7 +8,7 @@
 
 ## Epic raíz
 
-**[WKH-94](https://ferrosasfp.atlassian.net/browse/WKH-94)** — Cobraya — Post-Hackathon Roadmap V1: production-grade agents
+**[WKH-94](https://ferrosasfp.atlassian.net/browse/WKH-94)** — HL · Cobraya — Post-Hackathon Roadmap V1: production-grade agents
 
 ---
 
@@ -17,10 +17,10 @@
 | ID | Item | Status | Esfuerzo | Riesgo |
 |---|---|---|---|---|
 | A1 | fraud-detector verify prod + 3 tx reales en Snowtrace | ✅ DONE | 1.5h | bajo |
-| [WKH-95](https://ferrosasfp.atlassian.net/browse/WKH-95) | A2 — cfdi-validator: parsear XML real del SAT + dedup en Supabase | 📋 TODO | 3.5-4h | medio |
-| [WKH-96](https://ferrosasfp.atlassian.net/browse/WKH-96) | A3 — lender-matcher: 4 EOAs reales firmando EIP-712 | 📋 TODO | 4.5-5h | medio-alto |
-| [WKH-97](https://ferrosasfp.atlassian.net/browse/WKH-97) | A4 — credit-scorer: multifactor real | 📋 TODO (opcional) | 2-2.5h | bajo |
-| [WKH-98](https://ferrosasfp.atlassian.net/browse/WKH-98) | A5 — /transparencia page pública | 📋 TODO | 1.5-2h | bajo |
+| [WKH-95](https://ferrosasfp.atlassian.net/browse/WKH-95) | HL · A2 — cfdi-validator: parsear XML real del SAT + dedup en Supabase | 📋 TODO | 3.5-4h | medio |
+| [WKH-96](https://ferrosasfp.atlassian.net/browse/WKH-96) | HL · A3 — lender-matcher: 4 EOAs reales firmando EIP-712 | 📋 TODO | 4.5-5h | medio-alto |
+| [WKH-97](https://ferrosasfp.atlassian.net/browse/WKH-97) | HL · A4 — credit-scorer: multifactor real | 📋 TODO (opcional) | 2-2.5h | bajo |
+| [WKH-98](https://ferrosasfp.atlassian.net/browse/WKH-98) | HL · A5 — /transparencia page pública | 📋 TODO | 1.5-2h | bajo |
 | A6 | /pitch landing (varias iteraciones) | ✅ DONE | n/a | n/a |
 
 **Total esfuerzo V1**: ~11-14h (A2 + A3 + A4 + A5). Sin A4 (opcional): ~9-12h.
