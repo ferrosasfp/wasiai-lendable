@@ -537,7 +537,8 @@ export default function PitchPage() {
               </div>
               <div className="nm">wasiai-a2a</div>
               <div className="desc">
-                Marketplace de agentes · 940+ tests · Railway prod.
+                Gateway agéntico · descubre, compone, ejecuta pipeline y paga
+                a los agentes · 940+ tests · Railway prod.
               </div>
             </div>
             <div className="scard" data-rev data-d="3">
@@ -657,10 +658,10 @@ export default function PitchPage() {
                 mejor para el SME, no para Cobraya.
               </div>
               <div className="strip">
-                <span>21.5%</span>
-                <span className="star">19.8% ⭐</span>
-                <span>23.2%</span>
-                <span>20.4%</span>
+                <span>14.5%</span>
+                <span className="star">12.0% ⭐</span>
+                <span>13.2%</span>
+                <span>13.5%</span>
               </div>
               <div className="arr">Ver subasta ↗</div>
             </a>

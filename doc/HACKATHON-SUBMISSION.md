@@ -23,7 +23,7 @@
 
 > Cobraya es factoraje agéntico para PyMEs mexicanas. Lupita, dueña de una tortillería en Iztapalapa, le vendió a Walmart una factura de $48,500 MXN — pero el pago no le llega hasta dentro de 60 días, y no puede esperar tanto. Cobraya resuelve eso: 4 agentes de IA y un smart contract en Avalanche validan la factura, detectan doble cesión on-chain, calculan score crediticio firmado por Claude Haiku, y lanzan una subasta entre Bankaool, Arkangeles, BBVA Pyme y Konfío. La PyME recibe USDC directo en su wallet vía EIP-3009, con audit trail firmado EIP-712 listo para sandbox CNBV (Ley Fintech 2018, Art. 80).
 >
-> No es código de hackathon. Cobraya corre sobre infraestructura agéntica productiva: wasiai-a2a (marketplace de agentes multi-chain) y wasiai-facilitator (settlement service), ambos en Railway prod con más de 940 tests verdes. El contrato `CobrayaInvoiceCommitments.sol` está verificado en Avalanche Fuji con consumo de gas < 80K por commit.
+> No es código de hackathon. Cobraya corre sobre infraestructura agéntica productiva: wasiai-a2a (gateway agéntico que descubre, compone, ejecuta el pipeline y paga a los agentes) y wasiai-facilitator (settlement service multi-chain), ambos en Railway prod con más de 940 tests verdes. El contrato `CobrayaInvoiceCommitments.sol` está verificado en Avalanche Fuji con consumo de gas < 80K por commit.
 
 ---
 
@@ -36,7 +36,7 @@
 | Blockchain | Avalanche Fuji (ChainID 43113) |
 | Settlement | USDC + EIP-3009 (gasless authorization) |
 | AI | Anthropic Claude Haiku 4.5 (rationale generation, EIP-712 signed) |
-| Infra agéntica | wasiai-a2a (marketplace) + wasiai-facilitator (settlement) — Railway prod |
+| Infra agéntica | wasiai-a2a (gateway: discover + compose + pipeline + pay) + wasiai-facilitator (settlement multi-chain) — Railway prod |
 | Database | Supabase (Postgres + RLS app-layer + SERVICE_ROLE ownership guard) |
 | Deploy | Vercel (PWA mobile-first) |
 
@@ -99,7 +99,7 @@ Pregunta frecuente de mentores: "Lupita es una tortillera en Iztapalapa — no t
 |---|---|---|---|
 | 1 | **Take rate** | 1-2% del monto negociado | $9.40 USDC (1%) |
 | 2 | **Lender subscription** | $500-2K USD/mes por institución (4 lenders) | n/a (recurrente) |
-| 3 | **Agent marketplace fee** | 15% de cada invocación (wasiai-a2a) | $0.01 USDC |
+| 3 | **Agent gateway fee** | 15% de cada invocación que pasa por wasiai-a2a | $0.01 USDC |
 | 4 | **Float / treasury yield** | 3-5% APR sobre USDC en escrow | n/a (volumétrico) |
 | 5 | **Data analytics** | Credit data anonimizada → HR Ratings, Fitch, S&P MX | post año 1 |
 
@@ -166,7 +166,7 @@ Hay un movimiento concreto en México llamado **"Factura Electrónica Negociable
 2. **Subasta de lenders visible y firmada** — 4 lenders compitiendo en vivo (Bankaool, Arkangeles, BBVA Pyme, Konfío) con ofertas firmadas EIP-712. La PyME ve qué APR y qué advance rate ofrece cada uno. Gana la mejor para la PyME, no para Cobraya.
 3. **Audit trail JSON canónico** firmado EIP-712 + EIP-3009 con provenance LLM trackeado. Compatible sandbox CNBV (Ley Fintech 2018, Art. 80) CNBV (trazabilidad agéntica). Ver `audit-example.json`.
 4. **Settlement gasless EIP-3009** — la PyME no necesita gas nativo. USDC en su wallet en 30s, sin fricción.
-5. **Production proof reel** — corre sobre wasiai-a2a (marketplace de agentes multi-chain) y wasiai-facilitator (settlement service multi-chain), ambos productivos en Railway con 940+ tests verdes. No es código de hack.
+5. **Production proof reel** — corre sobre wasiai-a2a (gateway agéntico: descubre, compone, ejecuta pipeline y paga a los agentes) y wasiai-facilitator (settlement service multi-chain), ambos productivos en Railway con 940+ tests verdes. No es código de hack.
 
 ---
 
