@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 300" width="840" height="300">
+  <!-- Background gradient: wine deep → black -->
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7A1232"/>
+      <stop offset="60%" stop-color="#4F0820"/>
+      <stop offset="100%" stop-color="#1a0d10"/>
+    </linearGradient>
+    <radialGradient id="glowGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#B91C3D" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#B91C3D" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="goldText" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#E8B045"/>
+      <stop offset="100%" stop-color="#fce29a"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Base -->
+  <rect width="840" height="300" fill="url(#bgGrad)"/>
+
+  <!-- Glow accent right -->
+  <ellipse cx="700" cy="150" rx="280" ry="200" fill="url(#glowGrad)"/>
+
+  <!-- Cobraya brand mark (left, big) -->
+  <g transform="translate(70, 90)">
+    <!-- 2 arcs - Cobraya mark -->
+    <path d="M 76 48 A 28 28 0 1 0 48 76" stroke="#fff7f2" stroke-width="9" stroke-linecap="round" fill="none"/>
+    <path d="M 52 80 A 28 28 0 1 0 80 52" stroke="#E8B045" stroke-width="9" stroke-linecap="round" fill="none" opacity="0.85"/>
+  </g>
+
+  <!-- Wordmark Cobraya -->
+  <text x="240" y="135" font-family="Georgia, 'Instrument Serif', serif" font-style="italic" font-size="76" font-weight="400" fill="#fff7f2" letter-spacing="-0.02em">
+    Cobraya
+  </text>
+
+  <!-- Tagline -->
+  <text x="240" y="180" font-family="'Inter', system-ui, sans-serif" font-size="22" font-weight="400" fill="rgba(255,247,242,0.85)" letter-spacing="-0.01em">
+    Tu factura, <tspan fill="url(#goldText)" font-style="italic">líquida en 30 segundos</tspan>
+  </text>
+
+  <!-- Sub line -->
+  <text x="240" y="220" font-family="'JetBrains Mono', ui-monospace, monospace" font-size="12" fill="rgba(255,247,242,0.55)" letter-spacing="0.12em">
+    FACTORAJE AGÉNTICO · 4 AGENTES IA · AVALANCHE
+  </text>
+
+  <!-- Tracks pill bottom -->
+  <g transform="translate(240, 245)">
+    <text x="0" y="0" font-family="'JetBrains Mono', ui-monospace, monospace" font-size="11" fill="#E8B045" letter-spacing="0.1em">★</text>
+    <text x="18" y="0" font-family="'JetBrains Mono', ui-monospace, monospace" font-size="11" fill="rgba(255,247,242,0.7)" letter-spacing="0.1em">
+      RWA IFC · INCLUSIÓN FINANCIERA DIGITAL · LATAM INSTITUCIONAL 2026
+    </text>
+  </g>
+
+  <!-- Right side: phone hint -->
+  <g transform="translate(640, 60)" opacity="0.9">
+    <!-- Phone outline -->
+    <rect x="0" y="0" width="140" height="190" rx="22" fill="#15090c" stroke="rgba(232,176,69,0.4)" stroke-width="2"/>
+    <!-- Notch -->
+    <rect x="55" y="6" width="30" height="6" rx="3" fill="#000"/>
+    <!-- USDC amount centered -->
+    <text x="70" y="95" text-anchor="middle" font-family="'Inter', system-ui, sans-serif" font-size="11" fill="rgba(232,176,69,0.7)" letter-spacing="0.1em">USDC EN WALLET</text>
+    <text x="70" y="130" text-anchor="middle" font-family="'Inter', system-ui, sans-serif" font-size="30" font-weight="800" fill="#fff7f2" letter-spacing="-0.03em">$940</text>
+    <text x="70" y="155" text-anchor="middle" font-family="'JetBrains Mono', ui-monospace, monospace" font-size="9" fill="rgba(255,247,242,0.55)" letter-spacing="0.06em">pagado en 28 seg</text>
+    <!-- Green check -->
+    <circle cx="70" cy="175" r="6" fill="#10B981"/>
+    <path d="M 67 175 L 69 177 L 73 173" stroke="#04150a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </g>
+</svg>
