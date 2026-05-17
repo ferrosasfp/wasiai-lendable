@@ -7,22 +7,40 @@ export const metadata = { title: 'Crear cuenta · Cobraya' };
 export default function SignupPage() {
   return (
     <div className="flex flex-col items-center w-full max-w-sm gap-4">
-      {/* Judge bypass banner — let evaluators reach the demo without signing up */}
-      <Link
-        href="/demo"
-        className="w-full bg-luma-100 border-2 border-luma-600 rounded-2xl p-4 hover:bg-luma-200 transition-colors no-underline"
-      >
-        <div className="mono text-[10px] uppercase tracking-widest text-luma-600 mb-1">
+      {/* Judge credentials banner — pre-created demo account for hackathon evaluators */}
+      <div className="w-full bg-luma-100 border-2 border-luma-600 rounded-2xl p-4">
+        <div className="mono text-[10px] uppercase tracking-widest text-luma-600 mb-2">
           ★ ¿Sos juez del hackathon?
         </div>
-        <div className="text-sm text-luma-700 font-medium leading-snug">
-          Andá directo al demo público — no necesitás registrarte para
-          evaluar el proyecto.
+        <div className="text-sm text-luma-700 font-medium leading-snug mb-3">
+          No necesitás crear cuenta. Usá estas credenciales en{' '}
+          <Link
+            href="/login"
+            className="text-luma-600 underline underline-offset-2"
+          >
+            /login
+          </Link>
+          :
         </div>
-        <div className="mono text-xs text-luma-600 mt-2">
-          Probar demo →
+        <div className="bg-luma-50 border border-luma-200 rounded-lg p-3 mono text-xs text-luma-700 space-y-1">
+          <div>
+            <span className="text-luma-450">email:</span>{' '}
+            <span className="font-semibold select-all">juez@cobraya.mx</span>
+          </div>
+          <div>
+            <span className="text-luma-450">password:</span>{' '}
+            <span className="font-semibold select-all">cobraya2026</span>
+          </div>
         </div>
-      </Link>
+        <div className="mt-3 flex items-center gap-2">
+          <Link
+            href="/demo"
+            className="mono text-[11px] uppercase tracking-widest text-luma-600 underline underline-offset-2"
+          >
+            o probá el demo público sin login →
+          </Link>
+        </div>
+      </div>
 
       <div className="auth-card w-full">
         <div className="flex flex-col items-center mb-6">
